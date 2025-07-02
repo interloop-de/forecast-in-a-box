@@ -71,6 +71,34 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             setLoggedIn(false);
         });
     }
+    const handleSSO = async () => {
+        try {
+        const response = await api.get('/v1/auth/oidc/authorize')
+        if (response.data && response.data.authorization_url) {
+            window.location.href = response.data.authorization_url;
+        } else {
+            showNotification({
+            id: `sso-error-${crypto.randomUUID()}`,
+            position: 'top-right',
+            autoClose: 3000,
+            title: "SSO Failed",
+            message: 'Could not initiate SSO login.',
+            color: 'red',
+            loading: false,
+            });
+        }
+        } catch (err) {
+        showNotification({
+            id: `sso-error-${crypto.randomUUID()}`,
+            position: 'top-right',
+            autoClose: 3000,
+            title: "SSO Failed",
+            message: 'Could not initiate SSO login.',
+            color: 'red',
+            loading: false,
+        });
+        }
+    }
   
     useEffect(() => {
       checkLogin();
@@ -104,7 +132,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                                 <Button radius={0} className="animated-button" bg="rgba(0, 0, 0, 0)" size="md" onClick={handleLogout}>Logout</Button>
                                 </>
                             ) : (
-                                <Button radius={0} className="animated-button" bg="rgba(0, 0, 0, 0)" size="md" component='a' href='/login'>Login</Button>
+                                <Button radius={0} className="animated-button" bg="rgba(0, 0, 0, 0)" size="md" onClick={handleSSO}>Login</Button>
                             )}
                         </Group>
                     </Group>

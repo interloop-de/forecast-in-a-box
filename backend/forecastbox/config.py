@@ -60,7 +60,7 @@ class OIDCSettings(BaseModel):
 class AuthSettings(BaseModel):
     jwt_secret: SecretStr = "fiab_secret"
     """JWT secret key for authentication."""
-    oidc: OIDCSettings | None = None
+    oidc: OIDCSettings
     """OIDC settings for authentication, if applicable, if not given no route will be made."""
 
     @model_validator(mode="after")

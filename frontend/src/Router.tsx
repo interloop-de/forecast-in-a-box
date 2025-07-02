@@ -13,13 +13,12 @@ import { Navigate } from 'react-router-dom';
 
 import LandingPage from './pages/LandingPage';
 
-import Login from './pages/Login';
-import Register from './pages/SignUp';
+// import Login from './pages/Login';
+// import Register from './pages/SignUp';
 import Status from './pages/Status';
 
 import ProductList from './pages/products/products';
 import ProductConfiguration from './pages/products/Configuration';
-
 
 
 import JobProgress from './pages/jobs/progress';
@@ -44,14 +43,14 @@ const router = createBrowserRouter([
     path: '/quick',
     element: <QuickLaunch />,
   },
-  {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/register',
-    element: <Register />,
-  },
+  // {
+  //   path: '/login',
+  //   element: <Login />,
+  // },
+  // {
+  //   path: '/register',
+  //   element: <Register />,
+  // },
   {
     path: '/oidc/callback',
     element: <OidcCallback />,
