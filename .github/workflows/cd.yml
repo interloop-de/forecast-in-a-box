@@ -25,25 +25,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
-      - uses: extractions/setup-just@v3
-      - uses: actions/setup-node@v4
+          # - uses: extractions/setup-just@v3
+          # - uses: actions/setup-node@v4
       - run: |
           # prereqs
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          uv venv venv && source venv/bin/activate
-          uv pip install twine build
+          # curl -LsSf https://astral.sh/uv/install.sh | sh
+          # uv venv venv && source venv/bin/activate
+          # uv pip install twine build
           # build
-          just fiabwheel
-          twine check backend/dist/*
+          # just fiabwheel
+          # twine check backend/dist/*
           # upload
-          if [ "${{ inputs.use_test_pypi }}" = "true" ] ; then
+          if [ "${{ inputs.testpypi }}" = "true" ] ; then
+            echo "would go to test due to ${{ inputs.testpypi}}"
             export TWINE_PASSWORD="$TWINE_PASSWORD_TEST"
             TARGET="--repository testpypi"
           else
+            echo "would go to prod due to ${{ inputs.testpypi}}"
             export TWINE_PASSWORD="$TWINE_PASSWORD_PROD"
             TARGET=""
           fi
-          twine upload backend/dist/*
+          # twine upload backend/dist/*
         env:
           TWINE_PASSWORD_PROD: ${{ secrets.PYPI_API_TOKEN }}
           TWINE_PASSWORD_TEST: ${{ secrets.PYPI_TEST_API_TOKEN }}
