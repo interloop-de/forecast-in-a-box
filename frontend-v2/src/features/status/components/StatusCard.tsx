@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025- ECMWF and individual contributors.
+ * (C) Copyright 2026- ECMWF and individual contributors.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -14,9 +14,9 @@
  */
 
 import { useTranslation } from 'react-i18next'
-import { useStatus } from '../hooks/useStatus'
 import { StatusBadge } from './StatusBadge'
 import type { ServiceStatus } from '@/types/status.types'
+import { useStatus } from '@/api/hooks/useStatus'
 import {
   Card,
   CardContent,
@@ -24,21 +24,40 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function StatusCard() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('status')
   const { data, isLoading, isError, error, dataUpdatedAt } = useStatus()
 
   if (isLoading) {
     return (
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>{t('status.card.title')}</CardTitle>
-          <CardDescription>{t('status.card.loading')}</CardDescription>
+          <Skeleton className="mb-2 h-6 w-32" />
+          <Skeleton className="h-4 w-48" />
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="space-y-4">
+            <div className="grid gap-3">
+              {/* Skeleton rows for each service */}
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+              ))}
+            </div>
+            {/* Skeleton for version */}
+            <div className="mt-6 rounded-lg bg-muted p-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -50,16 +69,14 @@ export function StatusCard() {
       <Card className="w-full max-w-2xl border-destructive">
         <CardHeader>
           <CardTitle className="text-destructive">
-            {t('status.card.titleError')}
+            {t('card.titleError')}
           </CardTitle>
-          <CardDescription>{t('status.card.errorMessage')}</CardDescription>
+          <CardDescription>{t('card.errorMessage')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg bg-destructive/10 p-4">
             <p className="text-sm text-destructive">
-              {error instanceof Error
-                ? error.message
-                : t('status.card.unknownError')}
+              {error instanceof Error ? error.message : t('card.unknownError')}
             </p>
           </div>
         </CardContent>
@@ -73,17 +90,17 @@ export function StatusCard() {
 
   // Transform data into service status array
   const services: Array<ServiceStatus> = [
-    { name: 'api', status: data.api, label: t('status.services.api') },
+    { name: 'api', status: data.api, label: t('services.api') },
     {
       name: 'cascade',
       status: data.cascade,
-      label: t('status.services.cascade'),
+      label: t('services.cascade'),
     },
-    { name: 'ecmwf', status: data.ecmwf, label: t('status.services.ecmwf') },
+    { name: 'ecmwf', status: data.ecmwf, label: t('services.ecmwf') },
     {
       name: 'scheduler',
       status: data.scheduler,
-      label: t('status.services.scheduler'),
+      label: t('services.scheduler'),
     },
   ]
 
@@ -93,12 +110,12 @@ export function StatusCard() {
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>{t('status.card.title')}</CardTitle>
+        <CardTitle>{t('card.title')}</CardTitle>
         <CardDescription>
-          {t('status.card.description')}
+          {t('card.description')}
           {dataUpdatedAt && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              ({t('status.card.lastUpdated')}: {lastUpdated})
+            <span className="ml-2 text-sm text-muted-foreground">
+              ({t('card.lastUpdated')}: {lastUpdated})
             </span>
           )}
         </CardDescription>
@@ -122,9 +139,9 @@ export function StatusCard() {
           <div className="mt-6 rounded-lg bg-muted p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">
-                {t('status.version')}
+                {t('version')}
               </span>
-              <span className="text-sm font-mono">{data.version}</span>
+              <span className="font-mono text-sm">{data.version}</span>
             </div>
           </div>
         </div>

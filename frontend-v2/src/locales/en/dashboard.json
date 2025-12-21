@@ -1,0 +1,105 @@
+{
+  "welcome": {
+    "title": "Welcome back, {{name}}",
+    "titleAnonymous": "Welcome back",
+    "stats": {
+      "systemStatus": "System Status",
+      "checking": "Checking...",
+      "loadingStatus": "Loading status",
+      "allOk": "All OK",
+      "operational": "Operational",
+      "partialOutage": "Partial Outage",
+      "someIssues": "Some services unavailable",
+      "systemDown": "System Down",
+      "notOperational": "Not operational",
+      "currentlyRunning": "Currently Running",
+      "activeForecasts": "Active forecasts",
+      "availableModels": "Available Models",
+      "of": "of {{total}}",
+      "downloadedModels": "Downloaded models",
+      "totalForecasts": "Total Forecasts",
+      "thisMonth": "Executed this month"
+    },
+    "actions": {
+      "recentModels": "My Recent Models",
+      "manageSources": "Manage Sources",
+      "myPresets": "My Presets",
+      "scheduledForecasts": "My Scheduled Forecasts"
+    }
+  },
+  "community": {
+    "title": "Forecast-in-a-Box Community News",
+    "latestModels": "Latest Available Models",
+    "latestTopics": "Latest Forum Topics",
+    "new": "New",
+    "released": "Released {{time}}",
+    "postedBy": "Posted by {{author}} • {{time}}",
+    "viewRegistry": "View Model Registry",
+    "visitForum": "Visit Community Forum"
+  },
+  "gettingStarted": {
+    "title": "Getting started",
+    "subtitle": "Choose how to start your Fable forecast configuration",
+    "quickStart": {
+      "title": "Quick Start",
+      "description": "Start with optimized defaults using Anemoi AIFS model and run immediately.",
+      "tags": {
+        "model": "AIFS Model",
+        "time": "Today",
+        "products": "5 Products"
+      }
+    },
+    "standard": {
+      "title": "Standard Forecast",
+      "description": "Balanced settings for typical weather forecasts with flexible configuration.",
+      "tags": {
+        "model": "Choose Model",
+        "time": "120h",
+        "config": "Configurable"
+      }
+    },
+    "customModel": {
+      "title": "Custom Model Forecast",
+      "description": "Build a model-based forecast from scratch with full control over every parameter.",
+      "tags": {
+        "canvas": "Blank Canvas",
+        "control": "Full Control",
+        "advanced": "Advanced"
+      }
+    },
+    "dataset": {
+      "title": "Dataset Forecast",
+      "description": "Start with pre-existing forecast data from ECMWF AIFS operational forecasts.",
+      "tags": {
+        "data": "AIFS Data",
+        "source": "External Source",
+        "ready": "Ready to Use"
+      }
+    }
+  },
+  "journal": {
+    "title": "Forecast Journal",
+    "searchPlaceholder": "Search or add filters...",
+    "noResults": "No forecasts found matching your criteria.",
+    "loadMore": "Load more history",
+    "filters": {
+      "all": "All",
+      "running": "Running",
+      "completed": "Completed",
+      "error": "Error",
+      "bookmarked": "Bookmarked"
+    },
+    "item": {
+      "model": "Model: {{model}}",
+      "started": "Started: {{time}}",
+      "products": "{{count}} products",
+      "scheduled": "Scheduled",
+      "viewResults": "View Results",
+      "viewError": "View Error"
+    }
+  },
+  "notification": {
+    "newModels": "New models and model versions have been published in the",
+    "registryLink": "ECMWF registry"
+  }
+}

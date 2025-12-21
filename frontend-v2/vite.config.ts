@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025- ECMWF and individual contributors.
+ * (C) Copyright 2026- ECMWF and individual contributors.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@tests': fileURLToPath(new URL('./tests', import.meta.url)),
       },
     },
     server: {
@@ -39,9 +40,10 @@ export default defineConfig(({ mode }) => {
       ...(isDev && {
         proxy: {
           '/api': {
-            target: env.VITE_API_BASE || 'http://127.0.0.1:8000',
+            target: env.VITE_API_BASE || 'http://localhost:8000',
             changeOrigin: true,
             secure: false,
+            cookieDomainRewrite: 'localhost',
           },
         },
       }),
