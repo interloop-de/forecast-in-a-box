@@ -33,7 +33,7 @@ vi.mock('@/features/fable-builder/stores/fableBuilderStore', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'model-factory': {
         kind: 'transform',
@@ -66,7 +66,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,
@@ -94,7 +97,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,
@@ -114,7 +120,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,
@@ -131,7 +140,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,
@@ -148,7 +160,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,
@@ -168,7 +183,10 @@ describe('AddNodeButton', () => {
         <AddNodeButton
           sourceBlockId="source-1"
           possibleExpansions={[
-            { plugin: 'test-plugin', factory: 'model-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'model-factory',
+            },
           ]}
           catalogue={mockCatalogue}
         />,

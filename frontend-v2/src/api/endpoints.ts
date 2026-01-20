@@ -98,27 +98,23 @@ export const API_ENDPOINTS = {
 
   /**
    * Plugin management endpoints
+   *
+   * Note: Uses singular "plugin" not "plugins" to match backend.
+   * POST endpoints use request body for PluginCompositeId (except modifyEnabled which also uses query param).
    */
-  plugins: {
-    /** GET - List all plugins and stores */
-    list: `${API_PREFIX}/plugins`,
-    /** GET - List connected stores */
-    stores: `${API_PREFIX}/plugins/stores`,
-    /** POST - Add a new store */
-    addPluginStore: `${API_PREFIX}/plugins/stores`,
-    /** POST - Check for plugin updates */
-    checkUpdates: `${API_PREFIX}/plugins/check-updates`,
-    /** POST - Install a plugin */
-    install: (pluginId: string) => `${API_PREFIX}/plugins/${pluginId}/install`,
-    /** POST - Uninstall a plugin */
-    uninstall: (pluginId: string) =>
-      `${API_PREFIX}/plugins/${pluginId}/uninstall`,
-    /** POST - Enable a plugin */
-    enable: (pluginId: string) => `${API_PREFIX}/plugins/${pluginId}/enable`,
-    /** POST - Disable a plugin */
-    disable: (pluginId: string) => `${API_PREFIX}/plugins/${pluginId}/disable`,
-    /** POST - Update a plugin */
-    update: (pluginId: string) => `${API_PREFIX}/plugins/${pluginId}/update`,
+  plugin: {
+    /** GET - Get plugin system status */
+    status: `${API_PREFIX}/plugin/status`,
+    /** GET - Get all plugin details */
+    details: `${API_PREFIX}/plugin/details`,
+    /** POST - Install a plugin (body: PluginCompositeId) */
+    install: `${API_PREFIX}/plugin/install`,
+    /** POST - Uninstall a plugin (body: PluginCompositeId) */
+    uninstall: `${API_PREFIX}/plugin/uninstall`,
+    /** POST - Update a plugin (body: PluginCompositeId) */
+    update: `${API_PREFIX}/plugin/update`,
+    /** POST - Enable/disable a plugin (body: PluginCompositeId, query: isEnabled) */
+    modifyEnabled: `${API_PREFIX}/plugin/modifyEnabled`,
   },
 
   /**
@@ -175,17 +171,17 @@ export const API_ENDPOINTS = {
  * ```
  */
 export const API_PATTERNS = {
-  plugins: {
-    /** Pattern: /api/v1/plugins/:pluginId/install */
-    install: `${API_PREFIX}/plugins/:pluginId/install`,
-    /** Pattern: /api/v1/plugins/:pluginId/uninstall */
-    uninstall: `${API_PREFIX}/plugins/:pluginId/uninstall`,
-    /** Pattern: /api/v1/plugins/:pluginId/enable */
-    enable: `${API_PREFIX}/plugins/:pluginId/enable`,
-    /** Pattern: /api/v1/plugins/:pluginId/disable */
-    disable: `${API_PREFIX}/plugins/:pluginId/disable`,
-    /** Pattern: /api/v1/plugins/:pluginId/update */
-    update: `${API_PREFIX}/plugins/:pluginId/update`,
+  /**
+   * Plugin patterns - all use static paths now (no path params)
+   * Plugin ID is sent in request body, not URL.
+   */
+  plugin: {
+    status: `${API_PREFIX}/plugin/status`,
+    details: `${API_PREFIX}/plugin/details`,
+    install: `${API_PREFIX}/plugin/install`,
+    uninstall: `${API_PREFIX}/plugin/uninstall`,
+    update: `${API_PREFIX}/plugin/update`,
+    modifyEnabled: `${API_PREFIX}/plugin/modifyEnabled`,
   },
   sources: {
     /** Pattern: /api/v1/sources/:sourceId */

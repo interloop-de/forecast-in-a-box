@@ -31,19 +31,24 @@ vi.mock('react-i18next', () => ({
 }))
 
 const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
-  id: 'test-plugin',
+  id: { store: 'ecmwf', local: 'test-plugin' },
+  displayId: 'ecmwf/test-plugin',
   name: 'Test Plugin',
   description: 'A test plugin for testing',
   version: '1.0.0',
+  latestVersion: '1.0.0',
   author: 'Test Author',
   fiabCompatibility: '>=1.0.0',
   capabilities: ['source', 'sink'],
-  status: 'active',
+  status: 'loaded',
   isInstalled: true,
   isEnabled: true,
   hasUpdate: false,
-  store: 'ecmwf',
-  isDefault: false,
+  updatedAt: null,
+  errorDetail: null,
+  comment: null,
+  pipSource: null,
+  moduleName: null,
   ...overrides,
 })
 
@@ -119,8 +124,8 @@ describe('PluginRow', () => {
   })
 
   describe('uninstall button', () => {
-    it('shows uninstall button for non-default plugins', async () => {
-      const plugin = createMockPlugin({ isInstalled: true, isDefault: false })
+    it('shows uninstall button for installed plugins', async () => {
+      const plugin = createMockPlugin({ isInstalled: true })
       const screen = await render(
         <PluginRow
           plugin={plugin}
@@ -130,18 +135,6 @@ describe('PluginRow', () => {
       )
       const uninstallButton = screen.getByTitle('Uninstall')
       await expect.element(uninstallButton).toBeInTheDocument()
-    })
-
-    it('hides uninstall button for default plugins', async () => {
-      const plugin = createMockPlugin({ isInstalled: true, isDefault: true })
-      const screen = await render(
-        <PluginRow
-          plugin={plugin}
-          onToggle={mockOnToggle}
-          onUninstall={mockOnUninstall}
-        />,
-      )
-      expect(screen.container.querySelector('[title="Uninstall"]')).toBeNull()
     })
   })
 
@@ -177,10 +170,9 @@ describe('PluginRow', () => {
       await expect.element(toggle).toBeInTheDocument()
     })
 
-    it('renders uninstall button for non-default installed plugins', async () => {
+    it('renders uninstall button for installed plugins', async () => {
       const plugin = createMockPlugin({
         isInstalled: true,
-        isDefault: false,
       })
       const screen = await render(
         <PluginRow

@@ -11,24 +11,31 @@
     "updateNow": "Update Now",
     "viewDetails": "View Details",
     "viewDocs": "Documentation",
+    "viewOnPyPI": "View on PyPI",
     "reportIssue": "Report Issue",
     "releaseNotes": "Release Notes"
   },
   "stats": {
     "installed": "Installed",
     "active": "Active",
+    "loaded": "Loaded",
     "disabled": "Disabled",
     "updatesAvailable": "Updates",
-    "uninstalled": "Uninstalled"
+    "uninstalled": "Uninstalled",
+    "available": "Available",
+    "errored": "Errored"
   },
   "filters": {
     "searchPlaceholder": "Search installed plugins by name, ID or author...",
     "status": {
       "all": "All Statuses",
       "active": "Active",
+      "loaded": "Loaded",
       "disabled": "Disabled",
       "updates": "Updates Available",
-      "uninstalled": "Uninstalled"
+      "uninstalled": "Uninstalled",
+      "available": "Available",
+      "errored": "Errored"
     },
     "capability": {
       "all": "All Capabilities",
@@ -48,8 +55,11 @@
   },
   "status": {
     "active": "Active",
+    "loaded": "Loaded",
     "disabled": "Disabled",
     "uninstalled": "Uninstalled",
+    "available": "Available",
+    "errored": "Errored",
     "updateAvailable": "Update Available",
     "incompatible": "Incompatible"
   },
@@ -64,10 +74,10 @@
     "total": "Total: {{count}}"
   },
   "uninstalledSection": {
-    "title": "Uninstalled plugins",
+    "title": "Available plugins",
     "description": "Browse and install plugins from the ECMWF Plugin Store.",
     "total": "Total: {{count}}",
-    "searchPlaceholder": "Search uninstalled plugins...",
+    "searchPlaceholder": "Search available plugins...",
     "incompatibleMessage": "This plugin requires FIAB {{version}} or higher",
     "releasedAgo": "Released {{time}}",
     "new": "New"
@@ -76,8 +86,8 @@
     "title": "No plugins found",
     "description": "Try adjusting your search or filter criteria.",
     "noInstalled": "No plugins installed",
-    "noInstalledDescription": "Browse the uninstalled plugins to discover and install plugins.",
-    "noUninstalled": "No uninstalled plugins",
+    "noInstalledDescription": "Browse the available plugins to discover and install plugins.",
+    "noUninstalled": "No available plugins",
     "noUninstalledDescription": "All plugins are already installed."
   },
   "confirmRemove": {

@@ -22,14 +22,14 @@
 import { useMemo, useState } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderWithRouter } from '@tests/utils/render'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { CapabilityFilter, StatusFilter } from '@/features/plugins'
 import {
-  useCheckForUpdates,
   useDisablePlugin,
   useEnablePlugin,
   useInstallPlugin,
   usePlugins,
+  useRefreshPlugins,
   useUninstallPlugin,
   useUpdatePlugin,
 } from '@/api/hooks/usePlugins'
@@ -64,7 +64,7 @@ function TestPluginsPage() {
   const enablePlugin = useEnablePlugin()
   const disablePlugin = useDisablePlugin()
   const updatePlugin = useUpdatePlugin()
-  const checkForUpdates = useCheckForUpdates()
+  const refreshPlugins = useRefreshPlugins()
 
   const {
     pluginsWithUpdates,
@@ -81,24 +81,22 @@ function TestPluginsPage() {
       }
     }
 
-    const filteringUninstalled = statusFilter === 'uninstalled'
+    const filteringAvailable = statusFilter === 'available'
 
-    let uninstalled = data.plugins.filter(
-      (p) => p.status === 'uninstalled' || p.status === 'incompatible',
-    )
+    let available = data.plugins.filter((p) => p.status === 'available')
 
     if (capabilityFilter !== 'all') {
-      uninstalled = uninstalled.filter((p) =>
+      available = available.filter((p) =>
         p.capabilities.includes(capabilityFilter),
       )
     }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      uninstalled = uninstalled.filter(
+      available = available.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.id.toLowerCase().includes(query) ||
+          p.displayId.toLowerCase().includes(query) ||
           p.author.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query),
       )
@@ -106,8 +104,16 @@ function TestPluginsPage() {
 
     let filteredPlugins = data.plugins.filter((p) => p.isInstalled)
 
-    if (statusFilter !== 'all' && statusFilter !== 'uninstalled') {
+    if (
+      statusFilter !== 'all' &&
+      statusFilter !== 'available' &&
+      statusFilter !== 'hasUpdate'
+    ) {
       filteredPlugins = filteredPlugins.filter((p) => p.status === statusFilter)
+    }
+
+    if (statusFilter === 'hasUpdate') {
+      filteredPlugins = filteredPlugins.filter((p) => p.hasUpdate)
     }
 
     if (capabilityFilter !== 'all') {
@@ -121,7 +127,7 @@ function TestPluginsPage() {
       filteredPlugins = filteredPlugins.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.id.toLowerCase().includes(query) ||
+          p.displayId.toLowerCase().includes(query) ||
           p.author.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query),
       )
@@ -138,35 +144,35 @@ function TestPluginsPage() {
     })
 
     return {
-      pluginsWithUpdates: filteringUninstalled ? [] : withUpdates,
-      installedPlugins: filteringUninstalled ? [] : installed,
-      uninstalledPlugins: uninstalled,
-      showUninstalledOnly: filteringUninstalled,
+      pluginsWithUpdates: filteringAvailable ? [] : withUpdates,
+      installedPlugins: filteringAvailable ? [] : installed,
+      uninstalledPlugins: available,
+      showUninstalledOnly: filteringAvailable,
     }
   }, [data?.plugins, searchQuery, statusFilter, capabilityFilter])
 
-  const handleToggle = (pluginId: string, enabled: boolean) => {
+  const handleToggle = (compositeId: PluginCompositeId, enabled: boolean) => {
     if (enabled) {
-      enablePlugin.mutate(pluginId)
+      enablePlugin.mutate(compositeId)
     } else {
-      disablePlugin.mutate(pluginId)
+      disablePlugin.mutate(compositeId)
     }
   }
 
-  const handleInstall = (pluginId: string) => {
-    installPlugin.mutate(pluginId)
+  const handleInstall = (compositeId: PluginCompositeId) => {
+    installPlugin.mutate(compositeId)
   }
 
-  const handleUninstall = (pluginId: string) => {
-    uninstallPlugin.mutate(pluginId)
+  const handleUninstall = (compositeId: PluginCompositeId) => {
+    uninstallPlugin.mutate(compositeId)
   }
 
-  const handleUpdate = (pluginId: string) => {
-    updatePlugin.mutate(pluginId)
+  const handleUpdate = (compositeId: PluginCompositeId) => {
+    updatePlugin.mutate(compositeId)
   }
 
   const handleCheckUpdates = () => {
-    checkForUpdates.mutate()
+    refreshPlugins.mutate()
   }
 
   const handleViewDetails = (_plugin: PluginInfo) => {
@@ -185,7 +191,7 @@ function TestPluginsPage() {
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
       <PluginsPageHeader
         onCheckUpdates={handleCheckUpdates}
-        isCheckingUpdates={checkForUpdates.isPending}
+        isCheckingUpdates={refreshPlugins.isPending}
       />
 
       <PluginsFilters
@@ -278,12 +284,12 @@ describe('Plugins Management Integration', () => {
         .toBeVisible()
 
       // Updates section should show plugins with hasUpdate: true
-      // From mock data: "ECMWF Ensemble" and "Historical Weather API" have updates
+      // From mock data: "ECMWF Ensemble" has an update available
       await expect.element(screen.getByText('Updates Available')).toBeVisible()
       await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
     })
 
-    it('displays uninstalled plugins section', async () => {
+    it('displays available plugins section', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -291,12 +297,10 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Uninstalled section should exist
-      await expect
-        .element(screen.getByText('Uninstalled plugins'))
-        .toBeVisible()
+      // Available section should exist (using new terminology)
+      await expect.element(screen.getByText('Available plugins')).toBeVisible()
 
-      // Should show uninstalled plugins from mock data
+      // Should show available plugins from mock data
       await expect
         .element(screen.getByText('Anemoi Storm Tracker'))
         .toBeVisible()
@@ -314,10 +318,10 @@ describe('Plugins Management Integration', () => {
 
       // Find the search input and type a query
       const searchInput = screen.getByPlaceholder(/search installed plugins/i)
-      await searchInput.fill('Thermal')
+      await searchInput.fill('Regridding')
 
       // Should only show matching plugins
-      await expect.element(screen.getByText('Thermal Mapper')).toBeVisible()
+      await expect.element(screen.getByText('ECMWF Regridding')).toBeVisible()
 
       // Other plugins should not be visible in the installed section
       await expect
@@ -339,7 +343,7 @@ describe('Plugins Management Integration', () => {
 
       // Should show ECMWF plugins - just check that some plugins still appear
       // (ECMWF is the author of most plugins in mock data)
-      // Use heading role with exact: true to avoid matching "Uninstalled plugins"
+      // Use heading role with exact: true to avoid matching "Available plugins"
       await expect
         .element(
           screen.getByRole('heading', {
@@ -390,7 +394,7 @@ describe('Plugins Management Integration', () => {
       await expect.element(toggles.first()).toBeInTheDocument()
     })
 
-    it('allows installing an uninstalled plugin', async () => {
+    it('allows installing an available plugin', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -398,12 +402,10 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Find the uninstalled section
-      await expect
-        .element(screen.getByText('Uninstalled plugins'))
-        .toBeVisible()
+      // Find the available section
+      await expect.element(screen.getByText('Available plugins')).toBeVisible()
 
-      // Find install buttons (they should be in the uninstalled section)
+      // Find install buttons (they should be in the available section)
       const installButtons = screen.getByRole('button', { name: /install/i })
 
       // Click an install button
@@ -415,8 +417,8 @@ describe('Plugins Management Integration', () => {
     })
   })
 
-  describe('Check for Updates', () => {
-    it('allows checking for updates via header button', async () => {
+  describe('Refresh Plugins', () => {
+    it('allows refreshing plugins via header button', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -433,8 +435,8 @@ describe('Plugins Management Integration', () => {
       // Click the button
       await checkUpdatesButton.click()
 
-      // Button should work - MSW handler has 1000ms delay
-      await expect.poll(() => true, { timeout: 1500 }).toBe(true)
+      // Button should work - MSW handler has 500ms delay for refresh
+      await expect.poll(() => true, { timeout: 1000 }).toBe(true)
     })
   })
 })

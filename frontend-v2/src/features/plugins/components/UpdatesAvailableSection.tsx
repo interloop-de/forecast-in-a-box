@@ -17,12 +17,12 @@
 import { Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PluginIcon } from './PluginIcon'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import { Button } from '@/components/ui/button'
 
 interface UpdatesAvailableSectionProps {
   plugins: Array<PluginInfo>
-  onUpdate: (pluginId: string) => void
+  onUpdate: (compositeId: PluginCompositeId) => void
   onViewReleaseNotes?: (plugin: PluginInfo) => void
 }
 
@@ -52,7 +52,7 @@ export function UpdatesAvailableSection({
         <div className="divide-y divide-amber-100 dark:divide-amber-900/20">
           {plugins.map((plugin) => (
             <div
-              key={plugin.id}
+              key={plugin.displayId}
               className="flex flex-col gap-4 p-4 transition-colors hover:bg-amber-50/30 sm:flex-row sm:items-center sm:p-5 dark:hover:bg-amber-900/10"
             >
               <div className="flex flex-1 items-start gap-4">

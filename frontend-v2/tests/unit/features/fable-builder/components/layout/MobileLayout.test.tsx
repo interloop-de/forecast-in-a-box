@@ -89,7 +89,7 @@ vi.mock('@/components/ui/sheet', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'test-factory': {
         kind: 'source',
@@ -207,12 +207,18 @@ describe('MobileLayout', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'test', factory: 'test' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'test',
+              },
               configuration_values: {},
               input_ids: {},
             },
             block2: {
-              factory_id: { plugin: 'test', factory: 'test' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'test',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -232,7 +238,10 @@ describe('MobileLayout', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'test', factory: 'test' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'test',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -342,7 +351,10 @@ describe('MobileLayout', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'test', factory: 'test' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'test',
+              },
               configuration_values: {},
               input_ids: {},
             },

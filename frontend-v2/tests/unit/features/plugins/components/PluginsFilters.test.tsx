@@ -23,10 +23,10 @@ vi.mock('react-i18next', () => ({
       const translations: Record<string, string> = {
         'filters.searchPlaceholder': 'Search plugins...',
         'filters.status.all': 'All Status',
-        'filters.status.active': 'Active',
+        'filters.status.loaded': 'Loaded',
         'filters.status.disabled': 'Disabled',
-        'filters.status.updates': 'Updates Available',
-        'filters.status.uninstalled': 'Not Installed',
+        'filters.status.available': 'Available',
+        'filters.status.errored': 'Errored',
         'filters.capability.all': 'All Capabilities',
         'filters.capability.source': 'Source',
         'filters.capability.transform': 'Transform',
@@ -126,8 +126,8 @@ describe('PluginsFilters', () => {
       )
       if (selectTrigger) {
         ;(selectTrigger as HTMLElement).click()
-        await screen.getByRole('option', { name: 'Active' }).click()
-        expect(onStatusFilterChange).toHaveBeenCalledWith('active')
+        await screen.getByRole('option', { name: 'Loaded' }).click()
+        expect(onStatusFilterChange).toHaveBeenCalledWith('loaded')
       }
     })
   })

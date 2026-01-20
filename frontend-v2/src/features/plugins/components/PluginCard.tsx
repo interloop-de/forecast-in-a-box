@@ -14,21 +14,28 @@
  * Card view for a plugin
  */
 
-import { differenceInDays, formatDistanceToNow } from 'date-fns'
-import { Download, MoreVertical, Sparkles, Trash2 } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import {
+  AlertCircle,
+  Download,
+  ExternalLink,
+  MoreVertical,
+  Trash2,
+} from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CapabilityBadges } from './CapabilityBadges'
 import { PluginIcon } from './PluginIcon'
 import { PluginStatusBadge } from './PluginStatusBadge'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
@@ -36,13 +43,22 @@ import { cn } from '@/lib/utils'
 
 interface PluginCardProps {
   plugin: PluginInfo
-  onToggle: (pluginId: string, enabled: boolean) => void
-  onInstall: (pluginId: string) => void
-  onUninstall: (pluginId: string) => void
-  onUpdate: (pluginId: string) => void
+  onToggle: (compositeId: PluginCompositeId, enabled: boolean) => void
+  onInstall: (compositeId: PluginCompositeId) => void
+  onUninstall: (compositeId: PluginCompositeId) => void
+  onUpdate: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
   variant?: DashboardVariant
   shadow?: PanelShadow
+}
+
+/**
+ * Get PyPI URL for a plugin from its pip source
+ */
+function getPyPIUrl(pipSource: string | null): string | null {
+  if (!pipSource) return null
+  const packageName = pipSource.split('/').pop()?.replace('.git', '')
+  return packageName ? `https://pypi.org/project/${packageName}` : null
 }
 
 export function PluginCard({
@@ -56,22 +72,20 @@ export function PluginCard({
   shadow,
 }: PluginCardProps) {
   const { t } = useTranslation('plugins')
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
-  const installedTimeAgo = plugin.installedAt
-    ? formatDistanceToNow(new Date(plugin.installedAt), { addSuffix: true })
-    : null
-
-  // Check if released within the past month (30 days)
-  const isNewRelease =
-    plugin.releaseDate &&
-    differenceInDays(new Date(), new Date(plugin.releaseDate)) <= 30
-
-  const releasedTimeAgo = plugin.releaseDate
-    ? formatDistanceToNow(new Date(plugin.releaseDate), { addSuffix: true })
+  const updatedTimeAgo = plugin.updatedAt
+    ? formatDistanceToNow(new Date(plugin.updatedAt), { addSuffix: true })
     : null
 
   // Use compact layout for uninstalled plugins
   const isCompact = !plugin.isInstalled
+
+  // Show error state
+  const hasError = plugin.status === 'errored'
+
+  // PyPI URL for available plugins
+  const pypiUrl = getPyPIUrl(plugin.pipSource)
 
   return (
     <Card
@@ -81,6 +95,7 @@ export function PluginCard({
         !plugin.isEnabled &&
           plugin.isInstalled &&
           'opacity-80 hover:opacity-100',
+        hasError && 'border-red-200 dark:border-red-800',
       )}
       variant={variant}
       shadow={shadow}
@@ -108,20 +123,49 @@ export function PluginCard({
             </p>
           </div>
         </div>
-        <PluginStatusBadge status={plugin.status} className="shrink-0" />
+        <PluginStatusBadge
+          status={plugin.status}
+          hasUpdate={plugin.hasUpdate}
+          className="shrink-0"
+        />
       </div>
 
       {/* Description */}
-      <p
-        className={cn(
-          'text-sm leading-relaxed text-muted-foreground',
-          isCompact ? 'mb-2 line-clamp-1' : 'mb-3 line-clamp-2 sm:mb-5',
-        )}
-      >
-        {plugin.description}
-      </p>
+      {isCompact ? (
+        // Available plugins: expandable description
+        <button
+          type="button"
+          onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+          className={cn(
+            'mb-2 text-left text-sm leading-relaxed text-muted-foreground transition-colors hover:text-foreground',
+            !isDescriptionExpanded && 'line-clamp-1',
+          )}
+        >
+          {plugin.description}
+        </button>
+      ) : (
+        // Installed plugins: static truncated description
+        <p
+          className={cn(
+            'text-sm leading-relaxed text-muted-foreground',
+            'mb-3 line-clamp-2 sm:mb-5',
+          )}
+        >
+          {plugin.description}
+        </p>
+      )}
 
-      {/* Capabilities - only show for installed plugins */}
+      {/* Error Alert */}
+      {hasError && plugin.errorDetail && (
+        <Alert variant="destructive" className="mb-3 py-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            {plugin.errorDetail}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Capabilities - only show for installed plugins with capabilities */}
       {plugin.isInstalled && plugin.capabilities.length > 0 && (
         <div className="mb-3 sm:mb-4">
           <CapabilityBadges capabilities={plugin.capabilities} />
@@ -135,23 +179,30 @@ export function PluginCard({
           isCompact ? 'mb-2' : 'mb-3 sm:mb-6',
         )}
       >
-        <span className="inline-flex items-center gap-1.5 rounded bg-muted px-2 py-0.5 font-mono text-sm font-medium text-muted-foreground">
-          v{plugin.version}
-        </span>
-        {installedTimeAgo && (
-          <span className="text-sm text-muted-foreground">
-            Installed {installedTimeAgo}
+        {plugin.version ? (
+          // Installed plugin: show installed version
+          <span className="inline-flex items-center gap-1.5 rounded bg-muted px-2 py-0.5 font-mono text-sm font-medium text-muted-foreground">
+            v{plugin.version}
           </span>
+        ) : (
+          // Available plugin: show latest version (hide if unknown)
+          plugin.latestVersion &&
+          plugin.latestVersion !== 'unknown' && (
+            <span className="inline-flex items-center gap-1.5 rounded bg-muted px-2 py-0.5 font-mono text-sm font-medium text-muted-foreground">
+              v{plugin.latestVersion}
+            </span>
+          )
         )}
-        {!plugin.isInstalled && releasedTimeAgo && (
+        {plugin.latestVersion &&
+          plugin.version &&
+          plugin.latestVersion !== plugin.version && (
+            <span className="inline-flex items-center gap-1.5 rounded bg-amber-100 px-2 py-0.5 font-mono text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+              → v{plugin.latestVersion}
+            </span>
+          )}
+        {updatedTimeAgo && (
           <span className="text-sm text-muted-foreground">
-            {t('uninstalledSection.releasedAgo', { time: releasedTimeAgo })}
-          </span>
-        )}
-        {!plugin.isInstalled && isNewRelease && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-            <Sparkles className="h-3 w-3" />
-            {t('uninstalledSection.new')}
+            Updated {updatedTimeAgo}
           </span>
         )}
       </div>
@@ -182,39 +233,42 @@ export function PluginCard({
                   plugin.isEnabled ? t('actions.disable') : t('actions.enable')
                 }
               />
-              {!plugin.isDefault && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => onUninstall(plugin.id)}
-                >
-                  <Trash2 className="h-5 w-5" />
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => onUninstall(plugin.id)}
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
             </div>
           </>
         ) : (
           <>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onViewDetails?.(plugin)}
-            >
-              {t('actions.viewDetails')}
-            </Button>
+            {pypiUrl ? (
+              <Button
+                variant="outline"
+                className="flex-1"
+                render={
+                  <a href={pypiUrl} target="_blank" rel="noopener noreferrer" />
+                }
+              >
+                <ExternalLink className="mr-1 h-4 w-4" />
+                {t('actions.viewDetails')}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => onViewDetails?.(plugin)}
+              >
+                {t('actions.viewDetails')}
+              </Button>
+            )}
             <Button
               variant="outline"
               className="flex-1 border-primary text-primary hover:bg-primary/5"
               onClick={() => onInstall(plugin.id)}
-              disabled={plugin.status === 'incompatible'}
-              title={
-                plugin.status === 'incompatible'
-                  ? t('uninstalledSection.incompatibleMessage', {
-                      version: plugin.fiabCompatibility,
-                    })
-                  : undefined
-              }
             >
               <Download className="mr-1 h-4 w-4" />
               {t('actions.install')}
@@ -226,34 +280,21 @@ export function PluginCard({
             <MoreVertical className="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {plugin.homepage && (
+            {pypiUrl && (
               <DropdownMenuItem
                 render={
-                  <a
-                    href={plugin.homepage}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
+                  <a href={pypiUrl} target="_blank" rel="noopener noreferrer" />
                 }
               >
-                {t('actions.viewDocs')}
+                {t('actions.viewOnPyPI')}
               </DropdownMenuItem>
             )}
-            {plugin.repository && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  render={
-                    <a
-                      href={plugin.repository}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  {t('actions.reportIssue')}
-                </DropdownMenuItem>
-              </>
+            {plugin.comment && (
+              <DropdownMenuItem disabled>
+                <span className="text-xs text-muted-foreground">
+                  {plugin.comment}
+                </span>
+              </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

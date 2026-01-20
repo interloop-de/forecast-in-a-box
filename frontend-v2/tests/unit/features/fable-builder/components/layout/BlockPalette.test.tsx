@@ -53,7 +53,7 @@ vi.mock('@/components/ui/collapsible', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -78,7 +78,7 @@ const mockCatalogue: BlockFactoryCatalogue = {
       },
     },
   },
-  'another-plugin': {
+  'ecmwf/another-plugin': {
     factories: {
       'another-source': {
         kind: 'source',
@@ -217,7 +217,10 @@ describe('BlockPalette', () => {
           isValid: true,
           globalErrors: [],
           possibleSources: [
-            { plugin: 'test-plugin', factory: 'source-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
           ],
           blockStates: {},
         },
@@ -274,7 +277,10 @@ describe('BlockPalette', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'test', factory: 'test' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'test',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -313,7 +319,10 @@ describe('BlockPalette', () => {
       }
 
       expect(addBlockSpy).toHaveBeenCalledWith(
-        { plugin: 'test-plugin', factory: 'source-factory' },
+        {
+          plugin: { store: 'ecmwf', local: 'test-plugin' },
+          factory: 'source-factory',
+        },
         expect.objectContaining({
           kind: 'source',
           title: 'Test Source',
@@ -363,7 +372,10 @@ describe('BlockPalette', () => {
           isValid: true,
           globalErrors: [],
           possibleSources: [
-            { plugin: 'test-plugin', factory: 'source-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
           ],
           blockStates: {},
         },

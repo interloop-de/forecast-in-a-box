@@ -10,7 +10,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import { UninstalledPluginsSection } from '@/features/plugins/components/UninstalledPluginsSection'
 
 // Mock i18next
@@ -40,16 +40,12 @@ vi.mock('@/features/plugins/components/PluginCard', () => ({
     onInstall,
   }: {
     plugin: PluginInfo
-    onInstall: (id: string) => void
+    onInstall: (id: PluginCompositeId) => void
   }) => (
-    <div data-testid={`plugin-card-${plugin.id}`}>
+    <div data-testid={`plugin-card-${plugin.displayId}`}>
       <span data-testid="plugin-name">{plugin.name}</span>
       <span data-testid="plugin-status">{plugin.status}</span>
-      <button
-        data-testid="install-button"
-        onClick={() => onInstall(plugin.id)}
-        disabled={plugin.status === 'incompatible'}
-      >
+      <button data-testid="install-button" onClick={() => onInstall(plugin.id)}>
         Install
       </button>
     </div>
@@ -80,18 +76,24 @@ vi.mock('@/components/ui/input', () => ({
 }))
 
 const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
-  id: 'test-plugin',
+  id: { store: 'ecmwf', local: 'test-plugin' },
+  displayId: 'ecmwf/test-plugin',
   name: 'Test Plugin',
   description: 'A test plugin for testing',
-  version: '1.0.0',
+  version: null,
+  latestVersion: '1.0.0',
   author: 'ECMWF',
   fiabCompatibility: '>=1.0.0',
   capabilities: ['source'],
-  status: 'uninstalled',
+  status: 'available',
   isInstalled: false,
   isEnabled: false,
   hasUpdate: false,
-  store: 'ecmwf-fiab-store',
+  updatedAt: null,
+  errorDetail: null,
+  comment: null,
+  pipSource: null,
+  moduleName: null,
   ...overrides,
 })
 
@@ -120,8 +122,16 @@ describe('UninstalledPluginsSection', () => {
 
     it('renders plugin count', async () => {
       const plugins = [
-        createMockPlugin({ id: 'plugin-1', name: 'Plugin 1' }),
-        createMockPlugin({ id: 'plugin-2', name: 'Plugin 2' }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-1' },
+          displayId: 'ecmwf/plugin-1',
+          name: 'Plugin 1',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-2' },
+          displayId: 'ecmwf/plugin-2',
+          name: 'Plugin 2',
+        }),
       ]
       const screen = await render(
         <UninstalledPluginsSection
@@ -167,8 +177,16 @@ describe('UninstalledPluginsSection', () => {
 
     it('renders plugin cards for each plugin', async () => {
       const plugins = [
-        createMockPlugin({ id: 'plugin-1', name: 'Plugin 1' }),
-        createMockPlugin({ id: 'plugin-2', name: 'Plugin 2' }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-1' },
+          displayId: 'ecmwf/plugin-1',
+          name: 'Plugin 1',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-2' },
+          displayId: 'ecmwf/plugin-2',
+          name: 'Plugin 2',
+        }),
       ]
       const screen = await render(
         <UninstalledPluginsSection
@@ -178,10 +196,10 @@ describe('UninstalledPluginsSection', () => {
         />,
       )
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeInTheDocument()
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-2'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-2'))
         .toBeInTheDocument()
     })
   })
@@ -205,12 +223,13 @@ describe('UninstalledPluginsSection', () => {
   })
 
   describe('plugin statuses', () => {
-    it('renders uninstalled plugins', async () => {
+    it('renders available plugins', async () => {
       const plugins = [
         createMockPlugin({
-          id: 'uninstalled-plugin',
-          name: 'Uninstalled Plugin',
-          status: 'uninstalled',
+          id: { store: 'ecmwf', local: 'available-plugin' },
+          displayId: 'ecmwf/available-plugin',
+          name: 'Available Plugin',
+          status: 'available',
         }),
       ]
       const screen = await render(
@@ -221,68 +240,24 @@ describe('UninstalledPluginsSection', () => {
         />,
       )
       await expect
-        .element(screen.getByTestId('plugin-card-uninstalled-plugin'))
+        .element(screen.getByTestId('plugin-card-ecmwf/available-plugin'))
         .toBeInTheDocument()
-    })
-
-    it('renders incompatible plugins', async () => {
-      const plugins = [
-        createMockPlugin({
-          id: 'incompatible-plugin',
-          name: 'Incompatible Plugin',
-          status: 'incompatible',
-        }),
-      ]
-      const screen = await render(
-        <UninstalledPluginsSection
-          plugins={plugins}
-          onInstall={mockOnInstall}
-          onViewDetails={mockOnViewDetails}
-        />,
-      )
-      await expect
-        .element(screen.getByTestId('plugin-card-incompatible-plugin'))
-        .toBeInTheDocument()
-    })
-
-    it('sorts uninstalled plugins before incompatible', async () => {
-      const plugins = [
-        createMockPlugin({
-          id: 'incompatible-1',
-          name: 'AAA Incompatible',
-          status: 'incompatible',
-        }),
-        createMockPlugin({
-          id: 'uninstalled-1',
-          name: 'ZZZ Uninstalled',
-          status: 'uninstalled',
-        }),
-      ]
-      const screen = await render(
-        <UninstalledPluginsSection
-          plugins={plugins}
-          onInstall={mockOnInstall}
-          onViewDetails={mockOnViewDetails}
-        />,
-      )
-      // Uninstalled should appear first despite being alphabetically later
-      const cards = screen.container.querySelectorAll(
-        '[data-testid^="plugin-card-"]',
-      )
-      expect(cards[0].getAttribute('data-testid')).toBe(
-        'plugin-card-uninstalled-1',
-      )
-      expect(cards[1].getAttribute('data-testid')).toBe(
-        'plugin-card-incompatible-1',
-      )
     })
   })
 
   describe('search filtering', () => {
     it('filters plugins by search query', async () => {
       const plugins = [
-        createMockPlugin({ id: 'plugin-1', name: 'Weather Plugin' }),
-        createMockPlugin({ id: 'plugin-2', name: 'Ocean Plugin' }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-1' },
+          displayId: 'ecmwf/plugin-1',
+          name: 'Weather Plugin',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-2' },
+          displayId: 'ecmwf/plugin-2',
+          name: 'Ocean Plugin',
+        }),
       ]
       const screen = await render(
         <UninstalledPluginsSection
@@ -297,17 +272,19 @@ describe('UninstalledPluginsSection', () => {
 
       // After filtering, only Weather Plugin should be visible
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeInTheDocument()
       expect(
-        screen.container.querySelector('[data-testid="plugin-card-plugin-2"]'),
+        screen.container.querySelector(
+          '[data-testid="plugin-card-ecmwf/plugin-2"]',
+        ),
       ).toBeNull()
     })
   })
 
   describe('install action', () => {
     it('calls onInstall when install button clicked', async () => {
-      const plugins = [createMockPlugin({ id: 'test-plugin' })]
+      const plugins = [createMockPlugin()]
       const screen = await render(
         <UninstalledPluginsSection
           plugins={plugins}
@@ -319,7 +296,10 @@ describe('UninstalledPluginsSection', () => {
       const installButton = screen.getByTestId('install-button')
       await installButton.click()
 
-      expect(mockOnInstall).toHaveBeenCalledWith('test-plugin')
+      expect(mockOnInstall).toHaveBeenCalledWith({
+        store: 'ecmwf',
+        local: 'test-plugin',
+      })
     })
   })
 })

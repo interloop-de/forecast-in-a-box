@@ -12,20 +12,19 @@
  * UninstalledPluginsSection Component
  *
  * Displays plugins that are not installed, available for installation from the ECMWF Plugin Store.
- * Shows both uninstalled and incompatible plugins.
  */
 
 import { useState } from 'react'
 import { Package, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PluginCard } from './PluginCard'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import { Input } from '@/components/ui/input'
 
 interface UninstalledPluginsSectionProps {
   plugins: Array<PluginInfo>
-  onInstall: (pluginId: string) => void
+  onInstall: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
   variant?: DashboardVariant
   shadow?: PanelShadow
@@ -47,18 +46,16 @@ export function UninstalledPluginsSection({
     const query = searchQuery.toLowerCase()
     return (
       plugin.name.toLowerCase().includes(query) ||
-      plugin.id.toLowerCase().includes(query) ||
+      plugin.displayId.toLowerCase().includes(query) ||
       plugin.author.toLowerCase().includes(query) ||
       plugin.description.toLowerCase().includes(query)
     )
   })
 
-  // Sort: uninstalled first, then incompatible, then alphabetically
-  const sortedPlugins = [...filteredPlugins].sort((a, b) => {
-    if (a.status === 'uninstalled' && b.status === 'incompatible') return -1
-    if (a.status === 'incompatible' && b.status === 'uninstalled') return 1
-    return a.name.localeCompare(b.name)
-  })
+  // Sort alphabetically by name
+  const sortedPlugins = [...filteredPlugins].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )
 
   if (plugins.length === 0) {
     return (
@@ -116,7 +113,7 @@ export function UninstalledPluginsSection({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {sortedPlugins.map((plugin) => (
             <PluginCard
-              key={plugin.id}
+              key={plugin.displayId}
               plugin={plugin}
               onToggle={() => {}}
               onInstall={onInstall}

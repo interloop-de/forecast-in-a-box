@@ -14,35 +14,109 @@
  * TanStack Query hooks for plugin management.
  */
 
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { AddPluginStoreRequest } from '@/api/types/plugins.types'
+import type { BlockFactoryCatalogue, BlockKind } from '@/api/types/fable.types'
+import type {
+  PluginCapability,
+  PluginCompositeId,
+  PluginInfo,
+  PluginListing,
+  PluginsStatus,
+} from '@/api/types/plugins.types'
 import {
-  addPluginStore,
-  checkForUpdates,
   disablePlugin,
   enablePlugin,
-  getPlugins,
+  getPluginDetails,
+  getPluginStatus,
   installPlugin,
+  modifyPluginEnabled,
   uninstallPlugin,
   updatePlugin,
 } from '@/api/endpoints/plugins'
+import { toPluginInfoList } from '@/api/types/plugins.types'
 
 /** Query keys for plugins */
 export const pluginKeys = {
-  all: ['plugins'] as const,
-  list: () => [...pluginKeys.all, 'list'] as const,
-  stores: () => [...pluginKeys.all, 'stores'] as const,
+  all: ['plugin'] as const,
+  status: () => [...pluginKeys.all, 'status'] as const,
+  details: (forceRefresh?: boolean) =>
+    [...pluginKeys.all, 'details', { forceRefresh }] as const,
 }
 
 /**
- * Hook to get all plugins and stores
+ * Hook to get plugin system status
  */
-export function usePlugins() {
-  return useQuery({
-    queryKey: pluginKeys.list(),
-    queryFn: getPlugins,
+export function usePluginStatus() {
+  return useQuery<PluginsStatus>({
+    queryKey: pluginKeys.status(),
+    queryFn: getPluginStatus,
+    staleTime: 30 * 1000, // 30 seconds
+  })
+}
+
+/**
+ * Hook to get all plugin details (raw backend response)
+ */
+export function usePluginDetails(forceRefresh?: boolean) {
+  return useQuery<PluginListing>({
+    queryKey: pluginKeys.details(forceRefresh),
+    queryFn: () => getPluginDetails(forceRefresh),
     staleTime: 60 * 1000, // 1 minute
   })
+}
+
+/**
+ * Derive plugin capabilities from fable catalogue
+ *
+ * Since the backend doesn't provide capabilities directly,
+ * we derive them by looking at the BlockFactory.kind values
+ * for each plugin's factories in the catalogue.
+ */
+export function deriveCapabilitiesFromCatalogue(
+  catalogue: BlockFactoryCatalogue | undefined,
+): Map<string, Array<PluginCapability>> {
+  const capabilitiesMap = new Map<string, Array<PluginCapability>>()
+
+  if (!catalogue) {
+    return capabilitiesMap
+  }
+
+  for (const [pluginId, pluginCatalogue] of Object.entries(catalogue)) {
+    const kinds = new Set<BlockKind>()
+    for (const factory of Object.values(pluginCatalogue.factories)) {
+      kinds.add(factory.kind)
+    }
+    // BlockKind values are the same as PluginCapability values
+    capabilitiesMap.set(pluginId, Array.from(kinds))
+  }
+
+  return capabilitiesMap
+}
+
+/**
+ * Hook to get all plugins as UI-friendly PluginInfo array
+ *
+ * This is the main hook used by UI components. It:
+ * 1. Fetches plugin details from the backend
+ * 2. Optionally cross-references with fable catalogue to derive capabilities
+ * 3. Transforms to UI-friendly format
+ */
+export function usePlugins(catalogue?: BlockFactoryCatalogue) {
+  const { data: listing, ...rest } = usePluginDetails()
+
+  const plugins = useMemo<Array<PluginInfo>>(() => {
+    if (!listing) return []
+
+    const capabilitiesMap = deriveCapabilitiesFromCatalogue(catalogue)
+    return toPluginInfoList(listing, capabilitiesMap)
+  }, [listing, catalogue])
+
+  return {
+    ...rest,
+    data: listing ? { plugins } : undefined,
+    plugins,
+  }
 }
 
 /**
@@ -52,9 +126,9 @@ export function useInstallPlugin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: installPlugin,
+    mutationFn: (compositeId: PluginCompositeId) => installPlugin(compositeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },
   })
 }
@@ -66,9 +140,10 @@ export function useUninstallPlugin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: uninstallPlugin,
+    mutationFn: (compositeId: PluginCompositeId) =>
+      uninstallPlugin(compositeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },
   })
 }
@@ -80,9 +155,9 @@ export function useEnablePlugin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: enablePlugin,
+    mutationFn: (compositeId: PluginCompositeId) => enablePlugin(compositeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },
   })
 }
@@ -94,9 +169,29 @@ export function useDisablePlugin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: disablePlugin,
+    mutationFn: (compositeId: PluginCompositeId) => disablePlugin(compositeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    },
+  })
+}
+
+/**
+ * Hook to modify plugin enabled state
+ */
+export function useModifyPluginEnabled() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      compositeId,
+      isEnabled,
+    }: {
+      compositeId: PluginCompositeId
+      isEnabled: boolean
+    }) => modifyPluginEnabled(compositeId, isEnabled),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },
   })
 }
@@ -108,37 +203,23 @@ export function useUpdatePlugin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: updatePlugin,
+    mutationFn: (compositeId: PluginCompositeId) => updatePlugin(compositeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },
   })
 }
 
 /**
- * Hook to check for plugin updates
+ * Hook to refresh plugin details (force refresh from backend)
  */
-export function useCheckForUpdates() {
+export function useRefreshPlugins() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: checkForUpdates,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
-    },
-  })
-}
-
-/**
- * Hook to add a plugin store
- */
-export function useAddPluginStore() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (data: AddPluginStoreRequest) => addPluginStore(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.list() })
+    mutationFn: () => getPluginDetails(true),
+    onSuccess: (data) => {
+      queryClient.setQueryData(pluginKeys.details(), data)
     },
   })
 }

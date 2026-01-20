@@ -9,229 +9,237 @@
  */
 
 /**
- * MSW Handlers for Plugins API
+ * MSW Handlers for Plugin API
+ *
+ * These handlers match the new backend API exactly:
+ * - GET /api/v1/plugin/status
+ * - GET /api/v1/plugin/details
+ * - POST /api/v1/plugin/install
+ * - POST /api/v1/plugin/uninstall
+ * - POST /api/v1/plugin/update
+ * - POST /api/v1/plugin/modifyEnabled
  */
 
 import { HttpResponse, delay, http } from 'msw'
-import { mockPlugins, mockStores } from '../data/plugins.data'
-import type { PluginInfo, PluginStore } from '@/api/types/plugins.types'
-import { API_ENDPOINTS, API_PATTERNS } from '@/api/endpoints'
+import { getMutablePluginListing } from '../data/plugins.data'
+import type {
+  PluginCompositeId,
+  PluginDetail,
+  PluginListing,
+  PluginsStatus,
+} from '@/api/types/plugins.types'
+import { API_ENDPOINTS } from '@/api/endpoints'
 
 // Mutable copy for state changes
-let pluginsState: Array<PluginInfo> = [...mockPlugins]
-let storesState: Array<PluginStore> = [...mockStores]
+const pluginsState: PluginListing = getMutablePluginListing()
+
+/**
+ * Helper to create a Python repr format plugin key
+ */
+function createPluginKey(store: string, local: string): string {
+  return `store='${store}' local='${local}'`
+}
+
+/**
+ * Get current date in backend format
+ */
+function getCurrentDate(): string {
+  const now = new Date()
+  return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`
+}
 
 export const pluginsHandlers = [
-  // Get all plugins and stores
-  http.get(API_ENDPOINTS.plugins.list, async () => {
-    await delay(300)
-    return HttpResponse.json({
-      plugins: pluginsState,
-      stores: storesState,
-    })
-  }),
-
-  // Get stores
-  http.get(API_ENDPOINTS.plugins.stores, async () => {
+  // GET /api/v1/plugin/status
+  http.get(API_ENDPOINTS.plugin.status, async () => {
     await delay(200)
-    return HttpResponse.json({
-      stores: storesState,
-    })
-  }),
 
-  // Add plugin store
-  http.post(API_ENDPOINTS.plugins.addPluginStore, async ({ request }) => {
-    await delay(500)
-    const body = (await request.json()) as { name: string; url: string }
-
-    const newStore: PluginStore = {
-      id: `custom-${Date.now()}`,
-      name: body.name,
-      url: body.url,
-      isDefault: false,
-      isConnected: true,
-      pluginsCount: 0,
+    // Build status response from current state
+    const status: PluginsStatus = {
+      updater_status: 'idle',
+      plugin_errors: {},
+      plugin_versions: {},
+      plugin_updatedate: {},
     }
 
-    storesState = [...storesState, newStore]
+    for (const [key, detail] of Object.entries(pluginsState.plugins)) {
+      if (detail.status === 'errored' && detail.errored_detail) {
+        status.plugin_errors[key] = detail.errored_detail
+      }
+      if (detail.loaded_version) {
+        status.plugin_versions[key] = detail.loaded_version
+      }
+      if (detail.update_date) {
+        status.plugin_updatedate[key] = detail.update_date
+      }
+    }
 
-    return HttpResponse.json({
-      success: true,
-      store: newStore,
-    })
+    return HttpResponse.json(status)
   }),
 
-  // Check for updates
-  http.post(API_ENDPOINTS.plugins.checkUpdates, async () => {
-    await delay(1000)
-    const updatesAvailable = pluginsState.filter((p) => p.hasUpdate)
-    return HttpResponse.json({
-      success: true,
-      updatesCount: updatesAvailable.length,
-      plugins: updatesAvailable,
-    })
+  // GET /api/v1/plugin/details
+  http.get(API_ENDPOINTS.plugin.details, async ({ request }) => {
+    await delay(300)
+
+    // Check for forceRefresh query param (optional)
+    const url = new URL(request.url)
+    const forceRefresh = url.searchParams.get('forceRefresh') === 'true'
+
+    if (forceRefresh) {
+      // Simulate refresh - in real backend this would re-fetch from PyPI
+      await delay(500)
+    }
+
+    return HttpResponse.json(pluginsState)
   }),
 
-  // Install plugin
-  http.post(API_PATTERNS.plugins.install, async ({ params }) => {
+  // POST /api/v1/plugin/install
+  http.post(API_ENDPOINTS.plugin.install, async ({ request }) => {
     await delay(800)
-    const { pluginId } = params as { pluginId: string }
+    const body = (await request.json()) as PluginCompositeId
 
-    const pluginIndex = pluginsState.findIndex((p) => p.id === pluginId)
-    if (pluginIndex === -1) {
-      return new HttpResponse(null, { status: 404 })
+    const key = createPluginKey(body.store, body.local)
+    const plugin = pluginsState.plugins[key] as PluginDetail | undefined
+
+    if (!plugin) {
+      return new HttpResponse(
+        JSON.stringify({
+          detail: `Plugin ${body.store}:${body.local} not found`,
+        }),
+        { status: 404 },
+      )
+    }
+
+    if (plugin.status !== 'available') {
+      return new HttpResponse(
+        JSON.stringify({ detail: 'Plugin is already installed' }),
+        { status: 400 },
+      )
     }
 
     // Update plugin state
-    pluginsState = pluginsState.map((p) =>
-      p.id === pluginId
-        ? {
-            ...p,
-            isInstalled: true,
-            isEnabled: true,
-            status: 'active' as const,
-            installedAt: new Date().toISOString(),
-          }
-        : p,
-    )
+    pluginsState.plugins[key] = {
+      ...plugin,
+      status: 'loaded',
+      loaded_version: plugin.remote_info?.version ?? '1.0.0',
+      update_date: getCurrentDate(),
+    }
 
-    return HttpResponse.json({
-      success: true,
-      message: 'Plugin installed successfully',
-      pluginId,
-    })
+    return HttpResponse.json({ success: true })
   }),
 
-  // Uninstall plugin
-  http.post(API_PATTERNS.plugins.uninstall, async ({ params }) => {
+  // POST /api/v1/plugin/uninstall
+  http.post(API_ENDPOINTS.plugin.uninstall, async ({ request }) => {
     await delay(500)
-    const { pluginId } = params as { pluginId: string }
+    const body = (await request.json()) as PluginCompositeId
 
-    const pluginIndex = pluginsState.findIndex((p) => p.id === pluginId)
-    if (pluginIndex === -1) {
-      return new HttpResponse(null, { status: 404 })
-    }
+    const key = createPluginKey(body.store, body.local)
+    const plugin = pluginsState.plugins[key] as PluginDetail | undefined
 
-    // Update plugin state
-    pluginsState = pluginsState.map((p) =>
-      p.id === pluginId
-        ? {
-            ...p,
-            isInstalled: false,
-            isEnabled: false,
-            status: 'uninstalled' as const,
-            installedAt: undefined,
-          }
-        : p,
-    )
-
-    return HttpResponse.json({
-      success: true,
-      message: 'Plugin uninstalled successfully',
-      pluginId,
-    })
-  }),
-
-  // Enable plugin
-  http.post(API_PATTERNS.plugins.enable, async ({ params }) => {
-    await delay(300)
-    const { pluginId } = params as { pluginId: string }
-
-    const plugin = pluginsState.find((p) => p.id === pluginId)
     if (!plugin) {
-      return new HttpResponse(null, { status: 404 })
+      return new HttpResponse(
+        JSON.stringify({
+          detail: `Plugin ${body.store}:${body.local} not found`,
+        }),
+        { status: 404 },
+      )
     }
 
-    if (!plugin.isInstalled) {
-      return HttpResponse.json(
-        { success: false, message: 'Plugin must be installed first' },
+    if (plugin.status === 'available') {
+      return new HttpResponse(
+        JSON.stringify({ detail: 'Plugin is not installed' }),
         { status: 400 },
       )
     }
 
     // Update plugin state
-    pluginsState = pluginsState.map((p) =>
-      p.id === pluginId
-        ? {
-            ...p,
-            isEnabled: true,
-            status: p.hasUpdate
-              ? ('update_available' as const)
-              : ('active' as const),
-          }
-        : p,
-    )
-
-    return HttpResponse.json({
-      success: true,
-      message: 'Plugin enabled',
-      pluginId,
-    })
-  }),
-
-  // Disable plugin
-  http.post(API_PATTERNS.plugins.disable, async ({ params }) => {
-    await delay(300)
-    const { pluginId } = params as { pluginId: string }
-
-    const plugin = pluginsState.find((p) => p.id === pluginId)
-    if (!plugin) {
-      return new HttpResponse(null, { status: 404 })
+    pluginsState.plugins[key] = {
+      ...plugin,
+      status: 'available',
+      loaded_version: null,
+      update_date: null,
+      errored_detail: null,
     }
 
-    // Update plugin state
-    pluginsState = pluginsState.map((p) =>
-      p.id === pluginId
-        ? {
-            ...p,
-            isEnabled: false,
-            status: 'disabled' as const,
-          }
-        : p,
-    )
-
-    return HttpResponse.json({
-      success: true,
-      message: 'Plugin disabled',
-      pluginId,
-    })
+    return HttpResponse.json({ success: true })
   }),
 
-  // Update plugin
-  http.post(API_PATTERNS.plugins.update, async ({ params }) => {
+  // POST /api/v1/plugin/update
+  http.post(API_ENDPOINTS.plugin.update, async ({ request }) => {
     await delay(1000)
-    const { pluginId } = params as { pluginId: string }
+    const body = (await request.json()) as PluginCompositeId
 
-    const plugin = pluginsState.find((p) => p.id === pluginId)
+    const key = createPluginKey(body.store, body.local)
+    const plugin = pluginsState.plugins[key] as PluginDetail | undefined
+
     if (!plugin) {
-      return new HttpResponse(null, { status: 404 })
+      return new HttpResponse(
+        JSON.stringify({
+          detail: `Plugin ${body.store}:${body.local} not found`,
+        }),
+        { status: 404 },
+      )
     }
 
-    if (!plugin.hasUpdate) {
-      return HttpResponse.json(
-        { success: false, message: 'No update available' },
+    if (plugin.status === 'available') {
+      return new HttpResponse(
+        JSON.stringify({ detail: 'Plugin is not installed' }),
+        { status: 400 },
+      )
+    }
+
+    const newVersion = plugin.remote_info?.version
+    if (!newVersion || newVersion === plugin.loaded_version) {
+      return new HttpResponse(
+        JSON.stringify({ detail: 'No update available' }),
         { status: 400 },
       )
     }
 
     // Update plugin state
-    pluginsState = pluginsState.map((p) =>
-      p.id === pluginId
-        ? {
-            ...p,
-            version: p.latestVersion || p.version,
-            latestVersion: undefined,
-            hasUpdate: false,
-            status: p.isEnabled ? ('active' as const) : ('disabled' as const),
-            updatedAt: new Date().toISOString(),
-          }
-        : p,
-    )
+    pluginsState.plugins[key] = {
+      ...plugin,
+      status: 'loaded',
+      loaded_version: newVersion,
+      update_date: getCurrentDate(),
+      errored_detail: null,
+    }
 
-    return HttpResponse.json({
-      success: true,
-      message: 'Plugin updated successfully',
-      pluginId,
-    })
+    return HttpResponse.json({ success: true })
+  }),
+
+  // POST /api/v1/plugin/modifyEnabled
+  http.post(API_ENDPOINTS.plugin.modifyEnabled, async ({ request }) => {
+    await delay(300)
+    const url = new URL(request.url)
+    const isEnabled = url.searchParams.get('isEnabled') === 'true'
+    const body = (await request.json()) as PluginCompositeId
+
+    const key = createPluginKey(body.store, body.local)
+    const plugin = pluginsState.plugins[key] as PluginDetail | undefined
+
+    if (!plugin) {
+      return new HttpResponse(
+        JSON.stringify({
+          detail: `Plugin ${body.store}:${body.local} not found`,
+        }),
+        { status: 404 },
+      )
+    }
+
+    if (plugin.status === 'available') {
+      return new HttpResponse(
+        JSON.stringify({ detail: 'Plugin must be installed first' }),
+        { status: 400 },
+      )
+    }
+
+    // Update plugin state
+    pluginsState.plugins[key] = {
+      ...plugin,
+      status: isEnabled ? 'loaded' : 'disabled',
+      errored_detail: isEnabled ? null : plugin.errored_detail,
+    }
+
+    return HttpResponse.json({ success: true })
   }),
 ]

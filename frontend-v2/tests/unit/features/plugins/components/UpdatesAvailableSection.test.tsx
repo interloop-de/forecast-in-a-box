@@ -53,7 +53,8 @@ vi.mock('@/components/ui/button', () => ({
 }))
 
 const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
-  id: 'test-plugin',
+  id: { store: 'ecmwf', local: 'test-plugin' },
+  displayId: 'ecmwf/test-plugin',
   name: 'Test Plugin',
   description: 'A test plugin for testing',
   version: '1.0.0',
@@ -61,12 +62,15 @@ const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
   author: 'Test Author',
   fiabCompatibility: '>=1.0.0',
   capabilities: ['source'],
-  status: 'active',
+  status: 'loaded',
   isInstalled: true,
   isEnabled: true,
   hasUpdate: true,
-  store: 'ecmwf',
-  isDefault: false,
+  updatedAt: null,
+  errorDetail: null,
+  comment: null,
+  pipSource: null,
+  moduleName: null,
   ...overrides,
 })
 
@@ -98,8 +102,14 @@ describe('UpdatesAvailableSection', () => {
 
     it('renders plugin count in header', async () => {
       const plugins = [
-        createMockPlugin({ id: 'plugin-1' }),
-        createMockPlugin({ id: 'plugin-2' }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-1' },
+          displayId: 'ecmwf/plugin-1',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-2' },
+          displayId: 'ecmwf/plugin-2',
+        }),
       ]
       const screen = await render(
         <UpdatesAvailableSection plugins={plugins} onUpdate={mockOnUpdate} />,
@@ -172,13 +182,21 @@ describe('UpdatesAvailableSection', () => {
 
   describe('callback handlers', () => {
     it('calls onUpdate when Update Now button is clicked', async () => {
-      const plugins = [createMockPlugin({ id: 'plugin-123' })]
+      const plugins = [
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-123' },
+          displayId: 'ecmwf/plugin-123',
+        }),
+      ]
       const screen = await render(
         <UpdatesAvailableSection plugins={plugins} onUpdate={mockOnUpdate} />,
       )
       const updateButton = screen.getByText('Update Now')
       await updateButton.click()
-      expect(mockOnUpdate).toHaveBeenCalledWith('plugin-123')
+      expect(mockOnUpdate).toHaveBeenCalledWith({
+        store: 'ecmwf',
+        local: 'plugin-123',
+      })
     })
 
     it('renders release notes button when onViewReleaseNotes is provided', async () => {
@@ -202,7 +220,10 @@ describe('UpdatesAvailableSection', () => {
     })
 
     it('calls onViewReleaseNotes when release notes button is clicked', async () => {
-      const plugin = createMockPlugin({ id: 'plugin-456' })
+      const plugin = createMockPlugin({
+        id: { store: 'ecmwf', local: 'plugin-456' },
+        displayId: 'ecmwf/plugin-456',
+      })
       const screen = await render(
         <UpdatesAvailableSection
           plugins={[plugin]}
@@ -219,9 +240,21 @@ describe('UpdatesAvailableSection', () => {
   describe('multiple plugins', () => {
     it('renders all plugins with updates', async () => {
       const plugins = [
-        createMockPlugin({ id: 'plugin-1', name: 'Plugin One' }),
-        createMockPlugin({ id: 'plugin-2', name: 'Plugin Two' }),
-        createMockPlugin({ id: 'plugin-3', name: 'Plugin Three' }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-1' },
+          displayId: 'ecmwf/plugin-1',
+          name: 'Plugin One',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-2' },
+          displayId: 'ecmwf/plugin-2',
+          name: 'Plugin Two',
+        }),
+        createMockPlugin({
+          id: { store: 'ecmwf', local: 'plugin-3' },
+          displayId: 'ecmwf/plugin-3',
+          name: 'Plugin Three',
+        }),
       ]
       const screen = await render(
         <UpdatesAvailableSection plugins={plugins} onUpdate={mockOnUpdate} />,

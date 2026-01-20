@@ -25,19 +25,30 @@ import {
   BlockFactoryCatalogueSchema,
   FableBuilderV1Schema,
   FableValidationExpansionSchema,
+  normalizeCatalogueKeys,
 } from '@/api/types/fable.types'
 
 /**
  * Get the block factory catalogue
+ *
+ * The backend returns catalogue keys in Python repr format: "store='ecmwf' local='toy1'"
+ * This function normalizes them to display format: "ecmwf/toy1"
+ *
  * @param language - Optional ISO 639-1 language code for localized content (e.g., 'de', 'fr')
  */
 export async function getCatalogue(
   language?: string,
 ): Promise<BlockFactoryCatalogue> {
-  return apiClient.get(API_ENDPOINTS.fable.catalogue, {
+  const rawCatalogue = await apiClient.get(API_ENDPOINTS.fable.catalogue, {
     params: language ? { language } : undefined,
     schema: BlockFactoryCatalogueSchema,
   })
+
+  // Normalize the keys from Python repr format to display format
+  // Type assertion is safe because the schema validates the response
+  return normalizeCatalogueKeys(
+    rawCatalogue as Record<string, BlockFactoryCatalogue[string]>,
+  )
 }
 
 /**

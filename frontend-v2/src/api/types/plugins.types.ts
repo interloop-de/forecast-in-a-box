@@ -12,37 +12,73 @@
  * Plugin Types and Schemas
  *
  * Type definitions and Zod schemas for plugin management API.
- * Plugins extend the Fable Graph and Form Builder functionality.
+ * These types match the backend API exactly.
  */
 
 import { z } from 'zod'
 
 /**
- * Plugin status values
+ * Plugin composite ID - identifies a plugin by store and local name
  *
- * - active: Plugin is installed and enabled
+ * Backend format: { store: "ecmwf", local: "toy1" }
+ * API key format: "store='ecmwf' local='toy1'" (Python repr format)
+ */
+export const PluginCompositeIdSchema = z.object({
+  store: z.string(),
+  local: z.string(),
+})
+
+export type PluginCompositeId = z.infer<typeof PluginCompositeIdSchema>
+
+/**
+ * Parse a plugin key from the API response format
+ * Format: "store='ecmwf' local='toy1'" (Python repr format)
+ */
+export function parsePluginKey(key: string): PluginCompositeId {
+  const storeMatch = key.match(/store='([^']+)'/)
+  const localMatch = key.match(/local='([^']+)'/)
+  return {
+    store: storeMatch?.[1] ?? '',
+    local: localMatch?.[1] ?? '',
+  }
+}
+
+/**
+ * Convert a PluginCompositeId to the API key format
+ */
+export function toPluginKey(id: PluginCompositeId): string {
+  return `store='${id.store}' local='${id.local}'`
+}
+
+/**
+ * Convert a PluginCompositeId to a display-friendly string
+ */
+export function toPluginDisplayId(id: PluginCompositeId): string {
+  return `${id.store}/${id.local}`
+}
+
+/**
+ * Plugin status values from backend
+ *
+ * - available: Plugin is in store but not installed
  * - disabled: Plugin is installed but disabled
- * - uninstalled: Plugin is not installed
- * - update_available: Plugin has an update available
- * - incompatible: Plugin is not compatible with current FIAB version
+ * - errored: Plugin encountered an error during load
+ * - loaded: Plugin is installed and running
  */
 export const pluginStatusValues = [
-  'active',
+  'available',
   'disabled',
-  'uninstalled',
-  'update_available',
-  'incompatible',
+  'errored',
+  'loaded',
 ] as const
 export type PluginStatus = (typeof pluginStatusValues)[number]
 
 /**
- * Plugin capability categories
+ * Plugin capability categories (derived from fable catalogue BlockKind)
  *
- * Plugins can have one or more capabilities:
- * - source: Provides data input (external APIs, data sources)
- * - transform: Modifies/enhances data (image processing, data conversion)
- * - product: Generates forecasts/predictions (AI models, analysis)
- * - sink: Outputs data (exports, visualizations)
+ * These are NOT provided by the plugin API directly, but are derived
+ * from the fable catalogue by aggregating unique BlockFactory.kind values
+ * across all factories provided by a plugin.
  */
 export const pluginCapabilityValues = [
   'source',
@@ -53,104 +89,195 @@ export const pluginCapabilityValues = [
 export type PluginCapability = (typeof pluginCapabilityValues)[number]
 
 /**
- * Plugin information schema
+ * Plugin store entry - info about a plugin from the store catalog
  */
-export const pluginInfoSchema = z.object({
-  /** Unique plugin identifier (e.g., "ecmwf/anemoi-output") */
-  id: z.string(),
-  /** Display name */
-  name: z.string(),
-  /** Plugin description */
-  description: z.string(),
-  /** Author name */
-  author: z.string(),
-  /** Author URL (optional) */
-  authorUrl: z.string().optional(),
-  /** Currently installed version */
+export const PluginStoreEntrySchema = z.object({
+  pip_source: z.string(),
+  module_name: z.string(),
+  display_title: z.string(),
+  display_description: z.string(),
+  display_author: z.string(),
+  comment: z.string(),
+})
+
+export type PluginStoreEntry = z.infer<typeof PluginStoreEntrySchema>
+
+/**
+ * Plugin remote info - version info from PyPI
+ */
+export const PluginRemoteInfoSchema = z.object({
   version: z.string(),
-  /** Latest available version (if different, update available) */
-  latestVersion: z.string().optional(),
-  /** FIAB version compatibility (semver range, e.g., ">=1.0.0") */
-  fiabCompatibility: z.string(),
-  /** Plugin capabilities (source, product, sink) - can have multiple */
-  capabilities: z.array(z.enum(pluginCapabilityValues)),
-  /** Current status */
+})
+
+export type PluginRemoteInfo = z.infer<typeof PluginRemoteInfoSchema>
+
+/**
+ * Plugin detail - full plugin information from backend
+ */
+export const PluginDetailSchema = z.object({
   status: z.enum(pluginStatusValues),
-  /** Whether plugin is enabled */
-  isEnabled: z.boolean(),
-  /** Whether plugin is installed */
-  isInstalled: z.boolean(),
-  /** Whether an update is available */
-  hasUpdate: z.boolean(),
-  /** ISO date when installed */
-  installedAt: z.string().optional(),
-  /** ISO date when last updated */
-  updatedAt: z.string().optional(),
-  /** URL to plugin icon image */
-  iconUrl: z.string().optional(),
-  /** Lucide icon name fallback */
-  iconName: z.string().optional(),
-  /** Plugin homepage URL */
-  homepage: z.string().optional(),
-  /** Plugin repository URL */
-  repository: z.string().optional(),
-  /** Store ID this plugin belongs to */
-  store: z.string(),
-  /** ISO date when the plugin was released */
-  releaseDate: z.string().optional(),
-  /** Whether this is a default plugin (cannot be uninstalled) */
-  isDefault: z.boolean().optional(),
+  store_info: PluginStoreEntrySchema.nullable(),
+  remote_info: PluginRemoteInfoSchema.nullable(),
+  errored_detail: z.string().nullable(),
+  loaded_version: z.string().nullable(),
+  update_date: z.string().nullable(), // "YYYY/MM/DD" format
 })
 
-export type PluginInfo = z.infer<typeof pluginInfoSchema>
+export type PluginDetail = z.infer<typeof PluginDetailSchema>
 
 /**
- * Plugin store schema
+ * Plugin listing response - dict of plugins keyed by composite ID
  */
-export const pluginStoreSchema = z.object({
-  /** Unique store identifier */
-  id: z.string(),
-  /** Display name */
-  name: z.string(),
-  /** Registry URL */
-  url: z.string(),
-  /** Whether this is the default ECMWF store */
-  isDefault: z.boolean(),
-  /** Whether currently connected */
-  isConnected: z.boolean(),
-  /** Number of available plugins */
-  pluginsCount: z.number(),
+export const PluginListingSchema = z.object({
+  plugins: z.record(z.string(), PluginDetailSchema),
 })
 
-export type PluginStore = z.infer<typeof pluginStoreSchema>
+export type PluginListing = z.infer<typeof PluginListingSchema>
 
 /**
- * Plugins list API response schema
+ * Plugin status response from /plugin/status endpoint
  */
-export const pluginsApiResponseSchema = z.object({
-  plugins: z.array(pluginInfoSchema),
-  stores: z.array(pluginStoreSchema),
+export const PluginsStatusSchema = z.object({
+  updater_status: z.string(),
+  plugin_errors: z.record(z.string(), z.string()),
+  plugin_versions: z.record(z.string(), z.string()),
+  plugin_updatedate: z.record(z.string(), z.string()),
 })
 
-export type PluginsApiResponse = z.infer<typeof pluginsApiResponseSchema>
+export type PluginsStatus = z.infer<typeof PluginsStatusSchema>
+
+/**
+ * UI-friendly plugin info (transformed from PluginDetail)
+ *
+ * This is what the UI components use. Transformed from backend format
+ * with computed fields for easier rendering.
+ */
+export interface PluginInfo {
+  /** Composite ID */
+  id: PluginCompositeId
+  /** Display ID for UI (e.g., "ecmwf/toy1") */
+  displayId: string
+  /** Display name from store_info.display_title */
+  name: string
+  /** Plugin description from store_info.display_description */
+  description: string
+  /** Author name from store_info.display_author */
+  author: string
+  /** Currently installed version (loaded_version) */
+  version: string | null
+  /** Latest available version (remote_info.version) */
+  latestVersion: string | null
+  /** FIAB version compatibility (optional, backend will provide later) */
+  fiabCompatibility?: string
+  /** Plugin capabilities - derived from fable catalogue */
+  capabilities: Array<PluginCapability>
+  /** Current status from backend */
+  status: PluginStatus
+  /** Whether plugin is enabled (loaded or errored) */
+  isEnabled: boolean
+  /** Whether plugin is installed (not available) */
+  isInstalled: boolean
+  /** Whether an update is available (latestVersion > version) */
+  hasUpdate: boolean
+  /** ISO date when last updated (from update_date) */
+  updatedAt: string | null
+  /** Error details if status is errored */
+  errorDetail: string | null
+  /** Store comment */
+  comment: string | null
+  /** Pip source for installation */
+  pipSource: string | null
+  /** Module name */
+  moduleName: string | null
+}
 
 /**
  * Plugin stats for dashboard display
  */
 export interface PluginsStats {
   installedCount: number
-  activeCount: number
+  loadedCount: number
   disabledCount: number
+  erroredCount: number
+  availableCount: number
   updatesAvailableCount: number
-  storesCount: number
 }
 
 /**
- * Add plugin store request
+ * Transform a PluginDetail to UI-friendly PluginInfo
  */
-export const addPluginStoreRequestSchema = z.object({
-  name: z.string().min(1),
-  url: z.url(),
-})
+export function toPluginInfo(
+  id: PluginCompositeId,
+  detail: PluginDetail,
+  capabilities: Array<PluginCapability> = [],
+): PluginInfo {
+  const isInstalled = detail.status !== 'available'
+  const hasUpdate =
+    isInstalled &&
+    detail.loaded_version !== null &&
+    detail.remote_info !== null &&
+    detail.loaded_version !== detail.remote_info.version
 
-export type AddPluginStoreRequest = z.infer<typeof addPluginStoreRequestSchema>
+  return {
+    id,
+    displayId: toPluginDisplayId(id),
+    name: detail.store_info?.display_title ?? id.local,
+    description: detail.store_info?.display_description ?? '',
+    author: detail.store_info?.display_author ?? '',
+    version: detail.loaded_version,
+    latestVersion: detail.remote_info?.version ?? null,
+    capabilities,
+    status: detail.status,
+    isEnabled: detail.status === 'loaded' || detail.status === 'errored',
+    isInstalled,
+    hasUpdate,
+    updatedAt: detail.update_date
+      ? convertUpdateDate(detail.update_date)
+      : null,
+    errorDetail: detail.errored_detail,
+    comment: detail.store_info?.comment ?? null,
+    pipSource: detail.store_info?.pip_source ?? null,
+    moduleName: detail.store_info?.module_name ?? null,
+  }
+}
+
+/**
+ * Convert backend date format (YYYY/MM/DD) to ISO format
+ */
+function convertUpdateDate(dateStr: string): string {
+  // Convert "YYYY/MM/DD" to ISO format
+  const [year, month, day] = dateStr.split('/')
+  if (year && month && day) {
+    return `${year}-${month}-${day}T00:00:00Z`
+  }
+  return dateStr
+}
+
+/**
+ * Transform PluginListing response to array of PluginInfo
+ */
+export function toPluginInfoList(
+  listing: PluginListing,
+  capabilitiesMap: Map<string, Array<PluginCapability>> = new Map(),
+): Array<PluginInfo> {
+  return Object.entries(listing.plugins).map(([key, detail]) => {
+    const id = parsePluginKey(key)
+    const displayId = toPluginDisplayId(id)
+    const capabilities = capabilitiesMap.get(displayId) ?? []
+    return toPluginInfo(id, detail, capabilities)
+  })
+}
+
+/**
+ * Calculate plugin stats from a list of PluginInfo
+ */
+export function calculatePluginStats(plugins: Array<PluginInfo>): PluginsStats {
+  return {
+    installedCount: plugins.filter((p) => p.isInstalled).length,
+    loadedCount: plugins.filter((p) => p.status === 'loaded').length,
+    disabledCount: plugins.filter((p) => p.status === 'disabled').length,
+    erroredCount: plugins.filter((p) => p.status === 'errored').length,
+    availableCount: plugins.filter((p) => p.status === 'available').length,
+    updatesAvailableCount: plugins.filter((p) => p.hasUpdate).length,
+  }
+}

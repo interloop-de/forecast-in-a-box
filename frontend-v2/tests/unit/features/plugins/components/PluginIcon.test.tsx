@@ -14,18 +14,24 @@ import type { PluginInfo } from '@/api/types/plugins.types'
 import { PluginIcon } from '@/features/plugins/components/PluginIcon'
 
 const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
-  id: 'test-plugin',
+  id: { store: 'ecmwf', local: 'test-plugin' },
+  displayId: 'ecmwf/test-plugin',
   name: 'Test Plugin',
   description: 'A test plugin',
   version: '1.0.0',
+  latestVersion: '1.0.0',
   author: 'Test Author',
   fiabCompatibility: '>=1.0.0',
-  status: 'active',
+  status: 'loaded',
   isEnabled: true,
   isInstalled: true,
   hasUpdate: false,
-  store: 'ecmwf',
   capabilities: ['source'],
+  updatedAt: null,
+  errorDetail: null,
+  comment: null,
+  pipSource: null,
+  moduleName: null,
   ...overrides,
 })
 
@@ -37,20 +43,8 @@ describe('PluginIcon', () => {
       expect(screen).toBeDefined()
     })
 
-    it('renders with iconName', async () => {
-      const plugin = createMockPlugin({ iconName: 'Globe' })
-      const screen = await render(<PluginIcon plugin={plugin} />)
-      expect(screen).toBeDefined()
-    })
-
-    it('renders fallback icon when iconName is not recognized', async () => {
-      const plugin = createMockPlugin({ iconName: 'UnknownIcon' })
-      const screen = await render(<PluginIcon plugin={plugin} />)
-      expect(screen).toBeDefined()
-    })
-
-    it('renders fallback icon when no iconName provided', async () => {
-      const plugin = createMockPlugin({ iconName: undefined })
+    it('renders fallback icon for plugin', async () => {
+      const plugin = createMockPlugin()
       const screen = await render(<PluginIcon plugin={plugin} />)
       expect(screen).toBeDefined()
     })
@@ -124,31 +118,11 @@ describe('PluginIcon', () => {
     })
   })
 
-  describe('icon mapping', () => {
-    const iconNames = [
-      'Globe',
-      'Droplets',
-      'Wind',
-      'Thermometer',
-      'Satellite',
-      'FileOutput',
-      'Database',
-      'Waves',
-      'CloudRain',
-      'ImageOff',
-      'Tornado',
-      'Snowflake',
-      'Moon',
-      'FileText',
-      'Puzzle',
-    ]
-
-    iconNames.forEach((iconName) => {
-      it(`renders ${iconName} icon`, async () => {
-        const plugin = createMockPlugin({ iconName })
-        const screen = await render(<PluginIcon plugin={plugin} />)
-        expect(screen).toBeDefined()
-      })
+  describe('icon based on capability', () => {
+    it('renders icon based on first capability', async () => {
+      const plugin = createMockPlugin({ capabilities: ['source', 'transform'] })
+      const screen = await render(<PluginIcon plugin={plugin} />)
+      expect(screen).toBeDefined()
     })
   })
 })

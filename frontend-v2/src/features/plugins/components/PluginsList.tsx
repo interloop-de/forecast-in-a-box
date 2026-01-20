@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PluginCard } from './PluginCard'
 import { PluginRow } from './PluginRow'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type {
   AdminViewMode,
   DashboardVariant,
@@ -31,10 +31,10 @@ import { useMedia } from '@/hooks/useMedia'
 interface PluginsListProps {
   plugins: Array<PluginInfo>
   viewMode: AdminViewMode
-  onToggle: (pluginId: string, enabled: boolean) => void
-  onInstall: (pluginId: string) => void
-  onUninstall: (pluginId: string) => void
-  onUpdate: (pluginId: string) => void
+  onToggle: (compositeId: PluginCompositeId, enabled: boolean) => void
+  onInstall: (compositeId: PluginCompositeId) => void
+  onUninstall: (compositeId: PluginCompositeId) => void
+  onUpdate: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
   variant?: DashboardVariant
   shadow?: PanelShadow
@@ -75,7 +75,7 @@ export function PluginsList({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {plugins.map((plugin) => (
           <PluginCard
-            key={plugin.id}
+            key={plugin.displayId}
             plugin={plugin}
             onToggle={onToggle}
             onInstall={onInstall}
@@ -107,7 +107,7 @@ export function PluginsList({
       <div className="divide-y divide-border">
         {plugins.map((plugin) => (
           <PluginRow
-            key={plugin.id}
+            key={plugin.displayId}
             plugin={plugin}
             onToggle={onToggle}
             onUninstall={onUninstall}

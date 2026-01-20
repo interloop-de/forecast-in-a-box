@@ -48,7 +48,7 @@ vi.mock('@/features/fable-builder/components/graph-mode/AddNodeButton', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -86,10 +86,12 @@ const mockCatalogue: BlockFactoryCatalogue = {
   },
 }
 
-const mockFactory = mockCatalogue['test-plugin'].factories['source-factory']
+const mockFactory =
+  mockCatalogue['ecmwf/test-plugin'].factories['source-factory']
 const mockTransformFactory =
-  mockCatalogue['test-plugin'].factories['transform-factory']
-const mockSinkFactory = mockCatalogue['test-plugin'].factories['sink-factory']
+  mockCatalogue['ecmwf/test-plugin'].factories['transform-factory']
+const mockSinkFactory =
+  mockCatalogue['ecmwf/test-plugin'].factories['sink-factory']
 
 // Default node props required by NodeProps type
 const defaultNodeProps = {
@@ -111,7 +113,10 @@ describe('InlineBlockNode', () => {
       fable: {
         blocks: {
           'source-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -132,7 +137,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -155,7 +163,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -178,7 +189,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -203,7 +217,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -229,7 +246,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -256,7 +276,7 @@ describe('InlineBlockNode', () => {
             factory: mockTransformFactory,
             instance: {
               factory_id: {
-                plugin: 'test-plugin',
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
                 factory: 'transform-factory',
               },
               configuration_values: {},
@@ -282,7 +302,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -308,7 +331,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -333,7 +359,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Sink',
             factory: mockSinkFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'sink-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'sink-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -360,7 +389,7 @@ describe('InlineBlockNode', () => {
             factory: mockTransformFactory,
             instance: {
               factory_id: {
-                plugin: 'test-plugin',
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
                 factory: 'transform-factory',
               },
               configuration_values: {},
@@ -404,7 +433,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -431,7 +463,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -456,7 +491,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Sink',
             factory: mockSinkFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'sink-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'sink-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -487,7 +525,10 @@ describe('InlineBlockNode', () => {
             label: 'Test Source',
             factory: mockFactory,
             instance: {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },

@@ -29,7 +29,10 @@ vi.mock('@/utils/env', () => ({
 const mockFable: FableBuilderV1 = {
   blocks: {
     'block-1': {
-      factory_id: { plugin: 'core', factory: 'model' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'core' },
+        factory: 'model',
+      },
       configuration_values: { param1: 'value1' },
       input_ids: {},
     },

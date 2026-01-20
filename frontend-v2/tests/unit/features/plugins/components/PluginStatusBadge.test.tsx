@@ -17,11 +17,10 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        'status.active': 'Active',
+        'status.loaded': 'Loaded',
         'status.disabled': 'Disabled',
-        'status.uninstalled': 'Uninstalled',
-        'status.updateAvailable': 'Update Available',
-        'status.incompatible': 'Incompatible',
+        'status.available': 'Available',
+        'status.errored': 'Errored',
       }
       return translations[key] || key
     },
@@ -30,9 +29,9 @@ vi.mock('react-i18next', () => ({
 
 describe('PluginStatusBadge', () => {
   describe('status display', () => {
-    it('renders active status', async () => {
-      const screen = await render(<PluginStatusBadge status="active" />)
-      await expect.element(screen.getByText('Active')).toBeVisible()
+    it('renders loaded status', async () => {
+      const screen = await render(<PluginStatusBadge status="loaded" />)
+      await expect.element(screen.getByText('Loaded')).toBeVisible()
     })
 
     it('renders disabled status', async () => {
@@ -40,30 +39,23 @@ describe('PluginStatusBadge', () => {
       await expect.element(screen.getByText('Disabled')).toBeVisible()
     })
 
-    it('renders uninstalled status', async () => {
-      const screen = await render(<PluginStatusBadge status="uninstalled" />)
-      await expect.element(screen.getByText('Uninstalled')).toBeVisible()
+    it('renders available status', async () => {
+      const screen = await render(<PluginStatusBadge status="available" />)
+      await expect.element(screen.getByText('Available')).toBeVisible()
     })
 
-    it('renders update_available status', async () => {
-      const screen = await render(
-        <PluginStatusBadge status="update_available" />,
-      )
-      await expect.element(screen.getByText('Update Available')).toBeVisible()
-    })
-
-    it('renders incompatible status', async () => {
-      const screen = await render(<PluginStatusBadge status="incompatible" />)
-      await expect.element(screen.getByText('Incompatible')).toBeVisible()
+    it('renders errored status', async () => {
+      const screen = await render(<PluginStatusBadge status="errored" />)
+      await expect.element(screen.getByText('Errored')).toBeVisible()
     })
   })
 
   describe('className', () => {
     it('accepts custom className', async () => {
       const screen = await render(
-        <PluginStatusBadge status="active" className="custom-class" />,
+        <PluginStatusBadge status="loaded" className="custom-class" />,
       )
-      await expect.element(screen.getByText('Active')).toBeVisible()
+      await expect.element(screen.getByText('Loaded')).toBeVisible()
     })
   })
 })

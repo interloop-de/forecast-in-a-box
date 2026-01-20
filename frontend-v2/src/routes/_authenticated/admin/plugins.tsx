@@ -17,14 +17,15 @@
 import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { CapabilityFilter, StatusFilter } from '@/features/plugins'
+import { useBlockCatalogue } from '@/api/hooks/useFable'
 import {
-  useCheckForUpdates,
   useDisablePlugin,
   useEnablePlugin,
   useInstallPlugin,
   usePlugins,
+  useRefreshPlugins,
   useUninstallPlugin,
   useUpdatePlugin,
 } from '@/api/hooks/usePlugins'
@@ -56,8 +57,11 @@ function PluginsPage() {
   const [capabilityFilter, setCapabilityFilter] =
     useState<CapabilityFilter>('all')
 
-  // Queries
-  const { data, isLoading } = usePlugins()
+  // Fetch catalogue to derive capabilities
+  const { data: catalogue } = useBlockCatalogue()
+
+  // Queries - pass catalogue to derive capabilities
+  const { plugins, isLoading } = usePlugins(catalogue)
 
   // Mutations
   const installPlugin = useInstallPlugin()
@@ -65,56 +69,60 @@ function PluginsPage() {
   const enablePlugin = useEnablePlugin()
   const disablePlugin = useDisablePlugin()
   const updatePlugin = useUpdatePlugin()
-  const checkForUpdates = useCheckForUpdates()
+  const refreshPlugins = useRefreshPlugins()
 
   // Separate plugins by status
   const {
     pluginsWithUpdates,
     installedPlugins,
-    uninstalledPlugins,
-    showUninstalledOnly,
+    availablePlugins,
+    showAvailableOnly,
   } = useMemo(() => {
-    if (!data?.plugins) {
+    if (plugins.length === 0) {
       return {
         pluginsWithUpdates: [],
         installedPlugins: [],
-        uninstalledPlugins: [],
-        showUninstalledOnly: false,
+        availablePlugins: [],
+        showAvailableOnly: false,
       }
     }
 
-    // Check if filtering for uninstalled only
-    const filteringUninstalled = statusFilter === 'uninstalled'
+    // Check if filtering for available only
+    const filteringAvailable = statusFilter === 'available'
 
-    // Get uninstalled plugins (not installed)
-    let uninstalled = data.plugins.filter(
-      (p) => p.status === 'uninstalled' || p.status === 'incompatible',
-    )
+    // Get available plugins (not installed)
+    let available = plugins.filter((p) => p.status === 'available')
 
-    // Apply capability filter to uninstalled
+    // Apply capability filter to available
     if (capabilityFilter !== 'all') {
-      uninstalled = uninstalled.filter((p) =>
+      available = available.filter((p) =>
         p.capabilities.includes(capabilityFilter),
       )
     }
 
-    // Apply search to uninstalled
+    // Apply search to available
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      uninstalled = uninstalled.filter(
+      available = available.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.id.toLowerCase().includes(query) ||
+          p.displayId.toLowerCase().includes(query) ||
           p.author.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query),
       )
     }
 
-    let filteredPlugins = data.plugins.filter((p) => p.isInstalled)
+    let filteredPlugins = plugins.filter((p) => p.isInstalled)
 
     // Apply status filter (for installed plugins only)
-    if (statusFilter !== 'all' && statusFilter !== 'uninstalled') {
-      filteredPlugins = filteredPlugins.filter((p) => p.status === statusFilter)
+    if (statusFilter !== 'all' && statusFilter !== 'available') {
+      if (statusFilter === 'hasUpdate') {
+        filteredPlugins = filteredPlugins.filter((p) => p.hasUpdate)
+      } else {
+        filteredPlugins = filteredPlugins.filter(
+          (p) => p.status === statusFilter,
+        )
+      }
     }
 
     // Apply capability filter
@@ -130,7 +138,7 @@ function PluginsPage() {
       filteredPlugins = filteredPlugins.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.id.toLowerCase().includes(query) ||
+          p.displayId.toLowerCase().includes(query) ||
           p.author.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query),
       )
@@ -140,7 +148,7 @@ function PluginsPage() {
     const withUpdates = filteredPlugins.filter((p) => p.hasUpdate)
     const installed = filteredPlugins.filter((p) => !p.hasUpdate)
 
-    // Sort: active first, then by name
+    // Sort: loaded first, then by name
     installed.sort((a, b) => {
       if (a.isEnabled !== b.isEnabled) {
         return a.isEnabled ? -1 : 1
@@ -149,36 +157,36 @@ function PluginsPage() {
     })
 
     return {
-      pluginsWithUpdates: filteringUninstalled ? [] : withUpdates,
-      installedPlugins: filteringUninstalled ? [] : installed,
-      uninstalledPlugins: uninstalled,
-      showUninstalledOnly: filteringUninstalled,
+      pluginsWithUpdates: filteringAvailable ? [] : withUpdates,
+      installedPlugins: filteringAvailable ? [] : installed,
+      availablePlugins: available,
+      showAvailableOnly: filteringAvailable,
     }
-  }, [data?.plugins, searchQuery, statusFilter, capabilityFilter])
+  }, [plugins, searchQuery, statusFilter, capabilityFilter])
 
   // Handlers
-  const handleToggle = (pluginId: string, enabled: boolean) => {
+  const handleToggle = (compositeId: PluginCompositeId, enabled: boolean) => {
     if (enabled) {
-      enablePlugin.mutate(pluginId)
+      enablePlugin.mutate(compositeId)
     } else {
-      disablePlugin.mutate(pluginId)
+      disablePlugin.mutate(compositeId)
     }
   }
 
-  const handleInstall = (pluginId: string) => {
-    installPlugin.mutate(pluginId)
+  const handleInstall = (compositeId: PluginCompositeId) => {
+    installPlugin.mutate(compositeId)
   }
 
-  const handleUninstall = (pluginId: string) => {
-    uninstallPlugin.mutate(pluginId)
+  const handleUninstall = (compositeId: PluginCompositeId) => {
+    uninstallPlugin.mutate(compositeId)
   }
 
-  const handleUpdate = (pluginId: string) => {
-    updatePlugin.mutate(pluginId)
+  const handleUpdate = (compositeId: PluginCompositeId) => {
+    updatePlugin.mutate(compositeId)
   }
 
-  const handleCheckUpdates = () => {
-    checkForUpdates.mutate()
+  const handleRefresh = () => {
+    refreshPlugins.mutate()
   }
 
   const handleViewDetails = (plugin: PluginInfo) => {
@@ -203,8 +211,8 @@ function PluginsPage() {
     >
       {/* Page Header */}
       <PluginsPageHeader
-        onCheckUpdates={handleCheckUpdates}
-        isCheckingUpdates={checkForUpdates.isPending}
+        onCheckUpdates={handleRefresh}
+        isCheckingUpdates={refreshPlugins.isPending}
       />
 
       {/* Search & Filters */}
@@ -218,7 +226,7 @@ function PluginsPage() {
       />
 
       {/* Updates Available Section */}
-      {!showUninstalledOnly && pluginsWithUpdates.length > 0 && (
+      {!showAvailableOnly && pluginsWithUpdates.length > 0 && (
         <UpdatesAvailableSection
           plugins={pluginsWithUpdates}
           onUpdate={handleUpdate}
@@ -226,7 +234,7 @@ function PluginsPage() {
       )}
 
       {/* Installed Plugins Section */}
-      {!showUninstalledOnly && (
+      {!showAvailableOnly && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
@@ -251,9 +259,9 @@ function PluginsPage() {
         </div>
       )}
 
-      {/* Uninstalled Plugins Section */}
+      {/* Available Plugins Section */}
       <UninstalledPluginsSection
-        plugins={uninstalledPlugins}
+        plugins={availablePlugins}
         onInstall={handleInstall}
         onViewDetails={handleViewDetails}
         variant={dashboardVariant}

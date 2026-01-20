@@ -36,12 +36,18 @@ const mockFactory: BlockFactory = {
 const mockFable: FableBuilderV1 = {
   blocks: {
     'block-1': {
-      factory_id: { plugin: 'test', factory: 'source' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test' },
+        factory: 'source',
+      },
       configuration_values: { param1: 'value1' },
       input_ids: {},
     },
     'block-2': {
-      factory_id: { plugin: 'test', factory: 'transform' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test' },
+        factory: 'transform',
+      },
       configuration_values: {},
       input_ids: { input: 'block-1' },
     },
@@ -156,7 +162,10 @@ describe('useFableBuilderStore', () => {
       act(() =>
         useFableBuilderStore
           .getState()
-          .addBlock({ plugin: 'test', factory: 'source' }, mockFactory),
+          .addBlock(
+            { plugin: { store: 'ecmwf', local: 'test' }, factory: 'source' },
+            mockFactory,
+          ),
       )
       const blocks = useFableBuilderStore.getState().fable.blocks
       expect(Object.keys(blocks).length).toBe(1)
@@ -167,7 +176,10 @@ describe('useFableBuilderStore', () => {
       act(() => {
         blockId = useFableBuilderStore
           .getState()
-          .addBlock({ plugin: 'test', factory: 'source' }, mockFactory)
+          .addBlock(
+            { plugin: { store: 'ecmwf', local: 'test' }, factory: 'source' },
+            mockFactory,
+          )
       })
       expect(blockId).toBeTruthy()
       expect(
@@ -180,7 +192,10 @@ describe('useFableBuilderStore', () => {
       act(() => {
         blockId = useFableBuilderStore
           .getState()
-          .addBlock({ plugin: 'test', factory: 'source' }, mockFactory)
+          .addBlock(
+            { plugin: { store: 'ecmwf', local: 'test' }, factory: 'source' },
+            mockFactory,
+          )
       })
       expect(useFableBuilderStore.getState().selectedBlockId).toBe(blockId)
     })
@@ -189,7 +204,10 @@ describe('useFableBuilderStore', () => {
       act(() =>
         useFableBuilderStore
           .getState()
-          .addBlock({ plugin: 'test', factory: 'source' }, mockFactory),
+          .addBlock(
+            { plugin: { store: 'ecmwf', local: 'test' }, factory: 'source' },
+            mockFactory,
+          ),
       )
       expect(useFableBuilderStore.getState().isDirty).toBe(true)
     })

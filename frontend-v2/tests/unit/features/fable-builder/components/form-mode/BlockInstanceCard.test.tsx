@@ -113,7 +113,7 @@ vi.mock('@/components/ui/select', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -151,12 +151,18 @@ describe('BlockInstanceCard', () => {
       fable: {
         blocks: {
           'block-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
             configuration_values: { option1: 'value1', option2: '' },
             input_ids: {},
           },
           'block-2': {
-            factory_id: { plugin: 'test-plugin', factory: 'transform-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'transform-factory',
+            },
             configuration_values: {},
             input_ids: { input: 'block-1' },
           },
@@ -228,7 +234,10 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             unknown: {
-              factory_id: { plugin: 'unknown', factory: 'unknown' },
+              factory_id: {
+                plugin: { store: 'unknown', local: 'unknown' },
+                factory: 'unknown',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -350,13 +359,16 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: { option1: 'value1', option2: '' },
               input_ids: {},
             },
             'block-2': {
               factory_id: {
-                plugin: 'test-plugin',
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
                 factory: 'transform-factory',
               },
               configuration_values: {},
@@ -399,7 +411,10 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: { option1: '', option2: '' },
               input_ids: {},
             },
@@ -431,7 +446,10 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: { option1: '', option2: '' },
               input_ids: {},
             },
@@ -463,7 +481,10 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: { option1: '', option2: '' },
               input_ids: {},
             },
@@ -498,13 +519,16 @@ describe('BlockInstanceCard', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: { option1: 'value1', option2: '' },
               input_ids: {},
             },
             'block-2': {
               factory_id: {
-                plugin: 'test-plugin',
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
                 factory: 'transform-factory',
               },
               configuration_values: {},

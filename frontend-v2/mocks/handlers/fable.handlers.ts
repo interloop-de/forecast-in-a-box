@@ -153,9 +153,10 @@ export const fableHandlers = [
     for (const instance of Object.values(fable.blocks)) {
       const factory = getFactory(mockCatalogue, instance.factory_id)
       if (!factory) {
+        const pluginDisplay = `${instance.factory_id.plugin.store}/${instance.factory_id.plugin.local}`
         return HttpResponse.json(
           {
-            message: `Block factory '${instance.factory_id.plugin}:${instance.factory_id.factory}' not found`,
+            message: `Block factory '${pluginDisplay}:${instance.factory_id.factory}' not found`,
           },
           { status: 404 },
         )

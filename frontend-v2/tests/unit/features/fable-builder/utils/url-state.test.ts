@@ -31,7 +31,10 @@ describe('url-state', () => {
   const simpleFable: FableBuilderV1 = {
     blocks: {
       'block-1': {
-        factory_id: { plugin: 'core', factory: 'model' },
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'core' },
+          factory: 'model',
+        },
         configuration_values: { param1: 'value1' },
         input_ids: {},
       },
@@ -45,17 +48,26 @@ describe('url-state', () => {
   const complexFable: FableBuilderV1 = {
     blocks: {
       'block-1': {
-        factory_id: { plugin: 'core', factory: 'model' },
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'core' },
+          factory: 'model',
+        },
         configuration_values: { param1: 'value1', param2: 'value2' },
         input_ids: {},
       },
       'block-2': {
-        factory_id: { plugin: 'core', factory: 'transform' },
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'core' },
+          factory: 'transform',
+        },
         configuration_values: { method: 'average' },
         input_ids: { input: 'block-1' },
       },
       'block-3': {
-        factory_id: { plugin: 'output', factory: 'chart' },
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'output' },
+          factory: 'chart',
+        },
         configuration_values: { title: 'My Chart', type: 'line' },
         input_ids: { data: 'block-2' },
       },
@@ -241,7 +253,10 @@ describe('url-state', () => {
 
       for (let i = 0; i < 100; i++) {
         largeFable.blocks[`block-${i}`] = {
-          factory_id: { plugin: 'core', factory: `factory-${i}` },
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'core' },
+            factory: `factory-${i}`,
+          },
           configuration_values: {
             param1: 'value-with-some-extra-text-to-increase-size',
             param2: 'another-value-with-more-text-for-testing',
@@ -274,7 +289,7 @@ describe('url-state', () => {
       const decoded = decodeFableFromURL(encoded)
 
       expect(decoded?.blocks['block-1'].factory_id).toEqual({
-        plugin: 'core',
+        plugin: { store: 'ecmwf', local: 'core' },
         factory: 'model',
       })
       expect(decoded?.blocks['block-1'].configuration_values).toEqual({
@@ -290,7 +305,10 @@ describe('url-state', () => {
       const fableWithSpecialChars: FableBuilderV1 = {
         blocks: {
           'block-1': {
-            factory_id: { plugin: 'core', factory: 'model' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'core' },
+              factory: 'model',
+            },
             configuration_values: {
               path: '/path/to/file with spaces.txt',
               query: 'name="test" & value=<123>',

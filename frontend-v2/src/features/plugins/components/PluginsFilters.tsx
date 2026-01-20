@@ -28,12 +28,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-export type StatusFilter =
-  | 'all'
-  | Extract<
-      PluginStatus,
-      'active' | 'disabled' | 'update_available' | 'uninstalled'
-    >
+/**
+ * Status filter includes all backend statuses plus 'all' and 'hasUpdate'
+ */
+export type StatusFilter = 'all' | 'hasUpdate' | PluginStatus
+
 export type CapabilityFilter = 'all' | PluginCapability
 
 interface PluginsFiltersProps {
@@ -85,15 +84,18 @@ export function PluginsFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('filters.status.all')}</SelectItem>
-            <SelectItem value="active">{t('filters.status.active')}</SelectItem>
+            <SelectItem value="loaded">{t('filters.status.loaded')}</SelectItem>
             <SelectItem value="disabled">
               {t('filters.status.disabled')}
             </SelectItem>
-            <SelectItem value="update_available">
+            <SelectItem value="errored">
+              {t('filters.status.errored')}
+            </SelectItem>
+            <SelectItem value="hasUpdate">
               {t('filters.status.updates')}
             </SelectItem>
-            <SelectItem value="uninstalled">
-              {t('filters.status.uninstalled')}
+            <SelectItem value="available">
+              {t('filters.status.available')}
             </SelectItem>
           </SelectContent>
         </Select>

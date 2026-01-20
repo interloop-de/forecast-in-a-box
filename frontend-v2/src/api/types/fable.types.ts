@@ -10,14 +10,25 @@
 
 import { Cloud, Cog, Download, Shuffle } from 'lucide-react'
 import { z } from 'zod'
+import {
+  PluginCompositeIdSchema,
+  parsePluginKey,
+  toPluginDisplayId,
+} from './plugins.types'
 import type { LucideIcon } from 'lucide-react'
+import type { PluginCompositeId } from './plugins.types'
 
 export type PluginId = string
 export type BlockFactoryId = string
 export type BlockInstanceId = string
 
+/**
+ * Plugin block factory ID - identifies a block factory within a plugin
+ *
+ * Backend format: { plugin: { store: "ecmwf", local: "toy1" }, factory: "block_name" }
+ */
 export const PluginBlockFactoryIdSchema = z.object({
-  plugin: z.string(),
+  plugin: PluginCompositeIdSchema,
   factory: z.string(),
 })
 
@@ -58,6 +69,12 @@ export const PluginCatalogueSchema = z.object({
 
 export type PluginCatalogue = z.infer<typeof PluginCatalogueSchema>
 
+/**
+ * Block factory catalogue - dict of plugins keyed by plugin ID
+ *
+ * Backend returns keys in Python repr format: "store='ecmwf' local='toy1'"
+ * We normalize to display format: "ecmwf/toy1"
+ */
 export const BlockFactoryCatalogueSchema = z.record(
   z.string(),
   PluginCatalogueSchema,
@@ -218,15 +235,37 @@ export function generateBlockInstanceId(): BlockInstanceId {
 }
 
 /**
+ * Convert PluginCompositeId to a display string for catalogue keys
+ */
+export function pluginIdToDisplayKey(plugin: PluginCompositeId): string {
+  return toPluginDisplayId(plugin)
+}
+
+/**
+ * Parse a display plugin ID string (e.g., "ecmwf/toy1") to PluginCompositeId
+ */
+export function parseDisplayPluginId(displayId: string): PluginCompositeId {
+  const slashIndex = displayId.indexOf('/')
+  if (slashIndex === -1) {
+    return { store: '', local: displayId }
+  }
+  return {
+    store: displayId.substring(0, slashIndex),
+    local: displayId.substring(slashIndex + 1),
+  }
+}
+
+/**
  * Get a factory from the nested catalogue by PluginBlockFactoryId
+ *
+ * The catalogue uses normalized display format keys (e.g., "ecmwf/toy1")
  */
 export function getFactory(
   catalogue: BlockFactoryCatalogue,
   factoryId: PluginBlockFactoryId,
 ): BlockFactory | undefined {
-  const pluginCatalogue = catalogue[factoryId.plugin] as
-    | PluginCatalogue
-    | undefined
+  const pluginKey = pluginIdToDisplayKey(factoryId.plugin)
+  const pluginCatalogue = catalogue[pluginKey] as PluginCatalogue | undefined
   return pluginCatalogue?.factories[factoryId.factory]
 }
 
@@ -234,15 +273,59 @@ export function getFactory(
  * Convert PluginBlockFactoryId to a string key for use in maps/comparisons
  */
 export function factoryIdToKey(id: PluginBlockFactoryId): string {
-  return `${id.plugin}:${id.factory}`
+  return `${pluginIdToDisplayKey(id.plugin)}:${id.factory}`
 }
 
 /**
  * Parse a string key back to PluginBlockFactoryId
+ * Key format: "store/local:factory"
  */
 export function keyToFactoryId(key: string): PluginBlockFactoryId {
-  const [plugin, factory] = key.split(':')
-  return { plugin, factory }
+  const colonIndex = key.lastIndexOf(':')
+  if (colonIndex === -1) {
+    throw new Error(`Invalid factory key format: ${key}`)
+  }
+  const pluginPart = key.substring(0, colonIndex)
+  const factory = key.substring(colonIndex + 1)
+
+  // Parse "store/local" format
+  const slashIndex = pluginPart.indexOf('/')
+  if (slashIndex === -1) {
+    throw new Error(`Invalid plugin ID format in key: ${key}`)
+  }
+  const store = pluginPart.substring(0, slashIndex)
+  const local = pluginPart.substring(slashIndex + 1)
+
+  return {
+    plugin: { store, local },
+    factory,
+  }
+}
+
+/**
+ * Normalize catalogue keys from backend format to display format
+ *
+ * Backend sends keys in Python repr format: "store='ecmwf' local='toy1'"
+ * We normalize to display format: "ecmwf/toy1"
+ */
+export function normalizeCatalogueKeys(
+  rawCatalogue: Record<string, PluginCatalogue>,
+): BlockFactoryCatalogue {
+  const normalized: BlockFactoryCatalogue = {}
+
+  for (const [key, value] of Object.entries(rawCatalogue)) {
+    // Check if key is in Python repr format
+    if (key.includes("store='") && key.includes("local='")) {
+      const parsed = parsePluginKey(key)
+      const normalizedKey = toPluginDisplayId(parsed)
+      normalized[normalizedKey] = value
+    } else {
+      // Key is already in normalized format
+      normalized[key] = value
+    }
+  }
+
+  return normalized
 }
 
 /**

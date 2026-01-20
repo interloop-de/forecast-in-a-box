@@ -11,28 +11,12 @@
 /**
  * PluginIcon Component
  *
- * Displays an icon for a plugin based on iconName or type
+ * Displays an icon for a plugin based on its capabilities
  */
 
-import {
-  CloudRain,
-  Database,
-  Droplets,
-  FileOutput,
-  FileText,
-  Globe,
-  ImageOff,
-  Moon,
-  Puzzle,
-  Satellite,
-  Snowflake,
-  Thermometer,
-  Tornado,
-  Waves,
-  Wind,
-} from 'lucide-react'
+import { Cloud, Cog, Download, Puzzle, Shuffle } from 'lucide-react'
 import type { ComponentType } from 'react'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCapability, PluginInfo } from '@/api/types/plugins.types'
 import { cn } from '@/lib/utils'
 
 interface PluginIconProps {
@@ -41,25 +25,18 @@ interface PluginIconProps {
   className?: string
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Globe,
-  Droplets,
-  Wind,
-  Thermometer,
-  Satellite,
-  FileOutput,
-  Database,
-  Waves,
-  CloudRain,
-  ImageOff,
-  Tornado,
-  Snowflake,
-  Moon,
-  FileText,
-  Puzzle,
+// Icons mapped to capabilities (matching BLOCK_KIND_METADATA)
+const capabilityIcons: Record<
+  PluginCapability,
+  ComponentType<{ className?: string }>
+> = {
+  source: Cloud,
+  transform: Shuffle,
+  product: Cog,
+  sink: Download,
 }
 
-const capabilityColors: Record<string, string> = {
+const capabilityColors: Record<PluginCapability, string> = {
   source: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
   transform:
     'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
@@ -88,15 +65,17 @@ export function PluginIcon({
   size = 'md',
   className,
 }: PluginIconProps) {
-  const IconComponent: ComponentType<{ className?: string }> = plugin.iconName
-    ? (iconMap[plugin.iconName] ?? Puzzle)
+  // Use primary capability (first in array) for icon and color, fallback to Puzzle
+  const primaryCapability =
+    plugin.capabilities.length > 0 ? plugin.capabilities[0] : null
+
+  const IconComponent: ComponentType<{ className?: string }> = primaryCapability
+    ? capabilityIcons[primaryCapability]
     : Puzzle
 
-  // Use primary capability (first in array) for color, fallback to default
-  const colorClass =
-    plugin.capabilities.length > 0
-      ? capabilityColors[plugin.capabilities[0]]
-      : defaultColor
+  const colorClass = primaryCapability
+    ? capabilityColors[primaryCapability]
+    : defaultColor
 
   return (
     <div

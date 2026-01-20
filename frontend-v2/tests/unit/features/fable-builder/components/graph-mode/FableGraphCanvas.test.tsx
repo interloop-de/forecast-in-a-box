@@ -100,7 +100,7 @@ vi.mock('@/hooks/useDebounce', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -174,7 +174,10 @@ describe('FableGraphCanvas', () => {
         fable: {
           blocks: {
             'source-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },

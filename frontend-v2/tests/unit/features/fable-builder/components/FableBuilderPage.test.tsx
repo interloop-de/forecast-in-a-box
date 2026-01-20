@@ -19,7 +19,7 @@ import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuild
 
 // Mock API hooks
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -35,7 +35,10 @@ const mockCatalogue: BlockFactoryCatalogue = {
 const mockFable: FableBuilderV1 = {
   blocks: {
     'block-1': {
-      factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test-plugin' },
+        factory: 'source-factory',
+      },
       configuration_values: {},
       input_ids: {},
     },

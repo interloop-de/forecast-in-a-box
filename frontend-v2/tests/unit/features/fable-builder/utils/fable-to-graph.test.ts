@@ -22,7 +22,7 @@ import {
 
 // Sample catalogue with factories (nested structure: catalogue[pluginId].factories[factoryId])
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -60,19 +60,28 @@ const mockCatalogue: BlockFactoryCatalogue = {
 const mockFable: FableBuilderV1 = {
   blocks: {
     'block-source': {
-      factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test-plugin' },
+        factory: 'source-factory',
+      },
       configuration_values: {},
       input_ids: {},
     },
     'block-transform': {
-      factory_id: { plugin: 'test-plugin', factory: 'transform-factory' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test-plugin' },
+        factory: 'transform-factory',
+      },
       configuration_values: {},
       input_ids: {
         input: 'block-source',
       },
     },
     'block-product': {
-      factory_id: { plugin: 'test-plugin', factory: 'product-factory' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'test-plugin' },
+        factory: 'product-factory',
+      },
       configuration_values: {},
       input_ids: {
         data: 'block-transform',
@@ -108,12 +117,18 @@ describe('fable-to-graph', () => {
       const fableWithMissingFactory: FableBuilderV1 = {
         blocks: {
           'block-missing': {
-            factory_id: { plugin: 'nonexistent', factory: 'nonexistent' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'nonexistent' },
+              factory: 'nonexistent',
+            },
             configuration_values: {},
             input_ids: {},
           },
           'block-source': {
-            factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -135,7 +150,7 @@ describe('fable-to-graph', () => {
         mockFable.blocks['block-source'],
       )
       expect(sourceNode?.data.factory).toEqual(
-        mockCatalogue['test-plugin'].factories['source-factory'],
+        mockCatalogue['ecmwf/test-plugin'].factories['source-factory'],
       )
       expect(sourceNode?.data.label).toBe('AIFS Source')
       expect(sourceNode?.data.catalogue).toBe(mockCatalogue)
@@ -180,7 +195,10 @@ describe('fable-to-graph', () => {
       const fableWithNullInput: FableBuilderV1 = {
         blocks: {
           'block-product': {
-            factory_id: { plugin: 'test-plugin', factory: 'product-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'product-factory',
+            },
             configuration_values: {},
             input_ids: {
               data: null as unknown as string,
@@ -227,7 +245,10 @@ describe('fable-to-graph', () => {
       const fableWithSink: FableBuilderV1 = {
         blocks: {
           'block-sink': {
-            factory_id: { plugin: 'test-plugin', factory: 'sink-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'sink-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -240,7 +261,7 @@ describe('fable-to-graph', () => {
 
     it('uses default type for unknown kinds', () => {
       const catalogueWithUnknown: BlockFactoryCatalogue = {
-        'test-plugin': {
+        'ecmwf/test-plugin': {
           factories: {
             'unknown-factory': {
               kind: 'unknown' as 'source', // Cast to avoid type error
@@ -256,7 +277,10 @@ describe('fable-to-graph', () => {
       const fableWithUnknown: FableBuilderV1 = {
         blocks: {
           'block-unknown': {
-            factory_id: { plugin: 'test-plugin', factory: 'unknown-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'unknown-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },

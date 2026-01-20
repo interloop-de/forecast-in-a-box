@@ -101,7 +101,10 @@ describe('useURLStateSync', () => {
       const decodedFable: FableBuilderV1 = {
         blocks: {
           block1: {
-            factory_id: { plugin: 'test', factory: 'test' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test' },
+              factory: 'test',
+            },
             configuration_values: { key: 'value' },
             input_ids: {},
           },
@@ -155,7 +158,10 @@ describe('useURLStateSync', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'p', factory: 'f' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'p' },
+                factory: 'f',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -174,7 +180,10 @@ describe('useURLStateSync', () => {
       const newFable = {
         blocks: {
           block1: {
-            factory_id: { plugin: 'p', factory: 'f' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'p' },
+              factory: 'f',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -200,7 +209,10 @@ describe('useURLStateSync', () => {
         fable: {
           blocks: {
             block1: {
-              factory_id: { plugin: 'p', factory: 'f' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'p' },
+                factory: 'f',
+              },
               configuration_values: {},
               input_ids: {},
             },

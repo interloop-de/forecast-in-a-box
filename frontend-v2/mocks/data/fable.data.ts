@@ -8,16 +8,41 @@
  * does it submit to any jurisdiction.
  */
 
+/**
+ * Mock Fable Data
+ *
+ * Test data for fable builder features.
+ * Uses the new backend format with PluginCompositeId structure.
+ *
+ * Note: The backend returns catalogue keys in Python repr format: "store='ecmwf' local='toy1'"
+ * The frontend normalizes these to display format: "ecmwf/toy1"
+ */
+
 import type {
   BlockFactory,
   BlockFactoryCatalogue,
   FableBuilderV1,
   PluginBlockFactoryId,
 } from '@/api/types/fable.types'
+import type { PluginCompositeId } from '@/api/types/plugins.types'
 import { getFactory } from '@/api/types/fable.types'
 
+/**
+ * Helper to create a PluginCompositeId
+ */
+function pluginId(store: string, local: string): PluginCompositeId {
+  return { store, local }
+}
+
+/**
+ * Mock catalogue in normalized display format (keys use "store/local" format)
+ *
+ * Note: The actual backend returns keys in Python repr format "store='...' local='...'",
+ * but the frontend normalizes these to display format when fetching via useBlockCatalogue.
+ * This mock is already in display format for direct use with getFactory() helper.
+ */
 export const mockCatalogue: BlockFactoryCatalogue = {
-  anemoi_inference: {
+  ['ecmwf/anemoi-inference']: {
     factories: {
       model_forecast: {
         kind: 'source',
@@ -50,7 +75,7 @@ export const mockCatalogue: BlockFactoryCatalogue = {
     },
   },
 
-  ecmwf_mars: {
+  ['ecmwf/mars-connector']: {
     factories: {
       mars_aifs_external: {
         kind: 'source',
@@ -73,7 +98,7 @@ export const mockCatalogue: BlockFactoryCatalogue = {
     },
   },
 
-  fiab_products: {
+  ['ecmwf/fiab-products']: {
     factories: {
       product_123: {
         kind: 'product',
@@ -155,7 +180,7 @@ export const mockCatalogue: BlockFactoryCatalogue = {
     },
   },
 
-  fiab_sinks: {
+  ['ecmwf/fiab-sinks']: {
     factories: {
       store_local_fdb: {
         kind: 'sink',
@@ -207,6 +232,9 @@ export const mockCatalogue: BlockFactoryCatalogue = {
   },
 }
 
+/**
+ * Get blocks grouped by kind for UI display
+ */
 export function getBlocksByKind(
   catalogue: BlockFactoryCatalogue,
 ): Record<string, Array<{ id: PluginBlockFactoryId; factory: BlockFactory }>> {
@@ -220,12 +248,34 @@ export function getBlocksByKind(
     sink: [],
   }
 
-  for (const [pluginId, pluginCatalogue] of Object.entries(catalogue)) {
+  for (const [pluginKey, pluginCatalogue] of Object.entries(catalogue)) {
+    // Parse the plugin key (could be Python repr or display format)
+    let plugin: PluginCompositeId
+    if (pluginKey.includes("store='") && pluginKey.includes("local='")) {
+      // Python repr format
+      const storeMatch = pluginKey.match(/store='([^']+)'/)
+      const localMatch = pluginKey.match(/local='([^']+)'/)
+      plugin = {
+        store: storeMatch?.[1] ?? '',
+        local: localMatch?.[1] ?? '',
+      }
+    } else if (pluginKey.includes('/')) {
+      // Display format
+      const slashIndex = pluginKey.indexOf('/')
+      plugin = {
+        store: pluginKey.substring(0, slashIndex),
+        local: pluginKey.substring(slashIndex + 1),
+      }
+    } else {
+      // Fallback - treat as local name only
+      plugin = { store: '', local: pluginKey }
+    }
+
     for (const [factoryId, factory] of Object.entries(
       pluginCatalogue.factories,
     )) {
       result[factory.kind].push({
-        id: { plugin: pluginId, factory: factoryId },
+        id: { plugin, factory: factoryId },
         factory,
       })
     }
@@ -234,6 +284,9 @@ export function getBlocksByKind(
   return result
 }
 
+/**
+ * Mock saved fables with new PluginBlockFactoryId format
+ */
 export const mockSavedFables: Record<
   string,
   {
@@ -249,7 +302,10 @@ export const mockSavedFables: Record<
     fable: {
       blocks: {
         block_source_1: {
-          factory_id: { plugin: 'anemoi_inference', factory: 'model_forecast' },
+          factory_id: {
+            plugin: pluginId('ecmwf', 'anemoi-inference'),
+            factory: 'model_forecast',
+          },
           configuration_values: {
             model: 'aifs/single-mse-v0.2.1',
             date: '2024-01-15T00:00:00Z',
@@ -259,7 +315,10 @@ export const mockSavedFables: Record<
           input_ids: {},
         },
         block_product_1: {
-          factory_id: { plugin: 'fiab_products', factory: 'variable_filter' },
+          factory_id: {
+            plugin: pluginId('ecmwf', 'fiab-products'),
+            factory: 'variable_filter',
+          },
           configuration_values: {
             variables: 'temp_2m,wind_u,wind_v',
             interpolation_method: 'linear',
@@ -269,7 +328,10 @@ export const mockSavedFables: Record<
           },
         },
         block_sink_1: {
-          factory_id: { plugin: 'fiab_sinks', factory: 'plot' },
+          factory_id: {
+            plugin: pluginId('ecmwf', 'fiab-sinks'),
+            factory: 'plot',
+          },
           configuration_values: {
             ekp_subcommand: 'contour --variable temp_2m',
           },
@@ -290,7 +352,10 @@ export const mockSavedFables: Record<
     fable: {
       blocks: {
         block_aifs_1: {
-          factory_id: { plugin: 'ecmwf_mars', factory: 'mars_aifs_external' },
+          factory_id: {
+            plugin: pluginId('ecmwf', 'mars-connector'),
+            factory: 'mars_aifs_external',
+          },
           configuration_values: {
             date: '2024-01-14T12:00:00Z',
             lead_time: '48',
@@ -298,7 +363,10 @@ export const mockSavedFables: Record<
           input_ids: {},
         },
         block_store_1: {
-          factory_id: { plugin: 'fiab_sinks', factory: 'store_local_fdb' },
+          factory_id: {
+            plugin: pluginId('ecmwf', 'fiab-sinks'),
+            factory: 'store_local_fdb',
+          },
           configuration_values: {
             fdb_key_prefix: '/experiments/aifs_download_test',
           },
@@ -316,6 +384,11 @@ export const mockSavedFables: Record<
   },
 }
 
+/**
+ * Calculate expansion (validation) for a fable
+ *
+ * Returns validation errors and possible next blocks that can be added.
+ */
 export function calculateExpansion(fable: FableBuilderV1): {
   global_errors: Array<string>
   block_errors: Record<string, Array<string>>
@@ -325,20 +398,27 @@ export function calculateExpansion(fable: FableBuilderV1): {
   const block_errors: Record<string, Array<string>> = {}
   const possible_expansions: Record<string, Array<PluginBlockFactoryId>> = {}
 
+  // Available blocks by kind (using new PluginCompositeId format)
   const sourceBlocks: Array<PluginBlockFactoryId> = [
-    { plugin: 'anemoi_inference', factory: 'model_forecast' },
-    { plugin: 'ecmwf_mars', factory: 'mars_aifs_external' },
+    {
+      plugin: pluginId('ecmwf', 'anemoi-inference'),
+      factory: 'model_forecast',
+    },
+    {
+      plugin: pluginId('ecmwf', 'mars-connector'),
+      factory: 'mars_aifs_external',
+    },
   ]
   const productBlocks: Array<PluginBlockFactoryId> = [
-    { plugin: 'fiab_products', factory: 'product_123' },
-    { plugin: 'fiab_products', factory: 'product_456' },
-    { plugin: 'fiab_products', factory: 'variable_filter' },
-    { plugin: 'fiab_products', factory: 'region_subset' },
+    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_123' },
+    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_456' },
+    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'variable_filter' },
+    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'region_subset' },
   ]
   const sinkBlocks: Array<PluginBlockFactoryId> = [
-    { plugin: 'fiab_sinks', factory: 'store_local_fdb' },
-    { plugin: 'fiab_sinks', factory: 'plot' },
-    { plugin: 'fiab_sinks', factory: 'api_output' },
+    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'store_local_fdb' },
+    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'plot' },
+    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'api_output' },
   ]
 
   for (const [blockId, instance] of Object.entries(fable.blocks)) {
@@ -346,8 +426,9 @@ export function calculateExpansion(fable: FableBuilderV1): {
 
     const factory = getFactory(mockCatalogue, instance.factory_id)
     if (!factory) {
+      const pluginDisplay = `${instance.factory_id.plugin.store}/${instance.factory_id.plugin.local}`
       errors.push(
-        `Block factory '${instance.factory_id.plugin}:${instance.factory_id.factory}' not found`,
+        `Block factory '${pluginDisplay}:${instance.factory_id.factory}' not found`,
       )
       block_errors[blockId] = errors
       continue
@@ -376,7 +457,7 @@ export function calculateExpansion(fable: FableBuilderV1): {
       block_errors[blockId] = errors
     }
 
-    // Calculate possible expansions
+    // Calculate possible expansions based on block kind
     if (factory.kind === 'source') {
       possible_expansions[blockId] = productBlocks
     } else if (factory.kind === 'product') {

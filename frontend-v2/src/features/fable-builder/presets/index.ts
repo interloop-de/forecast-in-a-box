@@ -9,6 +9,7 @@
  */
 
 import type { FableBuilderV1 } from '@/api/types/fable.types'
+import type { PluginCompositeId } from '@/api/types/plugins.types'
 
 export type PresetId = 'quick-start' | 'standard' | 'custom-model' | 'dataset'
 
@@ -19,6 +20,13 @@ export interface FablePreset {
   fable: FableBuilderV1
 }
 
+/**
+ * Helper to create PluginCompositeId
+ */
+function pluginId(store: string, local: string): PluginCompositeId {
+  return { store, local }
+}
+
 const quickStartPreset: FablePreset = {
   id: 'quick-start',
   name: 'Quick Start',
@@ -26,7 +34,10 @@ const quickStartPreset: FablePreset = {
   fable: {
     blocks: {
       source_1: {
-        factory_id: { plugin: 'anemoi_inference', factory: 'model_forecast' },
+        factory_id: {
+          plugin: pluginId('ecmwf', 'anemoi-inference'),
+          factory: 'model_forecast',
+        },
         configuration_values: {
           model: 'aifs/single-mse-v0.2.1',
           date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
@@ -36,7 +47,10 @@ const quickStartPreset: FablePreset = {
         input_ids: {},
       },
       filter_1: {
-        factory_id: { plugin: 'fiab_products', factory: 'variable_filter' },
+        factory_id: {
+          plugin: pluginId('ecmwf', 'fiab-products'),
+          factory: 'variable_filter',
+        },
         configuration_values: {
           variables: 'temp_2m,wind_u,wind_v,precip,mslp',
           interpolation_method: 'linear',
@@ -46,7 +60,10 @@ const quickStartPreset: FablePreset = {
         },
       },
       viz_1: {
-        factory_id: { plugin: 'fiab_sinks', factory: 'plot' },
+        factory_id: {
+          plugin: pluginId('ecmwf', 'fiab-sinks'),
+          factory: 'plot',
+        },
         configuration_values: {
           ekp_subcommand: 'contour --variable temp_2m',
         },
@@ -65,7 +82,10 @@ const standardPreset: FablePreset = {
   fable: {
     blocks: {
       source_1: {
-        factory_id: { plugin: 'anemoi_inference', factory: 'model_forecast' },
+        factory_id: {
+          plugin: pluginId('ecmwf', 'anemoi-inference'),
+          factory: 'model_forecast',
+        },
         configuration_values: {
           model: 'aifs/single-mse-v0.2.1',
           date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
@@ -94,7 +114,10 @@ const datasetPreset: FablePreset = {
   fable: {
     blocks: {
       source_1: {
-        factory_id: { plugin: 'ecmwf_mars', factory: 'mars_aifs_external' },
+        factory_id: {
+          plugin: pluginId('ecmwf', 'mars-connector'),
+          factory: 'mars_aifs_external',
+        },
         configuration_values: {
           date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
           time: '00:00:00',

@@ -63,7 +63,7 @@ vi.mock('@/components/ui/alert-dialog', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -121,22 +121,34 @@ describe('ConfigPanel', () => {
       fable: {
         blocks: {
           'source-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
             configuration_values: { option1: 'value1', option2: '42' },
             input_ids: {},
           },
           'transform-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'transform-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'transform-factory',
+            },
             configuration_values: { transformOption: 'test' },
             input_ids: { input: 'source-1' },
           },
           'sink-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'sink-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'sink-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
           'product-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'product-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'product-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -347,7 +359,7 @@ describe('ConfigPanel', () => {
     it('shows "No configuration options" for blocks without config or inputs', async () => {
       // Create a factory with no config options and no inputs
       const simpleCatalogue: BlockFactoryCatalogue = {
-        'simple-plugin': {
+        'ecmwf/simple-plugin': {
           factories: {
             'simple-factory': {
               kind: 'source',
@@ -365,7 +377,7 @@ describe('ConfigPanel', () => {
           blocks: {
             'simple-1': {
               factory_id: {
-                plugin: 'simple-plugin',
+                plugin: { store: 'ecmwf', local: 'simple-plugin' },
                 factory: 'simple-factory',
               },
               configuration_values: {},
@@ -472,7 +484,10 @@ describe('ConfigPanel', () => {
         fable: {
           blocks: {
             unknown: {
-              factory_id: { plugin: 'unknown', factory: 'unknown' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'unknown' },
+                factory: 'unknown',
+              },
               configuration_values: {},
               input_ids: {},
             },

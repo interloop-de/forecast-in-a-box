@@ -14,13 +14,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { worker } from '@tests/../mocks/browser'
 import type { ReactNode } from 'react'
+import type {
+  PluginCompositeId,
+  PluginListing,
+  PluginsStatus,
+} from '@/api/types/plugins.types'
 import {
   pluginKeys,
-  useAddPluginStore,
-  useCheckForUpdates,
   useDisablePlugin,
   useEnablePlugin,
   useInstallPlugin,
+  usePluginDetails,
+  usePluginStatus,
   usePlugins,
   useUninstallPlugin,
   useUpdatePlugin,
@@ -32,34 +37,64 @@ vi.mock('@/utils/env', () => ({
   getBackendBaseUrl: vi.fn(() => ''),
 }))
 
-const mockPluginsResponse = {
-  plugins: [
-    {
-      id: 'plugin-1',
-      name: 'Test Plugin',
-      version: '1.0.0',
-      author: 'Test Author',
-      description: 'A test plugin',
-      fiabCompatibility: '>=1.0.0',
-      capabilities: ['source'],
-      status: 'active',
-      isInstalled: true,
-      isEnabled: true,
-      hasUpdate: false,
-      store: 'ecmwf',
-      isDefault: false,
+/**
+ * Helper to create plugin composite ID
+ */
+function pluginId(store: string, local: string): PluginCompositeId {
+  return { store, local }
+}
+
+/**
+ * Helper to create a Python repr format plugin key
+ */
+function createPluginKey(store: string, local: string): string {
+  return `store='${store}' local='${local}'`
+}
+
+const mockPluginListing: PluginListing = {
+  plugins: {
+    [createPluginKey('ecmwf', 'anemoi-inference')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'anemoi-inference',
+        module_name: 'anemoi_inference',
+        display_title: 'Anemoi Inference',
+        display_description: 'ML inference engine',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '1.0.0' },
+      errored_detail: null,
+      loaded_version: '1.0.0',
+      update_date: '2025/01/15',
     },
-  ],
-  stores: [
-    {
-      id: 'store-1',
-      name: 'ECMWF Store',
-      url: 'https://plugins.ecmwf.int',
-      isDefault: true,
-      isConnected: true,
-      pluginsCount: 10,
+    [createPluginKey('ecmwf', 'storm-tracker')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'storm-tracker',
+        module_name: 'storm_tracker',
+        display_title: 'Storm Tracker',
+        display_description: 'Track severe weather',
+        display_author: 'ECMWF',
+        comment: 'New plugin!',
+      },
+      remote_info: { version: '2.0.0' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
     },
-  ],
+  },
+}
+
+const mockPluginStatus: PluginsStatus = {
+  updater_status: 'idle',
+  plugin_errors: {},
+  plugin_versions: {
+    [createPluginKey('ecmwf', 'anemoi-inference')]: '1.0.0',
+  },
+  plugin_updatedate: {
+    [createPluginKey('ecmwf', 'anemoi-inference')]: '2025/01/15',
+  },
 }
 
 function createTestQueryClient() {
@@ -87,15 +122,102 @@ function renderWithQueryClient(
 
 describe('pluginKeys', () => {
   it('generates correct all key', () => {
-    expect(pluginKeys.all).toEqual(['plugins'])
+    expect(pluginKeys.all).toEqual(['plugin'])
   })
 
-  it('generates correct list key', () => {
-    expect(pluginKeys.list()).toEqual(['plugins', 'list'])
+  it('generates correct status key', () => {
+    expect(pluginKeys.status()).toEqual(['plugin', 'status'])
   })
 
-  it('generates correct stores key', () => {
-    expect(pluginKeys.stores()).toEqual(['plugins', 'stores'])
+  it('generates correct details key', () => {
+    expect(pluginKeys.details()).toEqual([
+      'plugin',
+      'details',
+      { forceRefresh: undefined },
+    ])
+  })
+
+  it('generates correct details key with forceRefresh', () => {
+    expect(pluginKeys.details(true)).toEqual([
+      'plugin',
+      'details',
+      { forceRefresh: true },
+    ])
+  })
+})
+
+describe('usePluginStatus', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    worker.resetHandlers()
+  })
+
+  it('fetches plugin status successfully', async () => {
+    worker.use(
+      http.get(API_ENDPOINTS.plugin.status, () => {
+        return HttpResponse.json(mockPluginStatus)
+      }),
+    )
+
+    let capturedData: ReturnType<typeof usePluginStatus> | null = null
+
+    function TestComponent() {
+      const result = usePluginStatus()
+      capturedData = result
+      return (
+        <div data-testid="status">
+          {result.isLoading ? 'loading' : 'loaded'}
+        </div>
+      )
+    }
+
+    const screen = await renderWithQueryClient(<TestComponent />)
+
+    await expect
+      .element(screen.getByTestId('status'))
+      .toHaveTextContent('loaded')
+    expect(capturedData!.data?.updater_status).toBe('idle')
+  })
+})
+
+describe('usePluginDetails', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    worker.resetHandlers()
+  })
+
+  it('fetches plugin details successfully', async () => {
+    worker.use(
+      http.get(API_ENDPOINTS.plugin.details, () => {
+        return HttpResponse.json(mockPluginListing)
+      }),
+    )
+
+    let capturedData: ReturnType<typeof usePluginDetails> | null = null
+
+    function TestComponent() {
+      const result = usePluginDetails()
+      capturedData = result
+      return (
+        <div data-testid="status">
+          {result.isLoading ? 'loading' : 'loaded'}
+        </div>
+      )
+    }
+
+    const screen = await renderWithQueryClient(<TestComponent />)
+
+    await expect
+      .element(screen.getByTestId('status'))
+      .toHaveTextContent('loaded')
+    expect(capturedData!.data?.plugins).toBeDefined()
+    expect(Object.keys(capturedData!.data?.plugins ?? {})).toHaveLength(2)
   })
 })
 
@@ -108,10 +230,10 @@ describe('usePlugins', () => {
     worker.resetHandlers()
   })
 
-  it('fetches plugins successfully', async () => {
+  it('transforms plugin listing to PluginInfo array', async () => {
     worker.use(
-      http.get(API_ENDPOINTS.plugins.list, () => {
-        return HttpResponse.json(mockPluginsResponse)
+      http.get(API_ENDPOINTS.plugin.details, () => {
+        return HttpResponse.json(mockPluginListing)
       }),
     )
 
@@ -132,27 +254,13 @@ describe('usePlugins', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('loaded')
-    expect(capturedData!.data?.plugins).toHaveLength(1)
-    expect(capturedData!.data?.stores).toHaveLength(1)
-  })
-
-  it('handles error state', async () => {
-    worker.use(
-      http.get(API_ENDPOINTS.plugins.list, () => {
-        return HttpResponse.json({ message: 'Error' }, { status: 500 })
-      }),
+    expect(capturedData!.data?.plugins).toHaveLength(2)
+    // Check that plugins are properly transformed
+    const loadedPlugin = capturedData!.data?.plugins.find(
+      (p) => p.id.local === 'anemoi-inference',
     )
-
-    function TestComponent() {
-      const result = usePlugins()
-      return (
-        <div data-testid="error">{result.isError ? 'error' : 'no-error'}</div>
-      )
-    }
-
-    const screen = await renderWithQueryClient(<TestComponent />)
-
-    await expect.element(screen.getByTestId('error')).toHaveTextContent('error')
+    expect(loadedPlugin?.status).toBe('loaded')
+    expect(loadedPlugin?.name).toBe('Anemoi Inference')
   })
 })
 
@@ -166,23 +274,19 @@ describe('useInstallPlugin', () => {
   })
 
   it('installs plugin successfully', async () => {
+    const testId = pluginId('ecmwf', 'storm-tracker')
+
     worker.use(
-      http.post(API_ENDPOINTS.plugins.install('plugin-1'), () => {
-        return HttpResponse.json({ success: true, pluginId: 'plugin-1' })
+      http.post(API_ENDPOINTS.plugin.install, () => {
+        return HttpResponse.json({ success: true })
       }),
     )
 
-    let mutationResult: ReturnType<typeof useInstallPlugin> | null = null
-
     function TestComponent() {
       const result = useInstallPlugin()
-      mutationResult = result
       return (
         <div>
-          <button
-            data-testid="install"
-            onClick={() => result.mutate('plugin-1')}
-          >
+          <button data-testid="install" onClick={() => result.mutate(testId)}>
             Install
           </button>
           <div data-testid="status">{result.status}</div>
@@ -197,7 +301,6 @@ describe('useInstallPlugin', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('success')
-    expect(mutationResult!.data?.success).toBe(true)
   })
 })
 
@@ -211,23 +314,19 @@ describe('useUninstallPlugin', () => {
   })
 
   it('uninstalls plugin successfully', async () => {
+    const testId = pluginId('ecmwf', 'anemoi-inference')
+
     worker.use(
-      http.post(API_ENDPOINTS.plugins.uninstall('plugin-1'), () => {
+      http.post(API_ENDPOINTS.plugin.uninstall, () => {
         return HttpResponse.json({ success: true })
       }),
     )
 
-    let mutationResult: ReturnType<typeof useUninstallPlugin> | null = null
-
     function TestComponent() {
       const result = useUninstallPlugin()
-      mutationResult = result
       return (
         <div>
-          <button
-            data-testid="uninstall"
-            onClick={() => result.mutate('plugin-1')}
-          >
+          <button data-testid="uninstall" onClick={() => result.mutate(testId)}>
             Uninstall
           </button>
           <div data-testid="status">{result.status}</div>
@@ -242,7 +341,6 @@ describe('useUninstallPlugin', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('success')
-    expect(mutationResult!.data?.success).toBe(true)
   })
 })
 
@@ -256,23 +354,19 @@ describe('useEnablePlugin', () => {
   })
 
   it('enables plugin successfully', async () => {
+    const testId = pluginId('ecmwf', 'anemoi-inference')
+
     worker.use(
-      http.post(API_ENDPOINTS.plugins.enable('plugin-1'), () => {
+      http.post(API_ENDPOINTS.plugin.modifyEnabled, () => {
         return HttpResponse.json({ success: true })
       }),
     )
 
-    let mutationResult: ReturnType<typeof useEnablePlugin> | null = null
-
     function TestComponent() {
       const result = useEnablePlugin()
-      mutationResult = result
       return (
         <div>
-          <button
-            data-testid="enable"
-            onClick={() => result.mutate('plugin-1')}
-          >
+          <button data-testid="enable" onClick={() => result.mutate(testId)}>
             Enable
           </button>
           <div data-testid="status">{result.status}</div>
@@ -287,7 +381,6 @@ describe('useEnablePlugin', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('success')
-    expect(mutationResult!.data?.success).toBe(true)
   })
 })
 
@@ -301,23 +394,19 @@ describe('useDisablePlugin', () => {
   })
 
   it('disables plugin successfully', async () => {
+    const testId = pluginId('ecmwf', 'anemoi-inference')
+
     worker.use(
-      http.post(API_ENDPOINTS.plugins.disable('plugin-1'), () => {
+      http.post(API_ENDPOINTS.plugin.modifyEnabled, () => {
         return HttpResponse.json({ success: true })
       }),
     )
 
-    let mutationResult: ReturnType<typeof useDisablePlugin> | null = null
-
     function TestComponent() {
       const result = useDisablePlugin()
-      mutationResult = result
       return (
         <div>
-          <button
-            data-testid="disable"
-            onClick={() => result.mutate('plugin-1')}
-          >
+          <button data-testid="disable" onClick={() => result.mutate(testId)}>
             Disable
           </button>
           <div data-testid="status">{result.status}</div>
@@ -332,7 +421,6 @@ describe('useDisablePlugin', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('success')
-    expect(mutationResult!.data?.success).toBe(true)
   })
 })
 
@@ -346,23 +434,19 @@ describe('useUpdatePlugin', () => {
   })
 
   it('updates plugin successfully', async () => {
+    const testId = pluginId('ecmwf', 'anemoi-inference')
+
     worker.use(
-      http.post(API_ENDPOINTS.plugins.update('plugin-1'), () => {
+      http.post(API_ENDPOINTS.plugin.update, () => {
         return HttpResponse.json({ success: true })
       }),
     )
 
-    let mutationResult: ReturnType<typeof useUpdatePlugin> | null = null
-
     function TestComponent() {
       const result = useUpdatePlugin()
-      mutationResult = result
       return (
         <div>
-          <button
-            data-testid="update"
-            onClick={() => result.mutate('plugin-1')}
-          >
+          <button data-testid="update" onClick={() => result.mutate(testId)}>
             Update
           </button>
           <div data-testid="status">{result.status}</div>
@@ -377,110 +461,5 @@ describe('useUpdatePlugin', () => {
     await expect
       .element(screen.getByTestId('status'))
       .toHaveTextContent('success')
-    expect(mutationResult!.data?.success).toBe(true)
-  })
-})
-
-describe('useCheckForUpdates', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    worker.resetHandlers()
-  })
-
-  it('checks for updates successfully', async () => {
-    worker.use(
-      http.post(API_ENDPOINTS.plugins.checkUpdates, () => {
-        return HttpResponse.json({
-          success: true,
-          updatesCount: 2,
-          plugins: [],
-        })
-      }),
-    )
-
-    function TestComponent() {
-      const result = useCheckForUpdates()
-      return (
-        <div>
-          <button data-testid="check" onClick={() => result.mutate()}>
-            Check
-          </button>
-          <div data-testid="status">{result.status}</div>
-          <div data-testid="count">{result.data?.updatesCount ?? 'none'}</div>
-        </div>
-      )
-    }
-
-    const screen = await renderWithQueryClient(<TestComponent />)
-
-    await screen.getByTestId('check').click()
-
-    await expect
-      .element(screen.getByTestId('status'))
-      .toHaveTextContent('success')
-    await expect.element(screen.getByTestId('count')).toHaveTextContent('2')
-  })
-})
-
-describe('useAddPluginStore', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    worker.resetHandlers()
-  })
-
-  it('adds plugin store successfully', async () => {
-    worker.use(
-      http.post(API_ENDPOINTS.plugins.addPluginStore, () => {
-        return HttpResponse.json({
-          success: true,
-          store: {
-            id: 'new-store',
-            name: 'New Store',
-            url: 'https://new-store.example.com',
-            isDefault: false,
-            isConnected: true,
-            pluginsCount: 0,
-          },
-        })
-      }),
-    )
-
-    let mutationResult: ReturnType<typeof useAddPluginStore> | null = null
-
-    function TestComponent() {
-      const result = useAddPluginStore()
-      mutationResult = result
-      return (
-        <div>
-          <button
-            data-testid="add"
-            onClick={() =>
-              result.mutate({
-                name: 'New Store',
-                url: 'https://new-store.example.com',
-              })
-            }
-          >
-            Add
-          </button>
-          <div data-testid="status">{result.status}</div>
-        </div>
-      )
-    }
-
-    const screen = await renderWithQueryClient(<TestComponent />)
-
-    await screen.getByTestId('add').click()
-
-    await expect
-      .element(screen.getByTestId('status'))
-      .toHaveTextContent('success')
-    expect(mutationResult!.data?.store?.name).toBe('New Store')
   })
 })

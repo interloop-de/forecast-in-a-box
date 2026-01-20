@@ -30,7 +30,7 @@ vi.mock(
 )
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -138,7 +138,10 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -160,7 +163,10 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -188,7 +194,10 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -244,12 +253,18 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'source-block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'source-block-2': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -272,12 +287,18 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'source-block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'source-block-2': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -300,7 +321,10 @@ describe('FableFormCanvas', () => {
           isValid: true,
           globalErrors: [],
           possibleSources: [
-            { plugin: 'test-plugin', factory: 'source-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
           ],
           blockStates: {},
         },
@@ -319,7 +343,10 @@ describe('FableFormCanvas', () => {
           isValid: true,
           globalErrors: [],
           possibleSources: [
-            { plugin: 'test-plugin', factory: 'source-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
           ],
           blockStates: {},
         },
@@ -337,7 +364,10 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -353,7 +383,10 @@ describe('FableFormCanvas', () => {
               errors: [],
               // Include source factory as a possible expansion so "Add another" appears
               possibleExpansions: [
-                { plugin: 'test-plugin', factory: 'source-factory' },
+                {
+                  plugin: { store: 'ecmwf', local: 'test-plugin' },
+                  factory: 'source-factory',
+                },
               ],
             },
           },
@@ -383,7 +416,10 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'block-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -431,7 +467,10 @@ describe('FableFormCanvas', () => {
           isValid: true,
           globalErrors: [],
           possibleSources: [
-            { plugin: 'test-plugin', factory: 'source-factory' },
+            {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
           ],
           blockStates: {},
         },
@@ -453,7 +492,10 @@ describe('FableFormCanvas', () => {
       }
 
       expect(addBlockSpy).toHaveBeenCalledWith(
-        { plugin: 'test-plugin', factory: 'source-factory' },
+        {
+          plugin: { store: 'ecmwf', local: 'test-plugin' },
+          factory: 'source-factory',
+        },
         expect.objectContaining({
           kind: 'source',
           title: 'Test Source',
@@ -468,12 +510,18 @@ describe('FableFormCanvas', () => {
         fable: {
           blocks: {
             'source-block': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'product-block': {
-              factory_id: { plugin: 'test-plugin', factory: 'product-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'product-factory',
+              },
               configuration_values: {},
               input_ids: { input: 'source-block' },
             },

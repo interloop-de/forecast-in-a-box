@@ -41,7 +41,7 @@ vi.mock('@/hooks/useMedia', () => ({
 // Mock PluginCard
 vi.mock('@/features/plugins/components/PluginCard', () => ({
   PluginCard: ({ plugin }: { plugin: PluginInfo }) => (
-    <div data-testid={`plugin-card-${plugin.id}`}>
+    <div data-testid={`plugin-card-${plugin.displayId}`}>
       <span>{plugin.name}</span>
     </div>
   ),
@@ -50,7 +50,7 @@ vi.mock('@/features/plugins/components/PluginCard', () => ({
 // Mock PluginRow
 vi.mock('@/features/plugins/components/PluginRow', () => ({
   PluginRow: ({ plugin }: { plugin: PluginInfo }) => (
-    <div data-testid={`plugin-row-${plugin.id}`}>
+    <div data-testid={`plugin-row-${plugin.displayId}`}>
       <span>{plugin.name}</span>
     </div>
   ),
@@ -59,24 +59,32 @@ vi.mock('@/features/plugins/components/PluginRow', () => ({
 // Sample plugin data
 const mockPlugins: Array<PluginInfo> = [
   {
-    id: 'plugin-1',
+    id: { store: 'ecmwf', local: 'plugin-1' },
+    displayId: 'ecmwf/plugin-1',
     name: 'ECMWF Plugin',
     description: 'ECMWF data sources',
     version: '1.0.0',
+    latestVersion: '1.0.0',
     author: 'ECMWF',
     fiabCompatibility: '>=1.0.0',
-    status: 'active',
+    status: 'loaded',
     capabilities: ['source'],
     isEnabled: true,
     isInstalled: true,
     hasUpdate: false,
-    store: 'ecmwf',
+    updatedAt: null,
+    errorDetail: null,
+    comment: null,
+    pipSource: null,
+    moduleName: null,
   },
   {
-    id: 'plugin-2',
+    id: { store: 'ecmwf', local: 'plugin-2' },
+    displayId: 'ecmwf/plugin-2',
     name: 'Data Transform',
     description: 'Data transformation tools',
     version: '2.1.0',
+    latestVersion: '2.1.0',
     author: 'Community',
     fiabCompatibility: '>=1.0.0',
     status: 'disabled',
@@ -84,21 +92,31 @@ const mockPlugins: Array<PluginInfo> = [
     isEnabled: false,
     isInstalled: true,
     hasUpdate: false,
-    store: 'ecmwf',
+    updatedAt: null,
+    errorDetail: null,
+    comment: null,
+    pipSource: null,
+    moduleName: null,
   },
   {
-    id: 'plugin-3',
+    id: { store: 'ecmwf', local: 'plugin-3' },
+    displayId: 'ecmwf/plugin-3',
     name: 'Output Plugin',
     description: 'Output generators',
     version: '1.5.0',
+    latestVersion: '2.0.0',
     author: 'Third Party',
     fiabCompatibility: '>=1.0.0',
-    status: 'update_available',
+    status: 'loaded',
     capabilities: ['product', 'sink'],
     isEnabled: true,
     isInstalled: true,
     hasUpdate: true,
-    store: 'ecmwf',
+    updatedAt: null,
+    errorDetail: null,
+    comment: null,
+    pipSource: null,
+    moduleName: null,
   },
 ]
 
@@ -140,18 +158,20 @@ describe('PluginsList', () => {
       )
 
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeVisible()
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-2'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-2'))
         .toBeVisible()
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-3'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-3'))
         .toBeVisible()
 
       // Rows should not be present
       expect(
-        screen.container.querySelector('[data-testid="plugin-row-plugin-1"]'),
+        screen.container.querySelector(
+          '[data-testid="plugin-row-ecmwf/plugin-1"]',
+        ),
       ).toBeNull()
     })
 
@@ -165,12 +185,14 @@ describe('PluginsList', () => {
 
       // Should still render cards, not table
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeVisible()
 
       // Rows should not be present
       expect(
-        screen.container.querySelector('[data-testid="plugin-row-plugin-1"]'),
+        screen.container.querySelector(
+          '[data-testid="plugin-row-ecmwf/plugin-1"]',
+        ),
       ).toBeNull()
     })
   })
@@ -182,18 +204,20 @@ describe('PluginsList', () => {
       )
 
       await expect
-        .element(screen.getByTestId('plugin-row-plugin-1'))
+        .element(screen.getByTestId('plugin-row-ecmwf/plugin-1'))
         .toBeVisible()
       await expect
-        .element(screen.getByTestId('plugin-row-plugin-2'))
+        .element(screen.getByTestId('plugin-row-ecmwf/plugin-2'))
         .toBeVisible()
       await expect
-        .element(screen.getByTestId('plugin-row-plugin-3'))
+        .element(screen.getByTestId('plugin-row-ecmwf/plugin-3'))
         .toBeVisible()
 
       // Cards should not be present
       expect(
-        screen.container.querySelector('[data-testid="plugin-card-plugin-1"]'),
+        screen.container.querySelector(
+          '[data-testid="plugin-card-ecmwf/plugin-1"]',
+        ),
       ).toBeNull()
     })
 
@@ -228,7 +252,7 @@ describe('PluginsList', () => {
 
       // Just verify the component renders - callbacks are passed to child components
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeVisible()
     })
 
@@ -239,7 +263,7 @@ describe('PluginsList', () => {
       )
 
       await expect
-        .element(screen.getByTestId('plugin-card-plugin-1'))
+        .element(screen.getByTestId('plugin-card-ecmwf/plugin-1'))
         .toBeVisible()
     })
   })

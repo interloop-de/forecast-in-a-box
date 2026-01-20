@@ -68,13 +68,19 @@ describe('FABLE_PRESETS', () => {
   it('standard preset has source block', () => {
     const blocks = FABLE_PRESETS.standard.fable.blocks
     expect(blocks.source_1).toBeDefined()
-    expect(blocks.source_1.factory_id.plugin).toBe('anemoi_inference')
+    expect(blocks.source_1.factory_id.plugin).toEqual({
+      store: 'ecmwf',
+      local: 'anemoi-inference',
+    })
     expect(blocks.source_1.factory_id.factory).toBe('model_forecast')
   })
 
   it('dataset preset uses mars_aifs_external factory', () => {
     const blocks = FABLE_PRESETS.dataset.fable.blocks
-    expect(blocks.source_1.factory_id.plugin).toBe('ecmwf_mars')
+    expect(blocks.source_1.factory_id.plugin).toEqual({
+      store: 'ecmwf',
+      local: 'mars-connector',
+    })
     expect(blocks.source_1.factory_id.factory).toBe('mars_aifs_external')
   })
 

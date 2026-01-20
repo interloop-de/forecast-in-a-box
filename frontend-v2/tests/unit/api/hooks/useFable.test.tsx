@@ -36,7 +36,7 @@ vi.mock('@/utils/env', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'core-plugin': {
+  'ecmwf/core-plugin': {
     factories: {
       model: {
         kind: 'source',
@@ -52,7 +52,10 @@ const mockCatalogue: BlockFactoryCatalogue = {
 const mockFable: FableBuilderV1 = {
   blocks: {
     'block-1': {
-      factory_id: { plugin: 'core-plugin', factory: 'model' },
+      factory_id: {
+        plugin: { store: 'ecmwf', local: 'core-plugin' },
+        factory: 'model',
+      },
       configuration_values: { param1: 'value1' },
       input_ids: {},
     },
@@ -150,7 +153,7 @@ describe('useBlockCatalogue', () => {
       .element(screen.getByTestId('status'))
       .toHaveTextContent('loaded')
     expect(capturedData!.data).toBeDefined()
-    expect(capturedData!.data!['core-plugin']).toBeDefined()
+    expect(capturedData!.data!['ecmwf/core-plugin']).toBeDefined()
   })
 
   it('includes language parameter', async () => {
@@ -534,7 +537,7 @@ describe('useBlockFactory', () => {
 
     function TestComponent() {
       const result = useBlockFactory({
-        plugin: 'core-plugin',
+        plugin: { store: 'ecmwf', local: 'core-plugin' },
         factory: 'model',
       })
       capturedResult = result
@@ -565,7 +568,7 @@ describe('useBlockFactory', () => {
 
     function TestComponent() {
       const result = useBlockFactory({
-        plugin: 'nonexistent-plugin',
+        plugin: { store: 'ecmwf', local: 'nonexistent-plugin' },
         factory: 'model',
       })
       capturedResult = result

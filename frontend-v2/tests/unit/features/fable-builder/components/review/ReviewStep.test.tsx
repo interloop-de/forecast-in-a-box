@@ -39,7 +39,7 @@ vi.mock('@/api/hooks/useFable', () => ({
 }))
 
 const mockCatalogue: BlockFactoryCatalogue = {
-  'test-plugin': {
+  'ecmwf/test-plugin': {
     factories: {
       'source-factory': {
         kind: 'source',
@@ -73,7 +73,10 @@ describe('ReviewStep', () => {
       fable: {
         blocks: {
           'source-1': {
-            factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+            factory_id: {
+              plugin: { store: 'ecmwf', local: 'test-plugin' },
+              factory: 'source-factory',
+            },
             configuration_values: {},
             input_ids: {},
           },
@@ -137,12 +140,18 @@ describe('ReviewStep', () => {
         fable: {
           blocks: {
             'source-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'source-2': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -205,7 +214,10 @@ describe('ReviewStep', () => {
         fable: {
           blocks: {
             'source-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
@@ -322,12 +334,18 @@ describe('ReviewStep', () => {
         fable: {
           blocks: {
             'source-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'product-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'product-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'product-factory',
+              },
               configuration_values: {},
               input_ids: { input: 'source-1' },
             },
@@ -346,12 +364,18 @@ describe('ReviewStep', () => {
         fable: {
           blocks: {
             'source-1': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },
             'source-2': {
-              factory_id: { plugin: 'test-plugin', factory: 'source-factory' },
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test-plugin' },
+                factory: 'source-factory',
+              },
               configuration_values: {},
               input_ids: {},
             },

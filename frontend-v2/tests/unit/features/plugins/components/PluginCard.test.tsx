@@ -137,19 +137,24 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
 }))
 
 const createMockPlugin = (overrides: Partial<PluginInfo> = {}): PluginInfo => ({
-  id: 'test-plugin',
+  id: { store: 'ecmwf', local: 'test-plugin' },
+  displayId: 'ecmwf/test-plugin',
   name: 'Test Plugin',
   description: 'A test plugin for testing',
   version: '1.0.0',
+  latestVersion: '1.0.0',
   author: 'Test Author',
   fiabCompatibility: '>=1.0.0',
   capabilities: ['source', 'sink'],
-  status: 'active',
+  status: 'loaded',
   isInstalled: true,
   isEnabled: true,
   hasUpdate: false,
-  store: 'ecmwf',
-  isDefault: false,
+  updatedAt: null,
+  errorDetail: null,
+  comment: null,
+  pipSource: null,
+  moduleName: null,
   ...overrides,
 })
 
@@ -238,7 +243,7 @@ describe('PluginCard', () => {
     })
 
     it('renders status badge', async () => {
-      const plugin = createMockPlugin({ status: 'active' })
+      const plugin = createMockPlugin({ status: 'loaded' })
       const screen = await render(
         <PluginCard
           plugin={plugin}
@@ -359,7 +364,10 @@ describe('PluginCard', () => {
       )
       const updateButton = screen.getByText('Update')
       await updateButton.click()
-      expect(mockOnUpdate).toHaveBeenCalledWith('test-plugin')
+      expect(mockOnUpdate).toHaveBeenCalledWith({
+        store: 'ecmwf',
+        local: 'test-plugin',
+      })
     })
 
     it('renders toggle switch for installed plugins', async () => {
@@ -380,10 +388,9 @@ describe('PluginCard', () => {
       await expect.element(toggle).toBeInTheDocument()
     })
 
-    it('shows delete button for non-default plugins', async () => {
+    it('shows delete button for installed plugins', async () => {
       const plugin = createMockPlugin({
         isInstalled: true,
-        isDefault: false,
       })
       const screen = await render(
         <PluginCard
@@ -399,27 +406,6 @@ describe('PluginCard', () => {
       expect(buttons.length).toBeGreaterThan(1)
     })
 
-    it('does not show delete button for default plugins', async () => {
-      const plugin = createMockPlugin({
-        isInstalled: true,
-        isDefault: true,
-      })
-      const screen = await render(
-        <PluginCard
-          plugin={plugin}
-          onToggle={mockOnToggle}
-          onInstall={mockOnInstall}
-          onUninstall={mockOnUninstall}
-          onUpdate={mockOnUpdate}
-        />,
-      )
-      // For default plugins, there should be no delete button
-      // The component still renders View Details and dropdown buttons
-      const buttons = screen.container.querySelectorAll('button')
-      // No delete button means fewer buttons than non-default plugins
-      expect(buttons.length).toBeGreaterThan(0)
-    })
-
     it('calls onInstall when Install button is clicked', async () => {
       const plugin = createMockPlugin({ isInstalled: false })
       const screen = await render(
@@ -433,14 +419,16 @@ describe('PluginCard', () => {
       )
       const installButton = screen.getByText('Install')
       await installButton.click()
-      expect(mockOnInstall).toHaveBeenCalledWith('test-plugin')
+      expect(mockOnInstall).toHaveBeenCalledWith({
+        store: 'ecmwf',
+        local: 'test-plugin',
+      })
     })
 
-    it('disables Install button for incompatible plugins', async () => {
+    it('shows Install button for available plugins', async () => {
       const plugin = createMockPlugin({
         isInstalled: false,
-        status: 'incompatible',
-        fiabCompatibility: '>=2.0.0',
+        status: 'available',
       })
       const screen = await render(
         <PluginCard
@@ -454,7 +442,7 @@ describe('PluginCard', () => {
       const installButton = screen
         .getByText('Install')
         .element() as HTMLButtonElement
-      expect(installButton.disabled).toBe(true)
+      expect(installButton.disabled).toBe(false)
     })
 
     it('calls onViewDetails when View Details button is clicked', async () => {
@@ -476,10 +464,8 @@ describe('PluginCard', () => {
   })
 
   describe('dropdown menu', () => {
-    it('renders View Docs link when homepage is provided', async () => {
-      const plugin = createMockPlugin({
-        homepage: 'https://example.com/docs',
-      })
+    it('renders dropdown menu', async () => {
+      const plugin = createMockPlugin()
       const screen = await render(
         <PluginCard
           plugin={plugin}
@@ -489,37 +475,7 @@ describe('PluginCard', () => {
           onUpdate={mockOnUpdate}
         />,
       )
-      await expect.element(screen.getByText('View Docs')).toBeInTheDocument()
-    })
-
-    it('renders Report Issue link when repository is provided', async () => {
-      const plugin = createMockPlugin({
-        repository: 'https://github.com/example/plugin',
-      })
-      const screen = await render(
-        <PluginCard
-          plugin={plugin}
-          onToggle={mockOnToggle}
-          onInstall={mockOnInstall}
-          onUninstall={mockOnUninstall}
-          onUpdate={mockOnUpdate}
-        />,
-      )
-      await expect.element(screen.getByText('Report Issue')).toBeInTheDocument()
-    })
-
-    it('does not render View Docs when homepage is not provided', async () => {
-      const plugin = createMockPlugin({ homepage: undefined })
-      const screen = await render(
-        <PluginCard
-          plugin={plugin}
-          onToggle={mockOnToggle}
-          onInstall={mockOnInstall}
-          onUninstall={mockOnUninstall}
-          onUpdate={mockOnUpdate}
-        />,
-      )
-      expect(screen.container.textContent).not.toContain('View Docs')
+      await expect.element(screen.getByTestId('dropdown')).toBeInTheDocument()
     })
   })
 })

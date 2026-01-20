@@ -12,369 +12,240 @@
  * Mock Plugin Data
  *
  * Test data for plugin management features.
+ * Uses the new backend format with PluginListing structure.
  */
 
-import type { PluginInfo, PluginStore } from '@/api/types/plugins.types'
-
-export const mockStores: Array<PluginStore> = [
-  {
-    id: 'ecmwf-fiab-store',
-    name: 'ECMWF Plugin Store',
-    url: 'https://plugins.fiab.ecmwf.int',
-    isDefault: true,
-    isConnected: true,
-    pluginsCount: 15,
-  },
-]
-
-export const mockPlugins: Array<PluginInfo> = [
-  // Default source plugins (cannot be uninstalled)
-  {
-    id: 'ecmwf/anemoi-inference',
-    name: 'Anemoi Inference',
-    description:
-      'ECMWF Anemoi machine learning inference engine for running AI weather models.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.0.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['source'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-01-01T00:00:00Z',
-    iconName: 'Brain',
-    store: 'ecmwf-fiab-store',
-    isDefault: true,
-  },
-  {
-    id: 'ecmwf/aifs-dataset',
-    name: 'AIFS Forecast Dataset',
-    description:
-      'Access ECMWF AIFS (Artificial Intelligence Forecasting System) forecast datasets as input source.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.0.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['source'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-01-01T00:00:00Z',
-    iconName: 'Database',
-    store: 'ecmwf-fiab-store',
-    isDefault: true,
-  },
-  // Plugins with updates available
-  {
-    id: 'ecmwf/ensemble-forecast',
-    name: 'ECMWF Ensemble',
-    description:
-      'AI-based ensemble forecasting using ECMWF model architecture.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '2.1.0',
-    latestVersion: '2.4.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['source'],
-    status: 'update_available',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: true,
-    installedAt: '2025-09-01T10:00:00Z',
-    iconName: 'Globe',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/frost-connector',
-    name: 'Historical Weather API',
-    description:
-      'Connect to historical weather observation APIs for data analysis.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.0.0',
-    latestVersion: '1.1.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['source'],
-    status: 'update_available',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: true,
-    installedAt: '2025-08-15T08:30:00Z',
-    iconName: 'Droplets',
-    store: 'ecmwf-fiab-store',
-  },
-  // Active plugins
-  {
-    id: 'ecmwf/wind-pattern-ai',
-    name: 'ECMWF Wind Pattern AI',
-    description: 'Neural network for predicting jet stream shifts.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '3.0.2',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['product'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-12-09T14:00:00Z',
-    iconName: 'Wind',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/thermal-mapper',
-    name: 'Thermal Mapper',
-    description: 'Visualizes temperature gradients across topographic layers.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '4.1.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['sink'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-12-06T09:15:00Z',
-    iconName: 'Thermometer',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/regridding',
-    name: 'ECMWF Regridding',
-    description:
-      'High-performance regridding and interpolation for forecast datasets.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '2.0.5',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['transform'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-12-04T11:30:00Z',
-    iconName: 'Globe',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/grib-export',
-    name: 'GRIB Export',
-    description: 'Export forecast data in GRIB format for meteorological use.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '2.1.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['sink'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-10-20T16:45:00Z',
-    iconName: 'FileOutput',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/netcdf-export',
-    name: 'NetCDF Export',
-    description:
-      'Export forecast data in NetCDF format for scientific analysis.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.5.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['sink'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-10-18T10:00:00Z',
-    iconName: 'Database',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/ocean-current',
-    name: 'Ocean Current Analyzer',
-    description: 'Tracks and predicts North Atlantic and Arctic currents.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.2.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['product'],
-    status: 'active',
-    isEnabled: true,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-11-05T08:00:00Z',
-    iconName: 'Waves',
-    store: 'ecmwf-fiab-store',
-  },
-  // Disabled plugins
-  {
-    id: 'ecmwf/precipitation',
-    name: 'Precipitation Visualizer',
-    description: 'Legacy module for rain density visualization.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.2.0',
-    fiabCompatibility: '>=0.8.0',
-    capabilities: ['sink'],
-    status: 'disabled',
-    isEnabled: false,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-11-01T12:00:00Z',
-    iconName: 'CloudRain',
-    store: 'ecmwf-fiab-store',
-  },
-  {
-    id: 'ecmwf/legacy-viz',
-    name: 'Legacy Visualizer',
-    description: 'Deprecated visualization module for older forecast formats.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '0.9.5',
-    fiabCompatibility: '>=0.5.0',
-    capabilities: ['sink'],
-    status: 'disabled',
-    isEnabled: false,
-    isInstalled: true,
-    hasUpdate: false,
-    installedAt: '2025-06-15T14:30:00Z',
-    iconName: 'ImageOff',
-    store: 'ecmwf-fiab-store',
-  },
-  // Uninstalled plugins (not installed)
-  {
-    id: 'ecmwf/anemoi-storm-tracker',
-    name: 'Anemoi Storm Tracker',
-    description:
-      'ML-based severe weather tracking module for Anemoi inference pipelines.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '3.0.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['product'],
-    status: 'uninstalled',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'Tornado',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2026-01-05T00:00:00Z', // Within last month - should show "New"
-  },
-  {
-    id: 'ecmwf/snow-analysis',
-    name: 'Snow Analysis',
-    description: 'Analyze and forecast snow accumulation patterns.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '2.0.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['product'],
-    status: 'uninstalled',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'Snowflake',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2025-12-20T00:00:00Z', // Within last month - should show "New"
-  },
-  {
-    id: 'ecmwf/pproc-visualization',
-    name: 'PProc Visualization Suite',
-    description:
-      'Advanced visualization tools for PProc post-processing outputs and diagnostics.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.0.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['sink'],
-    status: 'uninstalled',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'BarChart3',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2025-09-15T00:00:00Z', // Older release
-  },
-  {
-    id: 'ecmwf/pdf-export',
-    name: 'PDF Report Generator',
-    description: 'Generate professional PDF reports from forecast data.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.5.0',
-    fiabCompatibility: '>=1.0.0',
-    capabilities: ['sink'],
-    status: 'uninstalled',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'FileText',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2025-11-01T00:00:00Z', // Older release
-  },
-  // Incompatible plugins
-  {
-    id: 'ecmwf/anemoi-training',
-    name: 'Anemoi Training Module',
-    description:
-      'Advanced training and fine-tuning capabilities for Anemoi weather models.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '1.0.0',
-    fiabCompatibility: '>=2.0.0',
-    capabilities: ['source', 'product'],
-    status: 'incompatible',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'Cpu',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2026-01-10T00:00:00Z', // Within last month - should show "New"
-  },
-  {
-    id: 'ecmwf/anemoi-probabilistic',
-    name: 'Anemoi Probabilistic Ensemble',
-    description:
-      'Probabilistic ensemble generation and uncertainty quantification for Anemoi forecasts.',
-    author: 'ECMWF',
-    authorUrl: 'https://ecmwf.int',
-    version: '0.5.0',
-    fiabCompatibility: '>=2.5.0',
-    capabilities: ['product'],
-    status: 'incompatible',
-    isEnabled: false,
-    isInstalled: false,
-    hasUpdate: false,
-    iconName: 'Layers',
-    store: 'ecmwf-fiab-store',
-    releaseDate: '2025-08-01T00:00:00Z', // Older release
-  },
-]
+import type { PluginDetail, PluginListing } from '@/api/types/plugins.types'
 
 /**
- * Get plugins with updates available
+ * Helper to create a Python repr format plugin key
  */
-export function getPluginsWithUpdates(): Array<PluginInfo> {
-  return mockPlugins.filter((p) => p.hasUpdate)
+function createPluginKey(store: string, local: string): string {
+  return `store='${store}' local='${local}'`
 }
 
 /**
- * Get installed plugins
+ * Mock plugin data in backend format
  */
-export function getInstalledPlugins(): Array<PluginInfo> {
-  return mockPlugins.filter((p) => p.isInstalled)
+export const mockPluginListing: PluginListing = {
+  plugins: {
+    // Loaded plugins (installed and running)
+    [createPluginKey('ecmwf', 'anemoi-inference')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'anemoi-inference',
+        module_name: 'anemoi_inference',
+        display_title: 'Anemoi Inference',
+        display_description:
+          'ECMWF Anemoi machine learning inference engine for running AI weather models.',
+        display_author: 'ECMWF',
+        comment: 'Core plugin for ML inference',
+      },
+      remote_info: { version: '1.0.0' },
+      errored_detail: null,
+      loaded_version: '1.0.0',
+      update_date: '2025/01/01',
+    },
+    [createPluginKey('ecmwf', 'aifs-dataset')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'aifs-dataset',
+        module_name: 'aifs_dataset',
+        display_title: 'AIFS Forecast Dataset',
+        display_description:
+          'Access ECMWF AIFS (Artificial Intelligence Forecasting System) forecast datasets as input source.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '1.0.0' },
+      errored_detail: null,
+      loaded_version: '1.0.0',
+      update_date: '2025/01/01',
+    },
+    [createPluginKey('ecmwf', 'regridding')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'ecmwf-regridding',
+        module_name: 'ecmwf_regridding',
+        display_title: 'ECMWF Regridding',
+        display_description:
+          'High-performance regridding and interpolation for forecast datasets.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '2.0.5' },
+      errored_detail: null,
+      loaded_version: '2.0.5',
+      update_date: '2025/12/04',
+    },
+    [createPluginKey('ecmwf', 'grib-export')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'grib-export',
+        module_name: 'grib_export',
+        display_title: 'GRIB Export',
+        display_description:
+          'Export forecast data in GRIB format for meteorological use.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '2.1.0' },
+      errored_detail: null,
+      loaded_version: '2.1.0',
+      update_date: '2025/10/20',
+    },
+
+    // Plugin with update available
+    [createPluginKey('ecmwf', 'ensemble-forecast')]: {
+      status: 'loaded',
+      store_info: {
+        pip_source: 'ecmwf-ensemble',
+        module_name: 'ecmwf_ensemble',
+        display_title: 'ECMWF Ensemble',
+        display_description:
+          'AI-based ensemble forecasting using ECMWF model architecture.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '2.4.0' },
+      errored_detail: null,
+      loaded_version: '2.1.0',
+      update_date: '2025/09/01',
+    },
+
+    // Disabled plugin
+    [createPluginKey('ecmwf', 'precipitation')]: {
+      status: 'disabled',
+      store_info: {
+        pip_source: 'precipitation-viz',
+        module_name: 'precipitation_viz',
+        display_title: 'Precipitation Visualizer',
+        display_description: 'Legacy module for rain density visualization.',
+        display_author: 'ECMWF',
+        comment: 'Deprecated - use new visualizer instead',
+      },
+      remote_info: { version: '1.2.0' },
+      errored_detail: null,
+      loaded_version: '1.2.0',
+      update_date: '2025/11/01',
+    },
+
+    // Errored plugin
+    [createPluginKey('ecmwf', 'legacy-viz')]: {
+      status: 'errored',
+      store_info: {
+        pip_source: 'legacy-visualizer',
+        module_name: 'legacy_viz',
+        display_title: 'Legacy Visualizer',
+        display_description:
+          'Deprecated visualization module for older forecast formats.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '0.9.5' },
+      errored_detail: 'Failed to load module: incompatible with Python 3.12',
+      loaded_version: '0.9.5',
+      update_date: '2025/06/15',
+    },
+
+    // Available plugins (not installed)
+    [createPluginKey('ecmwf', 'anemoi-storm-tracker')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'anemoi-storm-tracker',
+        module_name: 'anemoi_storm_tracker',
+        display_title: 'Anemoi Storm Tracker',
+        display_description:
+          'ML-based severe weather tracking module for Anemoi inference pipelines.',
+        display_author: 'ECMWF',
+        comment: 'New plugin!',
+      },
+      remote_info: { version: '3.0.0' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
+    },
+    [createPluginKey('ecmwf', 'snow-analysis')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'snow-analysis',
+        module_name: 'snow_analysis',
+        display_title: 'Snow Analysis',
+        display_description: 'Analyze and forecast snow accumulation patterns.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '2.0.0' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
+    },
+    [createPluginKey('ecmwf', 'netcdf-export')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'netcdf-export',
+        module_name: 'netcdf_export',
+        display_title: 'NetCDF Export',
+        display_description:
+          'Export forecast data in NetCDF format for scientific analysis.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '1.5.0' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
+    },
+    [createPluginKey('ecmwf', 'pdf-export')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'pdf-report-generator',
+        module_name: 'pdf_export',
+        display_title: 'PDF Report Generator',
+        display_description:
+          'Generate professional PDF reports from forecast data.',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '1.5.0' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
+    },
+  },
 }
 
 /**
- * Get uninstalled plugins (not installed)
+ * Get a mutable copy of the plugin listing for mock handlers
  */
-export function getUninstalledPlugins(): Array<PluginInfo> {
-  return mockPlugins.filter(
-    (p) => p.status === 'uninstalled' || p.status === 'incompatible',
-  )
+export function getMutablePluginListing(): PluginListing {
+  return JSON.parse(JSON.stringify(mockPluginListing)) as PluginListing
+}
+
+/**
+ * Find a plugin by composite ID key
+ */
+export function findPluginByKey(
+  listing: PluginListing,
+  store: string,
+  local: string,
+): PluginDetail | undefined {
+  const key = createPluginKey(store, local)
+  return listing.plugins[key]
+}
+
+/**
+ * Update a plugin in the listing
+ */
+export function updatePluginInListing(
+  listing: PluginListing,
+  store: string,
+  local: string,
+  updates: Partial<PluginDetail>,
+): void {
+  const key = createPluginKey(store, local)
+  const existing = listing.plugins[key] as PluginDetail | undefined
+  if (existing) {
+    listing.plugins[key] = { ...existing, ...updates }
+  }
 }

@@ -15,26 +15,30 @@
  */
 
 import { formatDistanceToNow } from 'date-fns'
-import { MoreVertical, Trash2 } from 'lucide-react'
+import { AlertCircle, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { CapabilityBadges } from './CapabilityBadges'
 import { PluginIcon } from './PluginIcon'
 import { PluginStatusBadge } from './PluginStatusBadge'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface PluginRowProps {
   plugin: PluginInfo
-  onToggle: (pluginId: string, enabled: boolean) => void
-  onUninstall: (pluginId: string) => void
+  onToggle: (compositeId: PluginCompositeId, enabled: boolean) => void
+  onUninstall: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
 }
 
@@ -46,30 +50,49 @@ export function PluginRow({
 }: PluginRowProps) {
   const { t } = useTranslation('plugins')
 
-  const installedTimeAgo = plugin.installedAt
-    ? formatDistanceToNow(new Date(plugin.installedAt), { addSuffix: true })
+  const updatedTimeAgo = plugin.updatedAt
+    ? formatDistanceToNow(new Date(plugin.updatedAt), { addSuffix: true })
     : null
+
+  const hasError = plugin.status === 'errored'
 
   return (
     <div
       className={cn(
         'group grid grid-cols-1 items-center gap-4 px-6 py-5 transition-colors hover:bg-muted/50 sm:grid-cols-12',
         !plugin.isEnabled && 'opacity-75 hover:opacity-100',
+        hasError && 'bg-red-50/50 dark:bg-red-950/20',
       )}
     >
       {/* Plugin Details */}
       <div className="flex items-start gap-4 sm:col-span-5">
         <PluginIcon plugin={plugin} />
         <div>
-          <h4 className="text-sm font-semibold">{plugin.name}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold">{plugin.name}</h4>
+            {hasError && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">
+                    {plugin.errorDetail || t('status.errored')}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
             {plugin.description}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">
-              v{plugin.version}
-              {installedTimeAgo && <> · Installed {installedTimeAgo}</>}
-            </span>
+            {plugin.version && (
+              <span className="font-mono text-sm text-muted-foreground">
+                v{plugin.version}
+                {updatedTimeAgo && <> · Updated {updatedTimeAgo}</>}
+              </span>
+            )}
             {plugin.capabilities.length > 0 && (
               <CapabilityBadges capabilities={plugin.capabilities} />
             )}
@@ -85,7 +108,10 @@ export function PluginRow({
 
       {/* Status */}
       <div className="flex items-center sm:col-span-2">
-        <PluginStatusBadge status={plugin.status} />
+        <PluginStatusBadge
+          status={plugin.status}
+          hasUpdate={plugin.hasUpdate}
+        />
       </div>
 
       {/* Actions */}
@@ -101,8 +127,8 @@ export function PluginRow({
           />
         )}
 
-        {/* Delete Button - hidden for default plugins */}
-        {plugin.isInstalled && !plugin.isDefault && (
+        {/* Delete Button */}
+        {plugin.isInstalled && (
           <button
             className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
             title={t('actions.uninstall')}
@@ -130,34 +156,18 @@ export function PluginRow({
                 {t('actions.viewDetails')}
               </DropdownMenuItem>
             )}
-            {plugin.homepage && (
+            {plugin.pipSource && (
               <DropdownMenuItem
                 render={
                   <a
-                    href={plugin.homepage}
+                    href={`https://pypi.org/project/${plugin.pipSource.split('/').pop()?.replace('.git', '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   />
                 }
               >
-                {t('actions.viewDocs')}
+                {t('actions.viewOnPyPI')}
               </DropdownMenuItem>
-            )}
-            {plugin.repository && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  render={
-                    <a
-                      href={plugin.repository}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  {t('actions.reportIssue')}
-                </DropdownMenuItem>
-              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

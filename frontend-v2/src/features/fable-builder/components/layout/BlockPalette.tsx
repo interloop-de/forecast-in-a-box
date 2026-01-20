@@ -23,6 +23,7 @@ import {
   factoryIdToKey,
   flattenCatalogue,
   getBlockKindIcon,
+  parseDisplayPluginId,
 } from '@/api/types/fable.types'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -94,7 +95,7 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
       const group = groups.get(factory.kind)
       if (group) {
         const pluginBlockFactoryId: PluginBlockFactoryId = {
-          plugin: pluginId,
+          plugin: parseDisplayPluginId(pluginId),
           factory: factoryId,
         }
         const key = factoryIdToKey(pluginBlockFactoryId)
