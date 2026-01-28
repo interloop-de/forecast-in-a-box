@@ -83,6 +83,9 @@ interface FableBuilderState {
   removeBlock: (instanceId: BlockInstanceId) => void
   removeBlockCascade: (instanceId: BlockInstanceId) => void
   duplicateBlock: (instanceId: BlockInstanceId) => BlockInstanceId
+  duplicateBlockWithChildren: (
+    instanceId: BlockInstanceId,
+  ) => Record<BlockInstanceId, BlockInstanceId>
   connectBlocks: (
     targetBlockId: BlockInstanceId,
     inputName: string,
@@ -339,6 +342,85 @@ export const useFableBuilderStore = create<FableBuilderState>()(
           }))
 
           return newInstanceId
+        },
+
+        duplicateBlockWithChildren: (instanceId) => {
+          const { fable } = get()
+
+          // Find all downstream blocks (same logic as removeBlockCascade)
+          const findDownstreamBlocks = (
+            startId: BlockInstanceId,
+            blocks: Record<BlockInstanceId, BlockInstance>,
+          ): Set<BlockInstanceId> => {
+            const downstream = new Set<BlockInstanceId>()
+            const queue = [startId]
+
+            while (queue.length > 0) {
+              const currentId = queue.shift()!
+              for (const [blockId, block] of Object.entries(blocks)) {
+                if (downstream.has(blockId)) continue
+                const hasCurrentAsInput = Object.values(block.input_ids).some(
+                  (sourceId) => sourceId === currentId,
+                )
+                if (hasCurrentAsInput) {
+                  downstream.add(blockId)
+                  queue.push(blockId)
+                }
+              }
+            }
+            return downstream
+          }
+
+          const downstreamBlocks = findDownstreamBlocks(
+            instanceId,
+            fable.blocks,
+          )
+          const toDuplicate = [instanceId, ...downstreamBlocks]
+
+          // Create ID mapping for all blocks to duplicate
+          const idMapping: Record<BlockInstanceId, BlockInstanceId> = {}
+          for (const id of toDuplicate) {
+            idMapping[id] = generateBlockInstanceId()
+          }
+
+          // Duplicate each block with updated input_ids
+          const newBlocks: Record<BlockInstanceId, BlockInstance> = {}
+          for (const id of toDuplicate) {
+            const block = fable.blocks[id]
+            const newInputIds: Record<string, string> = {}
+
+            // Update input_ids to point to new IDs if the source is also being duplicated
+            for (const [inputName, sourceId] of Object.entries(
+              block.input_ids,
+            )) {
+              if (idMapping[sourceId]) {
+                newInputIds[inputName] = idMapping[sourceId]
+              } else {
+                newInputIds[inputName] = sourceId
+              }
+            }
+
+            newBlocks[idMapping[id]] = {
+              factory_id: block.factory_id,
+              configuration_values: { ...block.configuration_values },
+              input_ids: newInputIds,
+            }
+          }
+
+          set((state) => ({
+            fable: {
+              ...state.fable,
+              blocks: {
+                ...state.fable.blocks,
+                ...newBlocks,
+              },
+            },
+            selectedBlockId: idMapping[instanceId],
+            isDirty: true,
+            validationState: null,
+          }))
+
+          return idMapping
         },
 
         connectBlocks: (targetBlockId, inputName, sourceBlockId) => {

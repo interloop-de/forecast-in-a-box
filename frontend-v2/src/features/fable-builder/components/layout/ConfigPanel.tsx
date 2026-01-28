@@ -142,6 +142,7 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
             size="icon"
             className="h-8 w-8 shrink-0"
             onClick={() => selectBlock(null)}
+            data-testid="config-panel-close"
           >
             <X className="h-4 w-4" />
           </Button>

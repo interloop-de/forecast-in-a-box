@@ -212,10 +212,8 @@ describe('ConfigPanel', () => {
     it('renders close button', async () => {
       const screen = await render(<ConfigPanel catalogue={mockCatalogue} />)
 
-      const buttons = screen.container.querySelectorAll('button')
-      const closeButton = Array.from(buttons).find(
-        // @ts-ignore - textContent may be null but we handle it safely in filter
-        (b) => b.querySelector('svg') && !b.textContent.includes('Delete'),
+      const closeButton = screen.container.querySelector(
+        '[data-testid="config-panel-close"]',
       )
       expect(closeButton).toBeTruthy()
     })
@@ -226,17 +224,12 @@ describe('ConfigPanel', () => {
 
       const screen = await render(<ConfigPanel catalogue={mockCatalogue} />)
 
-      const buttons = screen.container.querySelectorAll('button')
-      const closeButton = Array.from(buttons).find(
-        (b) =>
-          b.querySelector('svg') &&
-          // @ts-ignore - textContent may be null but we handle it safely in filter
-          !b.textContent.includes('Delete') &&
-          !b.closest('[data-testid]'),
+      const closeButton = screen.container.querySelector(
+        '[data-testid="config-panel-close"]',
       )
 
       expect(closeButton).toBeTruthy()
-      await closeButton!.click()
+      await (closeButton as HTMLButtonElement).click()
       expect(selectBlockSpy).toHaveBeenCalledWith(null)
     })
   })

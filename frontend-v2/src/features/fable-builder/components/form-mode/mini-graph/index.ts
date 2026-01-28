@@ -8,9 +8,17 @@
  * does it submit to any jurisdiction.
  */
 
-export { FableFormCanvas } from './FableFormCanvas'
-export { BlockInstanceCard } from './BlockInstanceCard'
-export { BlockTabs } from './BlockTabs'
-export { ConnectionsPanel } from './ConnectionsPanel'
-export { FormPaletteSidebar } from './FormPaletteSidebar'
-export * from './mini-graph'
+export { MiniPipelineNode } from './MiniPipelineNode'
+export type {
+  MiniPipelineNodeData,
+  MiniPipelineNodeType,
+} from './MiniPipelineNode'
+
+export { AddBlockNode } from './AddBlockNode'
+export type { AddBlockNodeData, AddBlockNodeType } from './AddBlockNode'
+
+export {
+  NodeControls,
+  type ControlDirection,
+  type NodeControlsProps,
+} from './NodeControls'

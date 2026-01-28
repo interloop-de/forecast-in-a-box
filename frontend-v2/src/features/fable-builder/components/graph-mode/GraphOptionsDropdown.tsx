@@ -12,8 +12,8 @@ import {
   Lock,
   LockOpen,
   Map,
-  Maximize2,
   MoreHorizontal,
+  Sparkles,
   Workflow,
 } from 'lucide-react'
 import type {
@@ -69,9 +69,18 @@ export function GraphOptionsDropdown() {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuGroup>
           <DropdownMenuLabel>View</DropdownMenuLabel>
-          <DropdownMenuItem onClick={triggerFitView}>
-            <Maximize2 />
-            Fit to view
+          <DropdownMenuItem
+            onClick={() => {
+              // Force layout recalculation by enabling auto-layout if needed
+              if (!autoLayout) {
+                setAutoLayout(true)
+              }
+              // Trigger fit view with a slight delay to allow layout to recalculate
+              setTimeout(triggerFitView, 50)
+            }}
+          >
+            <Sparkles />
+            Tidy up configuration
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setNodesLocked(!nodesLocked)}>
             {nodesLocked ? <Lock /> : <LockOpen />}

@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Bookmark,
   Copy,
+  CopyPlus,
   MoreHorizontal,
   Settings,
   Trash2,
@@ -84,6 +85,9 @@ export const BlockNode = memo(function BlockNode({
     (state) => state.removeBlockCascade,
   )
   const duplicateBlock = useFableBuilderStore((state) => state.duplicateBlock)
+  const duplicateBlockWithChildren = useFableBuilderStore(
+    (state) => state.duplicateBlockWithChildren,
+  )
   const openMobileConfig = useFableBuilderStore(
     (state) => state.openMobileConfig,
   )
@@ -109,6 +113,11 @@ export const BlockNode = memo(function BlockNode({
 
   function handleDuplicate(): void {
     duplicateBlock(id)
+    setMenuOpen(false)
+  }
+
+  function handleDuplicateWithChildren(): void {
+    duplicateBlockWithChildren(id)
     setMenuOpen(false)
   }
 
@@ -244,6 +253,13 @@ export const BlockNode = memo(function BlockNode({
                 >
                   <Copy className="h-4 w-4" />
                   Duplicate
+                </button>
+                <button
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
+                  onClick={handleDuplicateWithChildren}
+                >
+                  <CopyPlus className="h-4 w-4" />
+                  Duplicate with children
                 </button>
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"

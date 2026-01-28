@@ -29,6 +29,16 @@ vi.mock(
   }),
 )
 
+// Mock FormPaletteSidebar to avoid BlockPalette content interfering with tests
+vi.mock(
+  '@/features/fable-builder/components/form-mode/FormPaletteSidebar',
+  () => ({
+    FormPaletteSidebar: () => (
+      <div data-testid="form-palette-sidebar">Palette Sidebar</div>
+    ),
+  }),
+)
+
 const mockCatalogue: BlockFactoryCatalogue = {
   'ecmwf/test-plugin': {
     factories: {
@@ -274,9 +284,22 @@ describe('FableFormCanvas', () => {
 
       const screen = await render(<FableFormCanvas catalogue={mockCatalogue} />)
 
+      // With 2+ sources, they are shown in tabs
+      // First source tab should be active by default, showing its card
       await expect
         .element(screen.getByTestId('block-card-source-block-1'))
         .toBeInTheDocument()
+
+      // Both tabs should be visible
+      const tabs = screen.container.querySelectorAll(
+        '[data-slot="tabs-trigger"]',
+      )
+      expect(tabs.length).toBe(2)
+
+      // Click second tab to show second source
+      await (tabs[1] as HTMLElement).click()
+
+      // Now second source card should be visible
       await expect
         .element(screen.getByTestId('block-card-source-block-2'))
         .toBeInTheDocument()
