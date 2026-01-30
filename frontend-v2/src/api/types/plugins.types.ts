@@ -224,7 +224,7 @@ export function toPluginInfo(
     name: detail.store_info?.display_title ?? id.local,
     description: detail.store_info?.display_description ?? '',
     author: detail.store_info?.display_author ?? '',
-    version: detail.loaded_version,
+    version: detail.loaded_version === 'unknown' ? null : detail.loaded_version,
     latestVersion: detail.remote_info?.version ?? null,
     capabilities,
     status: detail.status,
@@ -232,13 +232,22 @@ export function toPluginInfo(
     isInstalled,
     hasUpdate,
     updatedAt: detail.update_date
-      ? convertUpdateDate(detail.update_date)
+      ? toValidDateOrNull(detail.update_date)
       : null,
     errorDetail: detail.errored_detail,
     comment: detail.store_info?.comment ?? null,
     pipSource: detail.store_info?.pip_source ?? null,
     moduleName: detail.store_info?.module_name ?? null,
   }
+}
+
+/**
+ * Converts and validates a date string, returning null if unparseable.
+ */
+function toValidDateOrNull(dateStr: string): string | null {
+  const converted = convertUpdateDate(dateStr)
+  const date = new Date(converted)
+  return isNaN(date.getTime()) ? null : converted
 }
 
 /**

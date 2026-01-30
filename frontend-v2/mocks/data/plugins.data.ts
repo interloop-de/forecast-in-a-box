@@ -212,6 +212,16 @@ export const mockPluginListing: PluginListing = {
       loaded_version: null,
       update_date: null,
     },
+
+    // Plugin with unparseable "unknown" date (backend can return this)
+    [createPluginKey('ecmwf', 'toy1')]: {
+      status: 'errored',
+      store_info: null,
+      remote_info: null,
+      errored_detail: 'Plugin store info unavailable',
+      loaded_version: '0.1.0',
+      update_date: 'unknown',
+    },
   },
 }
 

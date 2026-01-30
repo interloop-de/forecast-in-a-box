@@ -262,6 +262,50 @@ describe('usePlugins', () => {
     expect(loadedPlugin?.status).toBe('loaded')
     expect(loadedPlugin?.name).toBe('Anemoi Inference')
   })
+
+  it('converts unparseable update_date to null', async () => {
+    const listingWithUnknownDate: PluginListing = {
+      plugins: {
+        [createPluginKey('ecmwf', 'toy1')]: {
+          status: 'errored',
+          store_info: null,
+          remote_info: null,
+          errored_detail: 'Plugin store info unavailable',
+          loaded_version: '0.1.0',
+          update_date: 'unknown',
+        },
+      },
+    }
+
+    worker.use(
+      http.get(API_ENDPOINTS.plugin.details, () => {
+        return HttpResponse.json(listingWithUnknownDate)
+      }),
+    )
+
+    let capturedData: ReturnType<typeof usePlugins> | null = null
+
+    function TestComponent() {
+      const result = usePlugins()
+      capturedData = result
+      return (
+        <div data-testid="status">
+          {result.isLoading ? 'loading' : 'loaded'}
+        </div>
+      )
+    }
+
+    const screen = await renderWithQueryClient(<TestComponent />)
+
+    await expect
+      .element(screen.getByTestId('status'))
+      .toHaveTextContent('loaded')
+    const toy1Plugin = capturedData!.data?.plugins.find(
+      (p) => p.id.local === 'toy1',
+    )
+    expect(toy1Plugin).toBeDefined()
+    expect(toy1Plugin?.updatedAt).toBeNull()
+  })
 })
 
 describe('useInstallPlugin', () => {

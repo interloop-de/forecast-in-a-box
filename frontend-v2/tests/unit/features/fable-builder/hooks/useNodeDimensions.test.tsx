@@ -197,7 +197,9 @@ describe('useNodeDimensions', () => {
     // Re-render with new nodeId
     screen.rerender(<TestComponent nodeId="node-2" />)
 
-    // Should disconnect old and create new
-    expect(mockDisconnect).toHaveBeenCalled()
+    // Should disconnect old and create new (async effect cleanup)
+    await vi.waitFor(() => {
+      expect(mockDisconnect).toHaveBeenCalled()
+    })
   })
 })
