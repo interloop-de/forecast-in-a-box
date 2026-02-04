@@ -44,6 +44,28 @@ export default defineConfig(({ mode }) => {
             changeOrigin: true,
             secure: false,
             cookieDomainRewrite: 'localhost',
+            // Rewrite Location headers in redirect responses to use the proxy host
+            // This fixes issues with backend 303 redirects containing absolute URLs to port 8000
+            autoRewrite: true,
+            // Handle redirect responses to rewrite Location header
+            configure: (proxy) => {
+              proxy.on('proxyRes', (proxyRes, _req, _res) => {
+                // Rewrite Location header for redirect responses (3xx)
+                const location = proxyRes.headers['location']
+                if (
+                  location &&
+                  proxyRes.statusCode &&
+                  proxyRes.statusCode >= 300 &&
+                  proxyRes.statusCode < 400
+                ) {
+                  // Replace backend URL with proxy URL
+                  proxyRes.headers['location'] = location.replace(
+                    /^http:\/\/localhost:8000/,
+                    `http://localhost:${env.VITE_PORT || 3000}`,
+                  )
+                }
+              })
+            },
           },
         },
       }),

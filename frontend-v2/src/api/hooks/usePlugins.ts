@@ -35,6 +35,7 @@ import {
   updatePlugin,
 } from '@/api/endpoints/plugins'
 import { toPluginInfoList } from '@/api/types/plugins.types'
+import { fableKeys } from '@/api/hooks/useFable'
 
 /** Query keys for plugins */
 export const pluginKeys = {
@@ -127,8 +128,12 @@ export function useInstallPlugin() {
 
   return useMutation({
     mutationFn: (compositeId: PluginCompositeId) => installPlugin(compositeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      // Invalidate plugin details and fable catalogue (plugins provide block factories)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
@@ -142,8 +147,11 @@ export function useUninstallPlugin() {
   return useMutation({
     mutationFn: (compositeId: PluginCompositeId) =>
       uninstallPlugin(compositeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
@@ -156,8 +164,11 @@ export function useEnablePlugin() {
 
   return useMutation({
     mutationFn: (compositeId: PluginCompositeId) => enablePlugin(compositeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
@@ -170,8 +181,11 @@ export function useDisablePlugin() {
 
   return useMutation({
     mutationFn: (compositeId: PluginCompositeId) => disablePlugin(compositeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
@@ -190,8 +204,11 @@ export function useModifyPluginEnabled() {
       compositeId: PluginCompositeId
       isEnabled: boolean
     }) => modifyPluginEnabled(compositeId, isEnabled),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
@@ -204,8 +221,11 @@ export function useUpdatePlugin() {
 
   return useMutation({
     mutationFn: (compositeId: PluginCompositeId) => updatePlugin(compositeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
+        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
+      ])
     },
   })
 }
