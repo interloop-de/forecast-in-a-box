@@ -14,11 +14,7 @@ import { AlertCircle, Trash2 } from 'lucide-react'
 
 import type { Node, NodeProps } from '@xyflow/react'
 import type { FableNodeData } from '@/features/fable-builder/utils/fable-to-graph'
-import type {
-  BlockConfigurationOption,
-  BlockFactory,
-  BlockInstance,
-} from '@/api/types/fable.types'
+import type { BlockFactory, BlockInstance } from '@/api/types/fable.types'
 import { AddNodeButton } from '@/features/fable-builder/components/graph-mode/AddNodeButton'
 import { useNodeDimensions } from '@/features/fable-builder/hooks/useNodeDimensions'
 import {
@@ -41,8 +37,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { FieldRenderer } from '@/components/base/fields'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -278,14 +274,21 @@ export const InlineBlockNode = memo(function InlineBlockNode({
               Configuration
             </div>
             {configOptions.map(([key, option]) => (
-              <InlineConfigField
+              <div
                 key={key}
-                blockId={id}
-                name={key}
-                option={option}
-                value={instance.configuration_values[key] || ''}
-                onChange={(value) => updateBlockConfig(id, key, value)}
-              />
+                className="nodrag space-y-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FieldRenderer
+                  id={`config-${id}-${key}`}
+                  valueType={option.value_type}
+                  value={instance.configuration_values[key] || ''}
+                  onChange={(value) => updateBlockConfig(id, key, value)}
+                  label={option.title || key}
+                  description={option.description}
+                  inputClassName="h-8 text-sm"
+                />
+              </div>
             ))}
           </div>
         )}
@@ -345,45 +348,3 @@ export const InlineBlockNode = memo(function InlineBlockNode({
     </div>
   )
 })
-
-interface InlineConfigFieldProps {
-  blockId: string
-  name: string
-  option: BlockConfigurationOption
-  value: string
-  onChange: (value: string) => void
-}
-
-function InlineConfigField({
-  blockId,
-  name,
-  option,
-  value,
-  onChange,
-}: InlineConfigFieldProps): React.ReactElement {
-  const fieldId = `config-${blockId}-${name}`
-  const inputType =
-    option.value_type === 'integer' || option.value_type === 'float'
-      ? 'number'
-      : 'text'
-
-  return (
-    <div className="nodrag space-y-1" onClick={(e) => e.stopPropagation()}>
-      <Label htmlFor={fieldId} className="text-sm">
-        {option.title || name}
-      </Label>
-      {option.description && (
-        <p className="text-sm leading-tight text-muted-foreground">
-          {option.description}
-        </p>
-      )}
-      <Input
-        id={fieldId}
-        type={inputType}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-8 text-sm"
-      />
-    </div>
-  )
-}

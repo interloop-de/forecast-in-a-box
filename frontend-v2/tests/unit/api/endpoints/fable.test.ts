@@ -116,7 +116,7 @@ describe('expandFable', () => {
     }
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         return HttpResponse.json(mockExpansion)
       }),
     )
@@ -126,12 +126,12 @@ describe('expandFable', () => {
     expect(result.block_errors).toEqual({})
   })
 
-  it('sends fable as JSON query parameter', async () => {
-    let capturedUrl: string | null = null
+  it('sends fable as JSON body', async () => {
+    let capturedBody: unknown = null
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, ({ request }) => {
-        capturedUrl = request.url
+      http.post(API_ENDPOINTS.fable.expand, async ({ request }) => {
+        capturedBody = await request.json()
         return HttpResponse.json({
           global_errors: [],
           block_errors: {},
@@ -142,7 +142,7 @@ describe('expandFable', () => {
     )
 
     await expandFable(mockFable)
-    expect(capturedUrl).toContain('fable=')
+    expect(capturedBody).toEqual(mockFable)
   })
 })
 
@@ -155,7 +155,7 @@ describe('compileFable', () => {
     const mockCompiled = { compiled: true, output: 'some-output' }
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.compile, () => {
+      http.post(API_ENDPOINTS.fable.compile, () => {
         return HttpResponse.json(mockCompiled)
       }),
     )

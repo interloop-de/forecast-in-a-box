@@ -76,12 +76,13 @@ export function useFableValidation(
 
   const hasBlocks = fable !== null && Object.keys(fable.blocks).length > 0
 
-  return useQuery<FableValidationExpansion>({
+  return useQuery<FableValidationExpansion, Error>({
     queryKey: ['fable', 'validation', fableForQuery],
     queryFn: () => expandFable(fableForQuery),
     enabled: enabled && hasBlocks,
     staleTime: 10 * 1000, // 10 seconds
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on validation errors
   })
 }
 

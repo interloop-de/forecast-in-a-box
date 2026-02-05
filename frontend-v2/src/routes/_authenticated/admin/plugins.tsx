@@ -31,6 +31,7 @@ import {
 } from '@/api/hooks/usePlugins'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import {
+  PluginDetailsSheet,
   PluginsFilters,
   PluginsList,
   PluginsPageHeader,
@@ -56,6 +57,10 @@ function PluginsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [capabilityFilter, setCapabilityFilter] =
     useState<CapabilityFilter>('all')
+
+  // Plugin details sheet state
+  const [selectedPlugin, setSelectedPlugin] = useState<PluginInfo | null>(null)
+  const [detailsSheetOpen, setDetailsSheetOpen] = useState(false)
 
   // Fetch catalogue to derive capabilities
   const { data: catalogue } = useBlockCatalogue()
@@ -190,8 +195,8 @@ function PluginsPage() {
   }
 
   const handleViewDetails = (plugin: PluginInfo) => {
-    // TODO: Open details dialog
-    console.log('View details:', plugin)
+    setSelectedPlugin(plugin)
+    setDetailsSheetOpen(true)
   }
 
   if (isLoading) {
@@ -266,6 +271,14 @@ function PluginsPage() {
         onViewDetails={handleViewDetails}
         variant={dashboardVariant}
         shadow={panelShadow}
+      />
+
+      {/* Plugin Details Sheet */}
+      <PluginDetailsSheet
+        plugin={selectedPlugin}
+        catalogue={catalogue}
+        open={detailsSheetOpen}
+        onOpenChange={setDetailsSheetOpen}
       />
     </div>
   )

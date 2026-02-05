@@ -30,6 +30,7 @@ import {
   useFableBuilderStore,
 } from '@/features/fable-builder/stores/fableBuilderStore'
 import { Button } from '@/components/ui/button'
+import { FieldRenderer } from '@/components/base/fields'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   ContextMenu,
@@ -38,7 +39,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -256,25 +256,17 @@ export function BlockInstanceCard({
                 <div className="space-y-4">
                   {Object.entries(factory.configuration_options).map(
                     ([key, option]) => (
-                      <div key={key} className="space-y-1.5">
-                        <Label
-                          htmlFor={`${instanceId}-${key}`}
-                          className="text-sm"
-                        >
-                          {option.title}
-                        </Label>
-                        <Input
-                          id={`${instanceId}-${key}`}
-                          value={instance.configuration_values[key] ?? ''}
-                          onChange={(e) =>
-                            updateBlockConfig(instanceId, key, e.target.value)
-                          }
-                          placeholder={option.description}
-                        />
-                        <p className="text-sm text-muted-foreground">
-                          {option.description}
-                        </p>
-                      </div>
+                      <FieldRenderer
+                        key={key}
+                        id={`${instanceId}-${key}`}
+                        valueType={option.value_type}
+                        value={instance.configuration_values[key] ?? ''}
+                        onChange={(value) =>
+                          updateBlockConfig(instanceId, key, value)
+                        }
+                        label={option.title}
+                        description={option.description}
+                      />
                     ),
                   )}
                 </div>

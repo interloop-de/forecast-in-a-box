@@ -9,6 +9,7 @@
  */
 
 import React, { useEffect, useRef } from 'react'
+import { AlertCircle } from 'lucide-react'
 import { FableBuilderHeader } from './FableBuilderHeader'
 import {
   BlockPalette,
@@ -32,6 +33,41 @@ import {
   useFable,
   useFableValidation,
 } from '@/api/hooks/useFable'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { ApiClientError } from '@/api/client'
+
+/**
+ * Extract a user-friendly error message from a validation error
+ */
+function getValidationErrorMessage(error: Error): string {
+  // Check if it's an ApiClientError with details
+  if (error instanceof ApiClientError) {
+    const details = error.details
+    if (details && typeof details === 'object') {
+      // Try to extract validation details from the response
+      const detailObj = details as Record<string, unknown>
+      if (detailObj.detail) {
+        // FastAPI validation error format
+        if (Array.isArray(detailObj.detail)) {
+          return detailObj.detail
+            .map(
+              (d: { msg?: string; loc?: Array<string> }) => d.msg ?? String(d),
+            )
+            .join('. ')
+        }
+        return String(detailObj.detail)
+      }
+    }
+    // Fall back to status-based message
+    if (error.status === 422) {
+      return 'Invalid configuration. Please fill in all required fields.'
+    }
+  }
+  return (
+    error.message ||
+    'Failed to validate configuration. Please check your block settings.'
+  )
+}
 
 interface FableBuilderPageProps {
   fableId?: string
@@ -75,6 +111,7 @@ export function FableBuilderPage({
     data: validationResult,
     isLoading: isValidating,
     isFetching: isRevalidating,
+    error: validationError,
   } = useFableValidation(fable)
 
   // Initialize fable state - only runs once per mount
@@ -146,6 +183,16 @@ export function FableBuilderPage({
       style={{ height: 'calc(100vh - 60px)' }}
     >
       <FableBuilderHeader fableId={fableId} />
+
+      {validationError && (
+        <Alert variant="destructive" className="mx-4 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Validation Error</AlertTitle>
+          <AlertDescription>
+            {getValidationErrorMessage(validationError)}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
         {step === 'edit' ? (

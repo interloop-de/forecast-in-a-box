@@ -10,10 +10,7 @@
 
 import { useMemo } from 'react'
 import { AlertCircle, Link2, Trash2, X } from 'lucide-react'
-import type {
-  BlockConfigurationOption,
-  BlockFactoryCatalogue,
-} from '@/api/types/fable.types'
+import type { BlockFactoryCatalogue } from '@/api/types/fable.types'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 import {
   BLOCK_KIND_METADATA,
@@ -21,8 +18,8 @@ import {
   getFactory,
 } from '@/api/types/fable.types'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FieldRenderer } from '@/components/base/fields'
 import { Separator } from '@/components/ui/separator'
 import {
   Select,
@@ -181,12 +178,15 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
             <div className="text-sm font-medium">Configuration</div>
             <div className="space-y-4">
               {configOptions.map(([key, option]) => (
-                <ConfigField
+                <FieldRenderer
                   key={key}
-                  name={key}
-                  option={option}
+                  id={`config-${key}`}
+                  valueType={option.value_type}
                   value={selectedBlock.configuration_values[key] || ''}
                   onChange={(value) => handleConfigChange(key, value)}
+                  label={option.title || key}
+                  description={option.description}
+                  inputClassName="h-9"
                 />
               ))}
             </div>
@@ -283,47 +283,6 @@ function InputConnectionField({
           )}
         </SelectContent>
       </Select>
-    </div>
-  )
-}
-
-interface ConfigFieldProps {
-  name: string
-  option: BlockConfigurationOption
-  value: string
-  onChange: (value: string) => void
-}
-
-function getInputType(valueType: string | undefined): 'number' | 'text' {
-  if (valueType === 'integer' || valueType === 'float') {
-    return 'number'
-  }
-  return 'text'
-}
-
-function ConfigField({
-  name,
-  option,
-  value,
-  onChange,
-}: ConfigFieldProps): React.ReactNode {
-  const id = `config-${name}`
-
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-sm">
-        {option.title || name}
-      </Label>
-      {option.description && (
-        <p className="text-sm text-muted-foreground">{option.description}</p>
-      )}
-      <Input
-        id={id}
-        type={getInputType(option.value_type)}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-9"
-      />
     </div>
   )
 }

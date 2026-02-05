@@ -15,8 +15,11 @@
  */
 
 export { UninstalledPluginsSection } from './components/UninstalledPluginsSection'
+export { BlockFactoryCard } from './components/BlockFactoryCard'
+export { BlockFactoryList } from './components/BlockFactoryList'
 export { CapabilityBadges } from './components/CapabilityBadges'
 export { PluginCard } from './components/PluginCard'
+export { PluginDetailsSheet } from './components/PluginDetailsSheet'
 export { PluginIcon } from './components/PluginIcon'
 export { PluginRow } from './components/PluginRow'
 export {
@@ -28,3 +31,10 @@ export { PluginsList } from './components/PluginsList'
 export { PluginsPageHeader } from './components/PluginsPageHeader'
 export { PluginStatusBadge } from './components/PluginStatusBadge'
 export { UpdatesAvailableSection } from './components/UpdatesAvailableSection'
+
+// Utils
+export {
+  generatePluginPipeline,
+  createSingleBlockFable,
+  getDefaultValue,
+} from './utils/pipeline-generator'

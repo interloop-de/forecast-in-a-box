@@ -255,7 +255,7 @@ describe('useExpandFable', () => {
 
   it('expands fable successfully', async () => {
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         return HttpResponse.json(mockExpansion)
       }),
     )
@@ -297,7 +297,7 @@ describe('useFableValidation', () => {
 
   it('validates fable when enabled', async () => {
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         return HttpResponse.json(mockExpansion)
       }),
     )
@@ -326,7 +326,7 @@ describe('useFableValidation', () => {
     let fetchCalled = false
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         fetchCalled = true
         return HttpResponse.json(mockExpansion)
       }),
@@ -347,7 +347,7 @@ describe('useFableValidation', () => {
     let fetchCalled = false
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         fetchCalled = true
         return HttpResponse.json(mockExpansion)
       }),
@@ -368,7 +368,7 @@ describe('useFableValidation', () => {
     let fetchCalled = false
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.expand, () => {
+      http.post(API_ENDPOINTS.fable.expand, () => {
         fetchCalled = true
         return HttpResponse.json(mockExpansion)
       }),
@@ -401,7 +401,7 @@ describe('useCompileFable', () => {
     const mockCompiled = { compiled: true, output: 'some-output' }
 
     worker.use(
-      http.get(API_ENDPOINTS.fable.compile, () => {
+      http.post(API_ENDPOINTS.fable.compile, () => {
         return HttpResponse.json(mockCompiled)
       }),
     )

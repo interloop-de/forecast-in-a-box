@@ -38,25 +38,15 @@ export const fableHandlers = [
     return HttpResponse.json(mockCatalogue)
   }),
 
-  http.get(API_ENDPOINTS.fable.expand, async ({ request }) => {
+  http.post(API_ENDPOINTS.fable.expand, async ({ request }) => {
     await delay(400)
-
-    const url = new URL(request.url)
-    const fableParam = url.searchParams.get('fable')
-
-    if (!fableParam) {
-      return HttpResponse.json(
-        { message: 'Missing fable parameter' },
-        { status: 400 },
-      )
-    }
 
     let fable: FableBuilderV1
     try {
-      fable = JSON.parse(fableParam) as FableBuilderV1
+      fable = (await request.json()) as FableBuilderV1
     } catch {
       return HttpResponse.json(
-        { message: 'Invalid fable JSON' },
+        { message: 'Invalid request body' },
         { status: 400 },
       )
     }
@@ -66,25 +56,15 @@ export const fableHandlers = [
     return HttpResponse.json(expansion)
   }),
 
-  http.get(API_ENDPOINTS.fable.compile, async ({ request }) => {
+  http.post(API_ENDPOINTS.fable.compile, async ({ request }) => {
     await delay(600)
-
-    const url = new URL(request.url)
-    const fableParam = url.searchParams.get('fable')
-
-    if (!fableParam) {
-      return HttpResponse.json(
-        { message: 'Missing fable parameter' },
-        { status: 400 },
-      )
-    }
 
     let fable: FableBuilderV1
     try {
-      fable = JSON.parse(fableParam) as FableBuilderV1
+      fable = (await request.json()) as FableBuilderV1
     } catch {
       return HttpResponse.json(
-        { message: 'Invalid fable JSON' },
+        { message: 'Invalid request body' },
         { status: 400 },
       )
     }
