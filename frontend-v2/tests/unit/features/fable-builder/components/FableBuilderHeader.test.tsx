@@ -202,20 +202,21 @@ describe('FableBuilderHeader', () => {
       expect(mockSetMode).toHaveBeenCalledWith('form')
     })
 
-    it('shows share button in edit step', async () => {
+    it('shows save config and review buttons in edit step', async () => {
       mockStep = 'edit'
 
       const screen = await render(<FableBuilderHeader />)
 
-      await expect.element(screen.getByText('Share')).toBeVisible()
+      await expect.element(screen.getByText('Save Config')).toBeVisible()
+      await expect.element(screen.getByText('Review & Submit')).toBeVisible()
     })
 
-    it('shows save draft button in edit step', async () => {
+    it('shows save config button in edit step', async () => {
       mockStep = 'edit'
 
       const screen = await render(<FableBuilderHeader />)
 
-      await expect.element(screen.getByText('Save Draft')).toBeVisible()
+      await expect.element(screen.getByText('Save Config')).toBeVisible()
     })
 
     it('shows review & submit button in edit step', async () => {
@@ -274,7 +275,7 @@ describe('FableBuilderHeader', () => {
 
       const screen = await render(<FableBuilderHeader />)
 
-      await screen.getByText('Save Draft').click()
+      await screen.getByText('Save Config').click()
 
       expect(mockMutateAsync).toHaveBeenCalled()
     })
@@ -285,10 +286,10 @@ describe('FableBuilderHeader', () => {
 
       const screen = await render(<FableBuilderHeader />)
 
-      // The button with "Save Draft" text
+      // The button with "Save Config" text
       const saveButtons = screen.container.querySelectorAll('button')
       const saveButton = Array.from(saveButtons).find((btn) =>
-        btn.textContent.includes('Save Draft'),
+        btn.textContent.includes('Save Config'),
       )
       expect(saveButton).toBeDefined()
       expect(saveButton!.hasAttribute('disabled')).toBe(true)
@@ -352,18 +353,18 @@ describe('FableBuilderHeader', () => {
   })
 
   describe('share button', () => {
-    it('disables share button when no blocks', async () => {
+    it('disables save config button when no blocks', async () => {
       mockStep = 'edit'
       mockFable = { blocks: {} } as unknown as Fable
 
       const screen = await render(<FableBuilderHeader />)
 
       const buttons = screen.container.querySelectorAll('button')
-      const shareButton = Array.from(buttons).find((btn) =>
-        btn.textContent.includes('Share'),
+      const saveButton = Array.from(buttons).find((btn) =>
+        btn.textContent.includes('Save Config'),
       )
-      expect(shareButton).toBeDefined()
-      expect(shareButton!.hasAttribute('disabled')).toBe(true)
+      expect(saveButton).toBeDefined()
+      expect(saveButton!.hasAttribute('disabled')).toBe(true)
     })
   })
 
@@ -375,9 +376,8 @@ describe('FableBuilderHeader', () => {
       const screen = await render(<FableBuilderHeader />)
 
       const buttons = screen.container.querySelectorAll('button')
-      const saveButton = Array.from(buttons).find(
-        (btn) =>
-          btn.textContent.includes('Save') || btn.textContent.includes('Draft'),
+      const saveButton = Array.from(buttons).find((btn) =>
+        btn.textContent.includes('Save Config'),
       )
       expect(saveButton).toBeDefined()
       expect(saveButton!.hasAttribute('disabled')).toBe(true)

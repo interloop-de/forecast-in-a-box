@@ -29,9 +29,44 @@ function createPluginKey(store: string, local: string): string {
  */
 export const mockPluginListing: PluginListing = {
   plugins: {
-    // Loaded plugins (installed and running)
-    [createPluginKey('ecmwf', 'anemoi-inference')]: {
+    // ECMWF Plugin - loaded and installed (matches live backend exactly)
+    [createPluginKey('ecmwf', 'ecmwf-base')]: {
       status: 'loaded',
+      store_info: {
+        pip_source: 'fiab-plugin-ecmwf',
+        module_name: 'fiab_plugin_ecmwf',
+        display_title: 'ECMWF Plugin',
+        display_description:
+          'ECMWF plugin for Earthkit-data sources and products',
+        display_author: 'ECMWF',
+        comment: '',
+      },
+      remote_info: { version: '0.0.1' },
+      errored_detail: null,
+      loaded_version: '0.0.1',
+      update_date: '2026/02/03',
+    },
+
+    // Toy Plugin - available but not installed (matches live backend exactly)
+    [createPluginKey('ecmwf', 'toy1')]: {
+      status: 'available',
+      store_info: {
+        pip_source: 'fiab-plugin-toy',
+        module_name: 'fiab_plugin_toy',
+        display_title: 'Toy Plugin',
+        display_description: 'Example Fable Workflows',
+        display_author: 'ECMWF',
+        comment: 'just a placeholder for now',
+      },
+      remote_info: { version: 'unknown' },
+      errored_detail: null,
+      loaded_version: null,
+      update_date: null,
+    },
+
+    // Disabled plugins (installed but not enabled)
+    [createPluginKey('ecmwf', 'anemoi-inference')]: {
+      status: 'disabled',
       store_info: {
         pip_source: 'anemoi-inference',
         module_name: 'anemoi_inference',
@@ -47,7 +82,7 @@ export const mockPluginListing: PluginListing = {
       update_date: '2025/01/01',
     },
     [createPluginKey('ecmwf', 'aifs-dataset')]: {
-      status: 'loaded',
+      status: 'disabled',
       store_info: {
         pip_source: 'aifs-dataset',
         module_name: 'aifs_dataset',
@@ -63,7 +98,7 @@ export const mockPluginListing: PluginListing = {
       update_date: '2025/01/01',
     },
     [createPluginKey('ecmwf', 'regridding')]: {
-      status: 'loaded',
+      status: 'disabled',
       store_info: {
         pip_source: 'ecmwf-regridding',
         module_name: 'ecmwf_regridding',
@@ -79,7 +114,7 @@ export const mockPluginListing: PluginListing = {
       update_date: '2025/12/04',
     },
     [createPluginKey('ecmwf', 'grib-export')]: {
-      status: 'loaded',
+      status: 'disabled',
       store_info: {
         pip_source: 'grib-export',
         module_name: 'grib_export',
@@ -94,10 +129,8 @@ export const mockPluginListing: PluginListing = {
       loaded_version: '2.1.0',
       update_date: '2025/10/20',
     },
-
-    // Plugin with update available
     [createPluginKey('ecmwf', 'ensemble-forecast')]: {
-      status: 'loaded',
+      status: 'disabled',
       store_info: {
         pip_source: 'ecmwf-ensemble',
         module_name: 'ecmwf_ensemble',
@@ -112,8 +145,6 @@ export const mockPluginListing: PluginListing = {
       loaded_version: '2.1.0',
       update_date: '2025/09/01',
     },
-
-    // Disabled plugin
     [createPluginKey('ecmwf', 'precipitation')]: {
       status: 'disabled',
       store_info: {
@@ -128,24 +159,6 @@ export const mockPluginListing: PluginListing = {
       errored_detail: null,
       loaded_version: '1.2.0',
       update_date: '2025/11/01',
-    },
-
-    // Errored plugin
-    [createPluginKey('ecmwf', 'legacy-viz')]: {
-      status: 'errored',
-      store_info: {
-        pip_source: 'legacy-visualizer',
-        module_name: 'legacy_viz',
-        display_title: 'Legacy Visualizer',
-        display_description:
-          'Deprecated visualization module for older forecast formats.',
-        display_author: 'ECMWF',
-        comment: '',
-      },
-      remote_info: { version: '0.9.5' },
-      errored_detail: 'Failed to load module: incompatible with Python 3.12',
-      loaded_version: '0.9.5',
-      update_date: '2025/06/15',
     },
 
     // Available plugins (not installed)
@@ -211,16 +224,6 @@ export const mockPluginListing: PluginListing = {
       errored_detail: null,
       loaded_version: null,
       update_date: null,
-    },
-
-    // Plugin with unparseable "unknown" date (backend can return this)
-    [createPluginKey('ecmwf', 'toy1')]: {
-      status: 'errored',
-      store_info: null,
-      remote_info: null,
-      errored_detail: 'Plugin store info unavailable',
-      loaded_version: '0.1.0',
-      update_date: 'unknown',
     },
   },
 }

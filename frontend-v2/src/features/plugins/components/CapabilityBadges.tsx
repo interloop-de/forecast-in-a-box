@@ -14,13 +14,17 @@
  * Displays badges for plugin capabilities (source, product, sink)
  */
 
+import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { PluginCapability } from '@/api/types/plugins.types'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 interface CapabilityBadgesProps {
   capabilities: Array<PluginCapability>
   className?: string
+  selectedCapabilities?: Set<PluginCapability>
+  onToggle?: (capability: PluginCapability) => void
 }
 
 const capabilityStyles: Record<PluginCapability, string> = {
@@ -35,6 +39,8 @@ const capabilityStyles: Record<PluginCapability, string> = {
 export function CapabilityBadges({
   capabilities,
   className,
+  selectedCapabilities,
+  onToggle,
 }: CapabilityBadgesProps) {
   const { t } = useTranslation('plugins')
 
@@ -42,17 +48,32 @@ export function CapabilityBadges({
     return null
   }
 
+  const isInteractive = onToggle !== undefined
+
   return (
     <div className={`flex flex-wrap gap-1.5 ${className ?? ''}`}>
-      {capabilities.map((capability) => (
-        <Badge
-          key={capability}
-          variant="secondary"
-          className={`text-xs font-medium ${capabilityStyles[capability]}`}
-        >
-          {t(`filters.capability.${capability}`)}
-        </Badge>
-      ))}
+      {capabilities.map((capability) => {
+        // Default: all selected when set is empty (no filter active)
+        const isSelected =
+          !selectedCapabilities ||
+          selectedCapabilities.size === 0 ||
+          selectedCapabilities.has(capability)
+        return (
+          <Badge
+            key={capability}
+            variant="secondary"
+            className={cn(
+              'text-xs font-medium',
+              capabilityStyles[capability],
+              isInteractive && 'cursor-pointer',
+            )}
+            onClick={onToggle ? () => onToggle(capability) : undefined}
+          >
+            {isInteractive && isSelected && <Check className="mr-1 h-3 w-3" />}
+            {t(`filters.capability.${capability}`)}
+          </Badge>
+        )
+      })}
     </div>
   )
 }

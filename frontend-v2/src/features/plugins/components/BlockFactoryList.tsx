@@ -27,16 +27,20 @@ export interface BlockFactoryListProps {
   pluginId: PluginCompositeId
   pluginCatalogue: PluginCatalogue
   onStartConfiguration: (factoryId: PluginBlockFactoryId) => void
+  filterKinds?: Set<string>
 }
 
 export function BlockFactoryList({
   pluginId,
   pluginCatalogue,
   onStartConfiguration,
+  filterKinds,
 }: BlockFactoryListProps) {
-  // Sort factories by kind order, then alphabetically
+  // Sort factories by kind order, then alphabetically, and filter by kind
   const sortedFactories = useMemo(() => {
-    const entries = Object.entries(pluginCatalogue.factories)
+    const entries = Object.entries(pluginCatalogue.factories).filter(
+      ([_, factory]) => !filterKinds || filterKinds.has(factory.kind),
+    )
 
     return entries.sort((a, b) => {
       const kindOrderA = BLOCK_KIND_ORDER.indexOf(a[1].kind)
@@ -46,7 +50,7 @@ export function BlockFactoryList({
       }
       return a[0].localeCompare(b[0])
     })
-  }, [pluginCatalogue.factories])
+  }, [pluginCatalogue.factories, filterKinds])
 
   if (sortedFactories.length === 0) {
     return (

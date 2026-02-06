@@ -42,6 +42,84 @@ function pluginId(store: string, local: string): PluginCompositeId {
  * This mock is already in display format for direct use with getFactory() helper.
  */
 export const mockCatalogue: BlockFactoryCatalogue = {
+  // ECMWF base plugin - matches live backend exactly
+  ['ecmwf/ecmwf-base']: {
+    factories: {
+      ekdSource: {
+        kind: 'source',
+        title: 'Earthkit Data Source',
+        description: 'Fetch data from mars or ecmwf open data',
+        configuration_options: {
+          source: {
+            title: 'Source',
+            description: 'Top level source for earthkit data',
+            value_type: "enum['mars', 'ecmwf-open-data']",
+          },
+          date: {
+            title: 'Date',
+            description: 'The date dimension of the data',
+            value_type: 'date-iso8601',
+          },
+          expver: {
+            title: 'Expver',
+            description: 'The expver value of the forecast',
+            value_type: 'str',
+          },
+        },
+        inputs: [],
+      },
+      ensembleStatistics: {
+        kind: 'product',
+        title: 'Ensemble Statistics',
+        description: 'Computes ensemble mean or standard deviation',
+        configuration_options: {
+          variable: {
+            title: 'Variable',
+            description: "Variable name like '2t'",
+            value_type: 'str',
+          },
+          statistic: {
+            title: 'Statistic',
+            description: 'Statistic to compute over the ensemble',
+            value_type: "enum['mean', 'std']",
+          },
+        },
+        inputs: ['dataset'],
+      },
+      temporalStatistics: {
+        kind: 'product',
+        title: 'Temporal Statistics',
+        description: 'Computes temporal statistics',
+        configuration_options: {
+          variable: {
+            title: 'Variable',
+            description: "Variable name like '2t'",
+            value_type: 'str',
+          },
+          statistic: {
+            title: 'Statistic',
+            description: 'Statistic to compute over steps',
+            value_type: "enum['mean', 'std', 'min', 'max']",
+          },
+        },
+        inputs: ['dataset'],
+      },
+      zarrSink: {
+        kind: 'sink',
+        title: 'Zarr Sink',
+        description: 'Write dataset to a zarr on the local filesystem',
+        configuration_options: {
+          path: {
+            title: 'Zarr Path',
+            description: 'Filesystem path where the zarr should be written',
+            value_type: 'str',
+          },
+        },
+        inputs: ['dataset'],
+      },
+    },
+  },
+
   ['ecmwf/anemoi-inference']: {
     factories: {
       model_forecast: {
@@ -400,6 +478,7 @@ export function calculateExpansion(fable: FableBuilderV1): {
 
   // Available blocks by kind (using new PluginCompositeId format)
   const sourceBlocks: Array<PluginBlockFactoryId> = [
+    { plugin: pluginId('ecmwf', 'ecmwf-base'), factory: 'ekdSource' },
     {
       plugin: pluginId('ecmwf', 'anemoi-inference'),
       factory: 'model_forecast',
@@ -410,12 +489,21 @@ export function calculateExpansion(fable: FableBuilderV1): {
     },
   ]
   const productBlocks: Array<PluginBlockFactoryId> = [
+    {
+      plugin: pluginId('ecmwf', 'ecmwf-base'),
+      factory: 'ensembleStatistics',
+    },
+    {
+      plugin: pluginId('ecmwf', 'ecmwf-base'),
+      factory: 'temporalStatistics',
+    },
     { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_123' },
     { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_456' },
     { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'variable_filter' },
     { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'region_subset' },
   ]
   const sinkBlocks: Array<PluginBlockFactoryId> = [
+    { plugin: pluginId('ecmwf', 'ecmwf-base'), factory: 'zarrSink' },
     { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'store_local_fdb' },
     { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'plot' },
     { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'api_output' },

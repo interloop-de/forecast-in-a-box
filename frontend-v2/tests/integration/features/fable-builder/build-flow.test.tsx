@@ -167,8 +167,8 @@ describe('Fable Builder Integration', () => {
     // Verify fable is dirty
     expect(useFableBuilderStore.getState().isDirty).toBe(true)
 
-    // Click "Save Draft" button
-    const saveButton = screen.getByRole('button', { name: /Save Draft/i })
+    // Click "Save Config" button
+    const saveButton = screen.getByRole('button', { name: /Save Config/i })
     await saveButton.click()
 
     // Wait for save to complete (MSW handler has 500ms delay)
@@ -265,7 +265,7 @@ describe('Fable Builder Integration', () => {
     await screen.getByLabelText('Ensemble Members').fill('4')
 
     // 4. Save draft
-    await screen.getByRole('button', { name: /Save Draft/i }).click()
+    await screen.getByRole('button', { name: /Save Config/i }).click()
 
     // Wait for save to complete
     await expect

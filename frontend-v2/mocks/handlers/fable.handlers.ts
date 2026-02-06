@@ -122,7 +122,8 @@ export const fableHandlers = [
 
     let fable: FableBuilderV1
     try {
-      fable = (await request.json()) as FableBuilderV1
+      const body = (await request.json()) as { builder: FableBuilderV1 }
+      fable = body.builder
     } catch {
       return HttpResponse.json(
         { message: 'Invalid request body' },

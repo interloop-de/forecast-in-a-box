@@ -17,6 +17,7 @@
 
 import { useEffect, useState } from 'react'
 import { createLogger } from '@/lib/logger'
+import { showToast } from '@/lib/toast'
 
 const log = createLogger('LocalStorage')
 
@@ -66,8 +67,11 @@ export function useLocalStorage<T>(
         window.localStorage.setItem(key, JSON.stringify(valueToStore))
       }
     } catch (error) {
-      // A more advanced implementation would handle the error case
       log.error(`Error setting localStorage key "${key}":`, error)
+      showToast.error(
+        'Failed to save setting',
+        error instanceof Error ? error.message : String(error),
+      )
     }
   }
 
@@ -79,6 +83,10 @@ export function useLocalStorage<T>(
           setStoredValue(JSON.parse(e.newValue) as T)
         } catch (error) {
           log.error(`Error parsing localStorage change for "${key}":`, error)
+          showToast.warning(
+            'Failed to sync setting across tabs',
+            error instanceof Error ? error.message : String(error),
+          )
         }
       }
     }

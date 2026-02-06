@@ -97,7 +97,12 @@ export async function upsertFable(
     params.tags = tags.join(',')
   }
 
-  return apiClient.post(API_ENDPOINTS.fable.upsert, fable, {
-    params,
-  })
+  // Backend expects body wrapped in 'builder' key due to FastAPI parameter naming
+  return apiClient.post(
+    API_ENDPOINTS.fable.upsert,
+    { builder: fable },
+    {
+      params,
+    },
+  )
 }

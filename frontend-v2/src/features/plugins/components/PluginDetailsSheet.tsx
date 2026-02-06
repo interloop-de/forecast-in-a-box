@@ -16,6 +16,7 @@
  */
 
 import { Layers } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
   createSingleBlockFable,
@@ -29,7 +30,7 @@ import type {
   BlockFactoryCatalogue,
   PluginBlockFactoryId,
 } from '@/api/types/fable.types'
-import type { PluginInfo } from '@/api/types/plugins.types'
+import type { PluginCapability, PluginInfo } from '@/api/types/plugins.types'
 import { getFactory } from '@/api/types/fable.types'
 import { toPluginDisplayId } from '@/api/types/plugins.types'
 import { Button } from '@/components/ui/button'
@@ -57,6 +58,36 @@ export function PluginDetailsSheet({
   onOpenChange,
 }: PluginDetailsSheetProps) {
   const navigate = useNavigate()
+  const [selectedCapabilities, setSelectedCapabilities] = useState<
+    Set<PluginCapability>
+  >(new Set())
+
+  const handleCapabilityToggle = useCallback((capability: PluginCapability) => {
+    setSelectedCapabilities((prev) => {
+      const next = new Set(prev)
+      if (next.has(capability)) {
+        next.delete(capability)
+      } else {
+        next.add(capability)
+      }
+      return next
+    })
+  }, [])
+
+  // Convert selected capabilities to block kinds for filtering
+  // When nothing is selected, show all (no filter)
+  const filterKinds =
+    selectedCapabilities.size > 0 ? selectedCapabilities : undefined
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        setSelectedCapabilities(new Set())
+      }
+      onOpenChange(nextOpen)
+    },
+    [onOpenChange],
+  )
 
   if (!plugin) {
     return null
@@ -79,7 +110,7 @@ export function PluginDetailsSheet({
     const fable = createSingleBlockFable(factoryId, factory)
     const encoded = encodeFableToURL(fable)
 
-    onOpenChange(false)
+    handleOpenChange(false)
     navigate({
       to: '/configure',
       search: { state: encoded },
@@ -96,7 +127,7 @@ export function PluginDetailsSheet({
 
     const encoded = encodeFableToURL(fable)
 
-    onOpenChange(false)
+    handleOpenChange(false)
     navigate({
       to: '/configure',
       search: { state: encoded },
@@ -104,7 +135,7 @@ export function PluginDetailsSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
         className="w-full overflow-y-auto px-6 sm:max-w-lg"
@@ -136,11 +167,15 @@ export function PluginDetailsSheet({
             </p>
           )}
 
-          {/* Capabilities */}
+          {/* Capabilities (clickable filters) */}
           {plugin.capabilities.length > 0 && (
             <div>
               <h3 className="mb-2 text-sm font-medium">Capabilities</h3>
-              <CapabilityBadges capabilities={plugin.capabilities} />
+              <CapabilityBadges
+                capabilities={plugin.capabilities}
+                selectedCapabilities={selectedCapabilities}
+                onToggle={handleCapabilityToggle}
+              />
             </div>
           )}
 
@@ -174,6 +209,7 @@ export function PluginDetailsSheet({
                 pluginId={plugin.id}
                 pluginCatalogue={pluginCatalogue}
                 onStartConfiguration={handleStartConfiguration}
+                filterKinds={filterKinds}
               />
             ) : plugin.isInstalled && plugin.isEnabled ? (
               <div className="py-8 text-center text-muted-foreground">

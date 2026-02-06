@@ -36,6 +36,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
@@ -225,23 +226,13 @@ export function PluginCard({
                 {t('actions.viewDetails')}
               </Button>
             )}
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={plugin.isEnabled}
-                onCheckedChange={(checked) => onToggle(plugin.id, checked)}
-                aria-label={
-                  plugin.isEnabled ? t('actions.disable') : t('actions.enable')
-                }
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => onUninstall(plugin.id)}
-              >
-                <Trash2 className="h-5 w-5" />
-              </Button>
-            </div>
+            <Switch
+              checked={plugin.isEnabled}
+              onCheckedChange={(checked) => onToggle(plugin.id, checked)}
+              aria-label={
+                plugin.isEnabled ? t('actions.disable') : t('actions.enable')
+              }
+            />
           </>
         ) : (
           <>
@@ -295,6 +286,18 @@ export function PluginCard({
                   {plugin.comment}
                 </span>
               </DropdownMenuItem>
+            )}
+            {plugin.isInstalled && (
+              <>
+                {(pypiUrl || plugin.comment) && <DropdownMenuSeparator />}
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onUninstall(plugin.id)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('actions.uninstall')}
+                </DropdownMenuItem>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

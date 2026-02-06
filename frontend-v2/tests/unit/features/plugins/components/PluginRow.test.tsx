@@ -123,8 +123,8 @@ describe('PluginRow', () => {
     })
   })
 
-  describe('uninstall button', () => {
-    it('shows uninstall button for installed plugins', async () => {
+  describe('uninstall option', () => {
+    it('shows uninstall in dropdown for installed plugins', async () => {
       const plugin = createMockPlugin({ isInstalled: true })
       const screen = await render(
         <PluginRow
@@ -133,8 +133,9 @@ describe('PluginRow', () => {
           onUninstall={mockOnUninstall}
         />,
       )
-      const uninstallButton = screen.getByTitle('Uninstall')
-      await expect.element(uninstallButton).toBeInTheDocument()
+      const moreButton = screen.getByLabelText('More options')
+      await moreButton.click()
+      await expect.element(screen.getByText('Uninstall')).toBeInTheDocument()
     })
   })
 
@@ -170,7 +171,7 @@ describe('PluginRow', () => {
       await expect.element(toggle).toBeInTheDocument()
     })
 
-    it('renders uninstall button for installed plugins', async () => {
+    it('shows uninstall in dropdown for installed plugins', async () => {
       const plugin = createMockPlugin({
         isInstalled: true,
       })
@@ -181,8 +182,9 @@ describe('PluginRow', () => {
           onUninstall={mockOnUninstall}
         />,
       )
-      const uninstallButton = screen.getByTitle('Uninstall')
-      await expect.element(uninstallButton).toBeInTheDocument()
+      const moreButton = screen.getByLabelText('More options')
+      await moreButton.click()
+      await expect.element(screen.getByText('Uninstall')).toBeInTheDocument()
     })
   })
 
@@ -204,7 +206,7 @@ describe('PluginRow', () => {
       await expect.element(moreButton).toBeInTheDocument()
     })
 
-    it('shows View Details in dropdown when onViewDetails is provided', async () => {
+    it('shows View Details button when onViewDetails is provided', async () => {
       const plugin = createMockPlugin()
       const screen = await render(
         <PluginRow
@@ -214,10 +216,9 @@ describe('PluginRow', () => {
           onViewDetails={mockOnViewDetails}
         />,
       )
-      // Click to open the dropdown
-      const moreButton = screen.getByLabelText('More options')
-      await moreButton.click()
-      await expect.element(screen.getByText('View Details')).toBeInTheDocument()
+      await expect
+        .element(screen.getByRole('button', { name: /View Details/i }))
+        .toBeInTheDocument()
     })
   })
 })

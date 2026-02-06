@@ -15,16 +15,18 @@
  */
 
 import { formatDistanceToNow } from 'date-fns'
-import { AlertCircle, MoreVertical, Trash2 } from 'lucide-react'
+import { AlertCircle, Eye, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { CapabilityBadges } from './CapabilityBadges'
 import { PluginIcon } from './PluginIcon'
 import { PluginStatusBadge } from './PluginStatusBadge'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
@@ -116,6 +118,19 @@ export function PluginRow({
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3 sm:col-span-2">
+        {/* View Details Button */}
+        {onViewDetails && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => onViewDetails(plugin)}
+          >
+            <Eye className="h-4 w-4" />
+            <span className="hidden lg:inline">{t('actions.viewDetails')}</span>
+          </Button>
+        )}
+
         {/* Toggle Switch */}
         {plugin.isInstalled && (
           <Switch
@@ -125,17 +140,6 @@ export function PluginRow({
               plugin.isEnabled ? t('actions.disable') : t('actions.enable')
             }
           />
-        )}
-
-        {/* Delete Button */}
-        {plugin.isInstalled && (
-          <button
-            className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            title={t('actions.uninstall')}
-            onClick={() => onUninstall(plugin.id)}
-          >
-            <Trash2 className="h-5 w-5" />
-          </button>
         )}
 
         {/* More Options */}
@@ -151,11 +155,6 @@ export function PluginRow({
             <MoreVertical className="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {onViewDetails && (
-              <DropdownMenuItem onClick={() => onViewDetails(plugin)}>
-                {t('actions.viewDetails')}
-              </DropdownMenuItem>
-            )}
             {plugin.pipSource && (
               <DropdownMenuItem
                 render={
@@ -168,6 +167,18 @@ export function PluginRow({
               >
                 {t('actions.viewOnPyPI')}
               </DropdownMenuItem>
+            )}
+            {plugin.isInstalled && (
+              <>
+                {plugin.pipSource && <DropdownMenuSeparator />}
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onUninstall(plugin.id)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('actions.uninstall')}
+                </DropdownMenuItem>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>

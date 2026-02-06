@@ -39,55 +39,51 @@ export function BlockFactoryCard({
 
   return (
     <Card className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 gap-3">
-          <div className={cn('shrink-0 rounded-lg p-2', metadata.bgColor)}>
-            <IconComponent className={cn('h-5 w-5', metadata.color)} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h4 className="truncate font-semibold">{factory.title}</h4>
-              <Badge
-                variant="outline"
-                className={cn('shrink-0 text-sm', metadata.color)}
-              >
-                {metadata.label}
-              </Badge>
-            </div>
-            {factory.description && (
-              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                {factory.description}
-              </p>
+      <div className="flex min-w-0 gap-3">
+        <div className={cn('shrink-0 rounded-lg p-2', metadata.bgColor)}>
+          <IconComponent className={cn('h-5 w-5', metadata.color)} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4 className="truncate font-semibold">{factory.title}</h4>
+          <Badge
+            variant="outline"
+            className={cn('mt-1 text-sm', metadata.color)}
+          >
+            {metadata.label}
+          </Badge>
+          {factory.description && (
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+              {factory.description}
+            </p>
+          )}
+          <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            {configKeys.length > 0 && (
+              <span>
+                {configKeys.length} config{' '}
+                {configKeys.length === 1 ? 'option' : 'options'}
+              </span>
             )}
-            <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
-              {configKeys.length > 0 && (
-                <span>
-                  {configKeys.length} config{' '}
-                  {configKeys.length === 1 ? 'option' : 'options'}
-                </span>
-              )}
-              {hasInputs && (
-                <span>
-                  {factory.inputs.length} input
-                  {factory.inputs.length === 1 ? '' : 's'}
-                </span>
-              )}
-              {configKeys.length === 0 && !hasInputs && (
-                <span>No configuration required</span>
-              )}
-            </div>
+            {hasInputs && (
+              <span>
+                {factory.inputs.length} input
+                {factory.inputs.length === 1 ? '' : 's'}
+              </span>
+            )}
+            {configKeys.length === 0 && !hasInputs && (
+              <span>No configuration required</span>
+            )}
           </div>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="shrink-0 gap-1.5"
-          onClick={onStartConfiguration}
-        >
-          <Play className="h-3.5 w-3.5" />
-          Start
-        </Button>
       </div>
+      <Button
+        size="sm"
+        variant="outline"
+        className="mt-2 w-full gap-1.5"
+        onClick={onStartConfiguration}
+      >
+        <Play className="h-3.5 w-3.5" />
+        Use {metadata.label} in Configuration
+      </Button>
     </Card>
   )
 }

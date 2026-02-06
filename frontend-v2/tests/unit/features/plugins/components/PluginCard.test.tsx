@@ -388,7 +388,7 @@ describe('PluginCard', () => {
       await expect.element(toggle).toBeInTheDocument()
     })
 
-    it('shows delete button for installed plugins', async () => {
+    it('shows view details button for installed plugins', async () => {
       const plugin = createMockPlugin({
         isInstalled: true,
       })
@@ -401,9 +401,7 @@ describe('PluginCard', () => {
           onUpdate={mockOnUpdate}
         />,
       )
-      // The uninstall button should be present (has Trash2 icon)
-      const buttons = screen.container.querySelectorAll('button')
-      expect(buttons.length).toBeGreaterThan(1)
+      await expect.element(screen.getByText('View Details')).toBeInTheDocument()
     })
 
     it('calls onInstall when Install button is clicked', async () => {

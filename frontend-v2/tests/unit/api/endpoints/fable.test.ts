@@ -214,7 +214,7 @@ describe('upsertFable', () => {
 
     const result = await upsertFable(mockFable)
     expect(result).toBe('new-fable-id')
-    expect(capturedBody).toEqual(mockFable)
+    expect(capturedBody).toEqual({ builder: mockFable })
   })
 
   it('updates existing fable with ID', async () => {
