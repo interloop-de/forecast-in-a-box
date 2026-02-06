@@ -15,7 +15,6 @@ import {
   Download,
   FileText,
   LayoutGrid,
-  Loader2,
   MoreVertical,
   Save,
   Share2,
@@ -24,6 +23,7 @@ import {
 import { Link } from '@tanstack/react-router'
 import { ValidationStatusBadge } from './shared/ValidationStatus'
 import { GraphOptionsDropdown } from './graph-mode/GraphOptionsDropdown'
+import { SaveConfigPopover } from './SaveConfigPopover'
 import type {
   BlockFactoryCatalogue,
   FableBuilderV1,
@@ -39,7 +39,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useUpsertFable } from '@/api/hooks/useFable'
 import { cn } from '@/lib/utils'
 import { showToast } from '@/lib/toast'
 import {
@@ -58,6 +57,7 @@ export function FableBuilderHeader({
   catalogue,
 }: FableBuilderHeaderProps) {
   const [shareButtonText, setShareButtonText] = useState('Share')
+  const [savePopoverOpen, setSavePopoverOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const mode = useFableBuilderStore((s) => s.mode)
@@ -66,17 +66,16 @@ export function FableBuilderHeader({
   const fable = useFableBuilderStore((s) => s.fable)
   const isDirty = useFableBuilderStore((s) => s.isDirty)
   const validationState = useFableBuilderStore((s) => s.validationState)
+  const storeFableId = useFableBuilderStore((s) => s.fableId)
 
   const setMode = useFableBuilderStore((s) => s.setMode)
   const setStep = useFableBuilderStore((s) => s.setStep)
   const setFable = useFableBuilderStore((s) => s.setFable)
-  const markSaved = useFableBuilderStore((s) => s.markSaved)
-
-  const upsertFable = useUpsertFable()
 
   const blockCount = Object.keys(fable.blocks).length
   const isValid = validationState?.isValid ?? false
   const hasBlocks = blockCount > 0
+  const isExistingConfig = !!(fableId || storeFableId)
   const hasSinkBlock = getBlocksByKind(fable, catalogue, 'sink').length > 0
   const canReview = isValid && hasSinkBlock
 
@@ -87,11 +86,6 @@ export function FableBuilderHeader({
       : !isValid
         ? 'Fix validation errors before submitting'
         : undefined
-
-  async function handleSave(): Promise<void> {
-    const newId = await upsertFable.mutateAsync({ fable, fableId })
-    markSaved(newId)
-  }
 
   function handleShare(): void {
     navigator.clipboard.writeText(window.location.href)
@@ -269,20 +263,11 @@ export function FableBuilderHeader({
                 <div className="hidden items-center gap-2 sm:flex">
                   {/* Save Config with dropdown for more actions */}
                   <ButtonGroup>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSave}
-                      disabled={!hasBlocks || upsertFable.isPending}
-                      className="gap-2"
-                    >
-                      {upsertFable.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Save className="h-4 w-4" />
-                      )}
-                      Save Config
-                    </Button>
+                    <SaveConfigPopover
+                      fableId={fableId}
+                      catalogue={catalogue}
+                      disabled={!hasBlocks}
+                    />
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         render={
@@ -378,15 +363,13 @@ export function FableBuilderHeader({
                       <span className="whitespace-nowrap">Load Config</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={handleSave}
-                      disabled={!hasBlocks || upsertFable.isPending}
+                      onClick={() => setSavePopoverOpen(true)}
+                      disabled={!hasBlocks}
                     >
-                      {upsertFable.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
-                      ) : (
-                        <Save className="mr-2 h-4 w-4 shrink-0" />
-                      )}
-                      <span className="whitespace-nowrap">Save Config</span>
+                      <Save className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="whitespace-nowrap">
+                        {isExistingConfig ? 'Update Config' : 'Save Config'}
+                      </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleReview}
@@ -397,6 +380,15 @@ export function FableBuilderHeader({
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                {/* Mobile: Controlled save popover triggered from dropdown */}
+                <SaveConfigPopover
+                  fableId={fableId}
+                  catalogue={catalogue}
+                  disabled={!hasBlocks}
+                  open={savePopoverOpen}
+                  onOpenChange={setSavePopoverOpen}
+                />
               </>
             ) : (
               <>

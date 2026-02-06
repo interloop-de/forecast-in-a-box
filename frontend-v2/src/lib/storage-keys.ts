@@ -47,6 +47,14 @@ export const STORAGE_KEYS = {
   },
 
   /**
+   * Fable-related storage keys (direct localStorage)
+   */
+  fable: {
+    /** Metadata for saved fable configurations (title, comments, summary) */
+    metadata: 'fiab.fable.metadata',
+  },
+
+  /**
    * Zustand store persistence keys
    */
   stores: {

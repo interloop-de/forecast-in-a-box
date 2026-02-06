@@ -112,7 +112,7 @@ interface FableBuilderState {
   setNodesLocked: (locked: boolean) => void
   setValidationState: (state: FableValidationState | null) => void
   setIsValidating: (validating: boolean) => void
-  markSaved: (id: string) => void
+  markSaved: (id: string, name?: string) => void
   markDirty: () => void
   reset: () => void
 }
@@ -498,8 +498,13 @@ export const useFableBuilderStore = create<FableBuilderState>()(
           }),
         setIsValidating: (validating) => set({ isValidating: validating }),
 
-        markSaved: (id) =>
-          set({ fableId: id, isDirty: false, lastSavedAt: Date.now() }),
+        markSaved: (id, name) =>
+          set({
+            fableId: id,
+            isDirty: false,
+            lastSavedAt: Date.now(),
+            ...(name !== undefined && { fableName: name }),
+          }),
         markDirty: () => set({ isDirty: true }),
 
         reset: () => set(initialState),

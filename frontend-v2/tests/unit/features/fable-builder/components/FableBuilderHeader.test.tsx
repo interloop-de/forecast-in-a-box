@@ -23,13 +23,10 @@ let mockFableName = 'Test Fable'
 let mockFable: Fable = { blocks: {} }
 let mockIsDirty = false
 let mockValidationState: { isValid: boolean } | null = null
+let mockFableId: string | null = null
 const mockSetMode = vi.fn()
 const mockSetStep = vi.fn()
-const mockMarkSaved = vi.fn()
-
-// Mock upsertFable
-let mockMutateAsync = vi.fn()
-let mockIsPending = false
+const mockSetFable = vi.fn()
 
 // Mock useFableBuilderStore
 vi.mock('@/features/fable-builder/stores/fableBuilderStore', () => ({
@@ -43,9 +40,10 @@ vi.mock('@/features/fable-builder/stores/fableBuilderStore', () => ({
       fable: mockFable,
       isDirty: mockIsDirty,
       validationState: mockValidationState,
+      fableId: mockFableId,
       setMode: mockSetMode,
       setStep: mockSetStep,
-      markSaved: mockMarkSaved,
+      setFable: mockSetFable,
     }
     return selector(state)
   },
@@ -61,12 +59,21 @@ vi.mock(
   }),
 )
 
-// Mock useUpsertFable
-vi.mock('@/api/hooks/useFable', () => ({
-  useUpsertFable: () => ({
-    mutateAsync: mockMutateAsync,
-    isPending: mockIsPending,
-  }),
+// Mock SaveConfigPopover since it's tested separately
+// Only render a single instance; the 'open' prop distinguishes the controlled (mobile) variant
+vi.mock('@/features/fable-builder/components/SaveConfigPopover', () => ({
+  SaveConfigPopover: ({
+    disabled,
+    open,
+  }: {
+    disabled?: boolean
+    open?: boolean
+  }) =>
+    open === undefined ? (
+      <button data-testid="save-config-popover" disabled={disabled}>
+        Save Config
+      </button>
+    ) : null,
 }))
 
 // Mock TanStack Router Link
@@ -156,8 +163,7 @@ describe('FableBuilderHeader', () => {
     mockFable = fableWithSink()
     mockIsDirty = false
     mockValidationState = { isValid: true }
-    mockMutateAsync = vi.fn().mockResolvedValue('new-fable-id')
-    mockIsPending = false
+    mockFableId = null
   })
 
   describe('rendering', () => {
@@ -365,19 +371,19 @@ describe('FableBuilderHeader', () => {
   })
 
   describe('save functionality', () => {
-    it('calls mutateAsync when save clicked', async () => {
+    it('renders save config popover', async () => {
       mockStep = 'edit'
 
       const screen = await render(
         <FableBuilderHeader catalogue={mockCatalogue} />,
       )
 
-      await screen.getByText('Save Config').click()
-
-      expect(mockMutateAsync).toHaveBeenCalled()
+      await expect
+        .element(screen.getByTestId('save-config-popover'))
+        .toBeVisible()
     })
 
-    it('disables save button when no blocks', async () => {
+    it('disables save popover when no blocks', async () => {
       mockStep = 'edit'
       mockFable = { blocks: {} }
 
@@ -385,13 +391,11 @@ describe('FableBuilderHeader', () => {
         <FableBuilderHeader catalogue={mockCatalogue} />,
       )
 
-      // The button with "Save Config" text
-      const saveButtons = screen.container.querySelectorAll('button')
-      const saveButton = Array.from(saveButtons).find((btn) =>
-        btn.textContent.includes('Save Config'),
+      const savePopover = screen.container.querySelector(
+        '[data-testid="save-config-popover"]',
       )
-      expect(saveButton).toBeDefined()
-      expect(saveButton!.hasAttribute('disabled')).toBe(true)
+      expect(savePopover).toBeDefined()
+      expect(savePopover!.hasAttribute('disabled')).toBe(true)
     })
   })
 
@@ -513,8 +517,8 @@ describe('FableBuilderHeader', () => {
     })
   })
 
-  describe('share button', () => {
-    it('disables save config button when no blocks', async () => {
+  describe('save config disabled state', () => {
+    it('disables save config popover when no blocks', async () => {
       mockStep = 'edit'
       mockFable = { blocks: {} }
 
@@ -522,30 +526,11 @@ describe('FableBuilderHeader', () => {
         <FableBuilderHeader catalogue={mockCatalogue} />,
       )
 
-      const buttons = screen.container.querySelectorAll('button')
-      const saveButton = Array.from(buttons).find((btn) =>
-        btn.textContent.includes('Save Config'),
+      const savePopover = screen.container.querySelector(
+        '[data-testid="save-config-popover"]',
       )
-      expect(saveButton).toBeDefined()
-      expect(saveButton!.hasAttribute('disabled')).toBe(true)
-    })
-  })
-
-  describe('loading state', () => {
-    it('disables save button when mutation is pending', async () => {
-      mockStep = 'edit'
-      mockIsPending = true
-
-      const screen = await render(
-        <FableBuilderHeader catalogue={mockCatalogue} />,
-      )
-
-      const buttons = screen.container.querySelectorAll('button')
-      const saveButton = Array.from(buttons).find((btn) =>
-        btn.textContent.includes('Save Config'),
-      )
-      expect(saveButton).toBeDefined()
-      expect(saveButton!.hasAttribute('disabled')).toBe(true)
+      expect(savePopover).toBeDefined()
+      expect(savePopover!.hasAttribute('disabled')).toBe(true)
     })
   })
 })

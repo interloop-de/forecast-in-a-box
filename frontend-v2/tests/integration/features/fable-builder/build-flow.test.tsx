@@ -200,9 +200,11 @@ describe('Fable Builder Integration', () => {
     // Verify fable is dirty
     expect(useFableBuilderStore.getState().isDirty).toBe(true)
 
-    // Click "Save Config" button
-    const saveButton = screen.getByRole('button', { name: /Save Config/i })
-    await saveButton.click()
+    // Click "Save Config" to open save popover
+    await screen.getByRole('button', { name: /Save Config/i }).click()
+
+    // Click "Save" in the popover to submit
+    await screen.getByRole('button', { name: 'Save', exact: true }).click()
 
     // Wait for save to complete (MSW handler has 500ms delay)
     // isDirty should become false after successful save
@@ -349,8 +351,9 @@ describe('Fable Builder Integration', () => {
       .getState()
       .updateBlockConfig(sourceBlockId, 'date', '2026-01-01T00:00')
 
-    // 5. Save
+    // 5. Save (open popover, then click Save)
     await screen.getByRole('button', { name: /Save Config/i }).click()
+    await screen.getByRole('button', { name: 'Save', exact: true }).click()
 
     // Wait for save to complete
     await expect
