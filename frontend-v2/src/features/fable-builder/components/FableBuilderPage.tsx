@@ -182,7 +182,7 @@ export function FableBuilderPage({
       className="flex min-w-0 flex-col"
       style={{ height: 'calc(100vh - 60px)' }}
     >
-      <FableBuilderHeader fableId={fableId} />
+      <FableBuilderHeader fableId={fableId} catalogue={catalogue} />
 
       {validationError && (
         <Alert variant="destructive" className="mx-4 mt-2">

@@ -24,7 +24,11 @@ import {
 import { Link } from '@tanstack/react-router'
 import { ValidationStatusBadge } from './shared/ValidationStatus'
 import { GraphOptionsDropdown } from './graph-mode/GraphOptionsDropdown'
-import type { FableBuilderV1 } from '@/api/types/fable.types'
+import type {
+  BlockFactoryCatalogue,
+  FableBuilderV1,
+} from '@/api/types/fable.types'
+import { getBlocksByKind } from '@/api/types/fable.types'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -38,12 +42,21 @@ import {
 import { useUpsertFable } from '@/api/hooks/useFable'
 import { cn } from '@/lib/utils'
 import { showToast } from '@/lib/toast'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface FableBuilderHeaderProps {
   fableId?: string
+  catalogue: BlockFactoryCatalogue
 }
 
-export function FableBuilderHeader({ fableId }: FableBuilderHeaderProps) {
+export function FableBuilderHeader({
+  fableId,
+  catalogue,
+}: FableBuilderHeaderProps) {
   const [shareButtonText, setShareButtonText] = useState('Share')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -64,6 +77,16 @@ export function FableBuilderHeader({ fableId }: FableBuilderHeaderProps) {
   const blockCount = Object.keys(fable.blocks).length
   const isValid = validationState?.isValid ?? false
   const hasBlocks = blockCount > 0
+  const hasSinkBlock = getBlocksByKind(fable, catalogue, 'sink').length > 0
+  const canReview = isValid && hasSinkBlock
+
+  const reviewTooltip = !hasBlocks
+    ? 'Add blocks to your configuration'
+    : !hasSinkBlock
+      ? 'Add at least one output block'
+      : !isValid
+        ? 'Fix validation errors before submitting'
+        : undefined
 
   async function handleSave(): Promise<void> {
     const newId = await upsertFable.mutateAsync({ fable, fableId })
@@ -302,15 +325,22 @@ export function FableBuilderHeader({ fableId }: FableBuilderHeaderProps) {
                     </DropdownMenu>
                   </ButtonGroup>
 
-                  <Button
-                    size="sm"
-                    onClick={handleReview}
-                    disabled={!hasBlocks}
-                    className="gap-2"
-                  >
-                    <Check className="h-4 w-4" />
-                    Review & Submit
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger render={<span className="inline-flex" />}>
+                      <Button
+                        size="sm"
+                        onClick={handleReview}
+                        disabled={!canReview}
+                        className="gap-2"
+                      >
+                        <Check className="h-4 w-4" />
+                        Review & Submit
+                      </Button>
+                    </TooltipTrigger>
+                    {reviewTooltip && (
+                      <TooltipContent>{reviewTooltip}</TooltipContent>
+                    )}
+                  </Tooltip>
                 </div>
 
                 {/* Mobile: Dropdown menu for all actions */}
@@ -360,7 +390,7 @@ export function FableBuilderHeader({ fableId }: FableBuilderHeaderProps) {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleReview}
-                      disabled={!hasBlocks}
+                      disabled={!canReview}
                     >
                       <Check className="mr-2 h-4 w-4 shrink-0" />
                       <span className="whitespace-nowrap">Review & Submit</span>

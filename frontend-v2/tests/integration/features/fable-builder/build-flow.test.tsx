@@ -24,6 +24,39 @@ vi.mock('@/features/fable-builder/hooks/useURLStateSync', () => ({
   useURLStateSync: () => ({ loadedFromURL: false }),
 }))
 
+/**
+ * Set up a valid fable with a source + sink block for review tests.
+ * All config values are filled and the sink is connected to the source.
+ */
+function setupValidFableWithSink(): void {
+  const store = useFableBuilderStore.getState()
+  store.setFable({
+    blocks: {
+      source1: {
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
+          factory: 'model_forecast',
+        },
+        configuration_values: {
+          model: 'test-model',
+          date: '2026-01-01T00:00',
+          lead_time: '24',
+          ensemble_members: '1',
+        },
+        input_ids: {},
+      },
+      sink1: {
+        factory_id: {
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'zarrSink',
+        },
+        configuration_values: { path: '/tmp/output.zarr' },
+        input_ids: { dataset: 'source1' },
+      },
+    },
+  })
+}
+
 describe('Fable Builder Integration', () => {
   beforeEach(() => {
     // Reset store state before each test
@@ -187,13 +220,19 @@ describe('Fable Builder Integration', () => {
   it('allows navigating to review step', async () => {
     const screen = await renderWithRouter(<FableBuilderPage />)
 
-    // Wait for palette to load
+    // Wait for catalogue to load
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
-    // Add a source block
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    // Set up a valid fable with source + sink (both configured and connected)
+    // Review & Submit requires valid configuration AND at least one output block
+    setupValidFableWithSink()
+
+    // Wait for validation to complete and report isValid
+    await expect
+      .poll(() => useFableBuilderStore.getState().validationState?.isValid, {
+        timeout: 3000,
+      })
+      .toBe(true)
 
     // Click "Review & Submit" button
     const reviewButton = screen.getByRole('button', {
@@ -218,13 +257,18 @@ describe('Fable Builder Integration', () => {
   it('allows returning from review step to edit step', async () => {
     const screen = await renderWithRouter(<FableBuilderPage />)
 
-    // Wait for palette to load
+    // Wait for catalogue to load
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
-    // Add a source block
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    // Set up a valid fable with source + sink
+    setupValidFableWithSink()
+
+    // Wait for validation to pass
+    await expect
+      .poll(() => useFableBuilderStore.getState().validationState?.isValid, {
+        timeout: 3000,
+      })
+      .toBe(true)
 
     // Go to review
     await screen.getByRole('button', { name: /Review & Submit/i }).click()
@@ -249,7 +293,7 @@ describe('Fable Builder Integration', () => {
     // 1. Wait for initial load
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
-    // 2. Add a source block
+    // 2. Add a source block via palette
     await screen
       .getByRole('button', { name: /Compute Model Forecast/i })
       .click()
@@ -259,12 +303,53 @@ describe('Fable Builder Integration', () => {
       Object.keys(useFableBuilderStore.getState().fable.blocks),
     ).toHaveLength(1)
 
-    // 3. Configure the block
+    // 3. Configure the source block
     await screen.getByLabelText('Model Name').fill('aifs/single-mse-v0.2.1')
     await screen.getByLabelText('Lead Time').fill('48')
     await screen.getByLabelText('Ensemble Members').fill('4')
 
-    // 4. Save draft
+    // 4. Add a connected sink block programmatically for review eligibility
+    const sourceBlockId = Object.keys(
+      useFableBuilderStore.getState().fable.blocks,
+    )[0]
+    const store = useFableBuilderStore.getState()
+    store.addBlock(
+      {
+        plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+        factory: 'zarrSink',
+      },
+      {
+        kind: 'sink',
+        title: 'Zarr Sink',
+        description: 'Write dataset to a zarr on the local filesystem',
+        configuration_options: {
+          path: {
+            title: 'Zarr Path',
+            description: 'Filesystem path where the zarr should be written',
+            value_type: 'str',
+          },
+        },
+        inputs: ['dataset'],
+      },
+    )
+
+    // Find the sink block and configure + connect it
+    const sinkBlockId = Object.keys(
+      useFableBuilderStore.getState().fable.blocks,
+    ).find((id) => id !== sourceBlockId)!
+    useFableBuilderStore
+      .getState()
+      .updateBlockConfig(sinkBlockId, 'path', '/tmp/output.zarr')
+    useFableBuilderStore
+      .getState()
+      .connectBlocks(sinkBlockId, 'dataset', sourceBlockId)
+
+    // Also fill the date field for the source (validation requires all config filled)
+    useFableBuilderStore
+      .getState()
+      .updateBlockConfig(sourceBlockId, 'date', '2026-01-01T00:00')
+
+    // 5. Save
     await screen.getByRole('button', { name: /Save Config/i }).click()
 
     // Wait for save to complete
@@ -272,7 +357,14 @@ describe('Fable Builder Integration', () => {
       .poll(() => useFableBuilderStore.getState().isDirty, { timeout: 2000 })
       .toBe(false)
 
-    // 5. Go to review
+    // 6. Wait for validation to pass
+    await expect
+      .poll(() => useFableBuilderStore.getState().validationState?.isValid, {
+        timeout: 3000,
+      })
+      .toBe(true)
+
+    // 7. Go to review
     await screen.getByRole('button', { name: /Review & Submit/i }).click()
     expect(useFableBuilderStore.getState().step).toBe('review')
 

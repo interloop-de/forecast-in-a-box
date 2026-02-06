@@ -10,7 +10,10 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
-import type { FableBuilderV1 as Fable } from '@/api/types/fable.types'
+import type {
+  BlockFactoryCatalogue,
+  FableBuilderV1 as Fable,
+} from '@/api/types/fable.types'
 import { FableBuilderHeader } from '@/features/fable-builder/components/FableBuilderHeader'
 
 // Mock state
@@ -82,13 +85,75 @@ vi.mock('@/features/fable-builder/components/shared/ValidationStatus', () => ({
   ),
 }))
 
+// Test catalogue with source and sink factories
+const mockCatalogue: BlockFactoryCatalogue = {
+  'test/plugin': {
+    factories: {
+      testSource: {
+        title: 'Test Source',
+        kind: 'source',
+        description: 'A test source',
+        inputs: [],
+        configuration_options: {},
+      },
+      testSink: {
+        title: 'Test Sink',
+        kind: 'sink',
+        description: 'A test sink',
+        inputs: ['data'],
+        configuration_options: {},
+      },
+    },
+  },
+}
+
+// Helper to create a fable with a source block
+function fableWithSource(): Fable {
+  return {
+    blocks: {
+      block1: {
+        factory_id: {
+          plugin: { store: 'test', local: 'plugin' },
+          factory: 'testSource',
+        },
+        configuration_values: {},
+        input_ids: {},
+      },
+    },
+  }
+}
+
+// Helper to create a fable with source + sink blocks
+function fableWithSink(): Fable {
+  return {
+    blocks: {
+      block1: {
+        factory_id: {
+          plugin: { store: 'test', local: 'plugin' },
+          factory: 'testSource',
+        },
+        configuration_values: {},
+        input_ids: {},
+      },
+      block2: {
+        factory_id: {
+          plugin: { store: 'test', local: 'plugin' },
+          factory: 'testSink',
+        },
+        configuration_values: {},
+        input_ids: { data: 'block1' },
+      },
+    },
+  }
+}
+
 describe('FableBuilderHeader', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockMode = 'graph'
     mockStep = 'edit'
     mockFableName = 'Test Fable'
-    mockFable = { blocks: { block1: {} } } as unknown as Fable
+    mockFable = fableWithSink()
     mockIsDirty = false
     mockValidationState = { isValid: true }
     mockMutateAsync = vi.fn().mockResolvedValue('new-fable-id')
@@ -97,7 +162,9 @@ describe('FableBuilderHeader', () => {
 
   describe('rendering', () => {
     it('renders header element', async () => {
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const header = screen.container.querySelector('header')
       expect(header).toBeTruthy()
@@ -106,39 +173,43 @@ describe('FableBuilderHeader', () => {
     it('renders fable name', async () => {
       mockFableName = 'My Custom Fable'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('My Custom Fable')).toBeVisible()
     })
 
     it('renders back to dashboard link', async () => {
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByTestId('link-dashboard')).toBeVisible()
     })
 
     it('renders block count', async () => {
-      mockFable = {
-        blocks: { a: {}, b: {}, c: {} },
-      } as unknown as Fable
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
-      const screen = await render(<FableBuilderHeader />)
-
-      await expect.element(screen.getByText('3 blocks')).toBeVisible()
+      await expect.element(screen.getByText('2 blocks')).toBeVisible()
     })
 
     it('renders singular block when count is 1', async () => {
-      mockFable = { blocks: { a: {} } } as unknown as Fable
+      mockFable = fableWithSource()
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('1 block')).toBeVisible()
     })
 
     it('shows validation status badge when blocks exist', async () => {
-      mockFable = { blocks: { a: {} } } as unknown as Fable
-
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect
         .element(screen.getByTestId('validation-status-badge'))
@@ -150,7 +221,9 @@ describe('FableBuilderHeader', () => {
     it('shows unsaved badge when dirty', async () => {
       mockIsDirty = true
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Unsaved')).toBeVisible()
     })
@@ -158,7 +231,9 @@ describe('FableBuilderHeader', () => {
     it('hides unsaved badge when clean', async () => {
       mockIsDirty = false
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       // Query for the Unsaved badge text - should not exist when not dirty
       const unsavedBadge = screen.container.querySelector('[class*="Badge"]')
@@ -171,7 +246,9 @@ describe('FableBuilderHeader', () => {
     it('shows mode toggle buttons in edit step', async () => {
       mockStep = 'edit'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       // Use exact match to avoid matching "Graph Options" from the popover mock
       await expect
@@ -184,7 +261,9 @@ describe('FableBuilderHeader', () => {
       mockStep = 'edit'
       mockMode = 'form'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await screen.getByRole('button', { name: 'Graph', exact: true }).click()
 
@@ -195,7 +274,9 @@ describe('FableBuilderHeader', () => {
       mockStep = 'edit'
       mockMode = 'graph'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await screen.getByText('Form').click()
 
@@ -205,7 +286,9 @@ describe('FableBuilderHeader', () => {
     it('shows save config and review buttons in edit step', async () => {
       mockStep = 'edit'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Save Config')).toBeVisible()
       await expect.element(screen.getByText('Review & Submit')).toBeVisible()
@@ -214,7 +297,9 @@ describe('FableBuilderHeader', () => {
     it('shows save config button in edit step', async () => {
       mockStep = 'edit'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Save Config')).toBeVisible()
     })
@@ -222,7 +307,9 @@ describe('FableBuilderHeader', () => {
     it('shows review & submit button in edit step', async () => {
       mockStep = 'edit'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Review & Submit')).toBeVisible()
     })
@@ -232,7 +319,9 @@ describe('FableBuilderHeader', () => {
     it('shows back to edit button in review step', async () => {
       mockStep = 'review'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Back to Edit')).toBeVisible()
     })
@@ -240,7 +329,9 @@ describe('FableBuilderHeader', () => {
     it('shows submit job button in review step', async () => {
       mockStep = 'review'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await expect.element(screen.getByText('Submit Job')).toBeVisible()
     })
@@ -248,7 +339,9 @@ describe('FableBuilderHeader', () => {
     it('calls setStep when Back to Edit clicked', async () => {
       mockStep = 'review'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await screen.getByText('Back to Edit').click()
 
@@ -258,7 +351,9 @@ describe('FableBuilderHeader', () => {
     it('hides mode toggle in review step', async () => {
       mockStep = 'review'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       // Check that Graph/Form toggle buttons are not visible in review mode
       const buttons = screen.container.querySelectorAll('button')
@@ -273,7 +368,9 @@ describe('FableBuilderHeader', () => {
     it('calls mutateAsync when save clicked', async () => {
       mockStep = 'edit'
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await screen.getByText('Save Config').click()
 
@@ -282,9 +379,11 @@ describe('FableBuilderHeader', () => {
 
     it('disables save button when no blocks', async () => {
       mockStep = 'edit'
-      mockFable = { blocks: {} } as unknown as Fable
+      mockFable = { blocks: {} }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       // The button with "Save Config" text
       const saveButtons = screen.container.querySelectorAll('button')
@@ -299,8 +398,13 @@ describe('FableBuilderHeader', () => {
   describe('review transition', () => {
     it('calls setStep with review when review button clicked', async () => {
       mockStep = 'edit'
+      // Need valid fable with sink for the button to be enabled
+      mockFable = fableWithSink()
+      mockValidationState = { isValid: true }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       await screen.getByText('Review & Submit').click()
 
@@ -309,9 +413,11 @@ describe('FableBuilderHeader', () => {
 
     it('disables review button when no blocks', async () => {
       mockStep = 'edit'
-      mockFable = { blocks: {} } as unknown as Fable
+      mockFable = { blocks: {} }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const buttons = screen.container.querySelectorAll('button')
       const reviewButton = Array.from(buttons).find((btn) =>
@@ -320,6 +426,57 @@ describe('FableBuilderHeader', () => {
       expect(reviewButton).toBeDefined()
       expect(reviewButton!.hasAttribute('disabled')).toBe(true)
     })
+
+    it('disables review button when valid but no sink block', async () => {
+      mockStep = 'edit'
+      mockFable = fableWithSource() // has blocks but no sink
+      mockValidationState = { isValid: true }
+
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
+
+      const buttons = screen.container.querySelectorAll('button')
+      const reviewButton = Array.from(buttons).find((btn) =>
+        btn.textContent.includes('Review'),
+      )
+      expect(reviewButton).toBeDefined()
+      expect(reviewButton!.hasAttribute('disabled')).toBe(true)
+    })
+
+    it('disables review button when has sink but not valid', async () => {
+      mockStep = 'edit'
+      mockFable = fableWithSink()
+      mockValidationState = { isValid: false }
+
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
+
+      const buttons = screen.container.querySelectorAll('button')
+      const reviewButton = Array.from(buttons).find((btn) =>
+        btn.textContent.includes('Review'),
+      )
+      expect(reviewButton).toBeDefined()
+      expect(reviewButton!.hasAttribute('disabled')).toBe(true)
+    })
+
+    it('enables review button when valid and has sink block', async () => {
+      mockStep = 'edit'
+      mockFable = fableWithSink()
+      mockValidationState = { isValid: true }
+
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
+
+      const buttons = screen.container.querySelectorAll('button')
+      const reviewButton = Array.from(buttons).find((btn) =>
+        btn.textContent.includes('Review'),
+      )
+      expect(reviewButton).toBeDefined()
+      expect(reviewButton!.hasAttribute('disabled')).toBe(false)
+    })
   })
 
   describe('submit button state', () => {
@@ -327,7 +484,9 @@ describe('FableBuilderHeader', () => {
       mockStep = 'review'
       mockValidationState = { isValid: false }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const buttons = screen.container.querySelectorAll('button')
       const submitButton = Array.from(buttons).find((btn) =>
@@ -341,7 +500,9 @@ describe('FableBuilderHeader', () => {
       mockStep = 'review'
       mockValidationState = { isValid: true }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const buttons = screen.container.querySelectorAll('button')
       const submitButton = Array.from(buttons).find((btn) =>
@@ -355,9 +516,11 @@ describe('FableBuilderHeader', () => {
   describe('share button', () => {
     it('disables save config button when no blocks', async () => {
       mockStep = 'edit'
-      mockFable = { blocks: {} } as unknown as Fable
+      mockFable = { blocks: {} }
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const buttons = screen.container.querySelectorAll('button')
       const saveButton = Array.from(buttons).find((btn) =>
@@ -373,7 +536,9 @@ describe('FableBuilderHeader', () => {
       mockStep = 'edit'
       mockIsPending = true
 
-      const screen = await render(<FableBuilderHeader />)
+      const screen = await render(
+        <FableBuilderHeader catalogue={mockCatalogue} />,
+      )
 
       const buttons = screen.container.querySelectorAll('button')
       const saveButton = Array.from(buttons).find((btn) =>
