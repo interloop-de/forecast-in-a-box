@@ -21,9 +21,9 @@
       "thisMonth": "Executed this month"
     },
     "actions": {
-      "recentModels": "My Recent Models",
+      "managePlugins": "Manage Plugins",
       "manageSources": "Manage Sources",
-      "myPresets": "My Presets",
+      "myPresets": "My Configuration Presets",
       "scheduledForecasts": "My Scheduled Forecasts"
     }
   },

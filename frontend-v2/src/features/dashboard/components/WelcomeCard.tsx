@@ -21,7 +21,7 @@ import {
   Box,
   CheckCircle2,
   Clock,
-  History,
+  Puzzle,
   Loader2,
   Settings2,
   TrendingUp,
@@ -187,8 +187,9 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3">
         <QuickActionButton
-          icon={<History className="h-4 w-4" />}
-          label={t('welcome.actions.recentModels')}
+          icon={<Puzzle className="h-4 w-4" />}
+          label={t('welcome.actions.managePlugins')}
+          to="/admin/plugins"
         />
         <QuickActionButton
           icon={<Settings2 className="h-4 w-4" />}

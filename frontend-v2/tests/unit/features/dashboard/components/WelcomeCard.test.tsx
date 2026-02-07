@@ -35,9 +35,9 @@ vi.mock('react-i18next', () => ({
         'welcome.stats.downloadedModels': 'Downloaded models',
         'welcome.stats.totalForecasts': 'Total Forecasts',
         'welcome.stats.thisMonth': 'This month',
-        'welcome.actions.recentModels': 'Recent Models',
+        'welcome.actions.managePlugins': 'Manage Plugins',
         'welcome.actions.manageSources': 'Manage Sources',
-        'welcome.actions.myPresets': 'My Presets',
+        'welcome.actions.myPresets': 'My Configuration Presets',
         'welcome.actions.scheduledForecasts': 'Scheduled Forecasts',
       }
       return translations[key] || key
@@ -262,10 +262,10 @@ describe('WelcomeCard', () => {
   })
 
   describe('quick actions', () => {
-    it('renders recent models button', async () => {
+    it('renders manage plugins button', async () => {
       const screen = await render(<WelcomeCard />)
 
-      await expect.element(screen.getByText('Recent Models')).toBeVisible()
+      await expect.element(screen.getByText('Manage Plugins')).toBeVisible()
     })
 
     it('renders manage sources button', async () => {
@@ -277,7 +277,7 @@ describe('WelcomeCard', () => {
     it('renders my presets button', async () => {
       const screen = await render(<WelcomeCard />)
 
-      await expect.element(screen.getByText('My Presets')).toBeVisible()
+      await expect.element(screen.getByText('My Configuration Presets')).toBeVisible()
     })
 
     it('renders scheduled forecasts button', async () => {
