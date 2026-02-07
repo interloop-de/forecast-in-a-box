@@ -70,6 +70,11 @@ vi.mock('@/components/common/StatusDetailsPopover', () => ({
   ),
 }))
 
+// Mock ConfigPresetsPopover - render a simple button
+vi.mock('@/features/dashboard/components/ConfigPresetsPopover', () => ({
+  ConfigPresetsPopover: () => <button>My Configuration Presets</button>,
+}))
+
 // Mock Link component
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to }: { children: React.ReactNode; to?: string }) => (
@@ -277,7 +282,9 @@ describe('WelcomeCard', () => {
     it('renders my presets button', async () => {
       const screen = await render(<WelcomeCard />)
 
-      await expect.element(screen.getByText('My Configuration Presets')).toBeVisible()
+      await expect
+        .element(screen.getByText('My Configuration Presets'))
+        .toBeVisible()
     })
 
     it('renders scheduled forecasts button', async () => {

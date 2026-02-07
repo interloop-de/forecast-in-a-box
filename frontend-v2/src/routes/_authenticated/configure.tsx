@@ -17,6 +17,7 @@ const searchSchema = z.object({
     .enum(['quick-start', 'standard', 'custom-model', 'dataset'])
     .optional(),
   state: z.string().optional(),
+  fableId: z.string().optional(),
 })
 
 export type ConfigureSearch = z.infer<typeof searchSchema>
@@ -27,6 +28,13 @@ export const Route = createFileRoute('/_authenticated/configure')({
 })
 
 function ConfigurePage() {
-  const { preset, state } = Route.useSearch()
-  return <FableBuilderPage preset={preset} encodedState={state} />
+  const { preset, state, fableId } = Route.useSearch()
+  return (
+    <FableBuilderPage
+      key={fableId}
+      fableId={fableId}
+      preset={preset}
+      encodedState={state}
+    />
+  )
 }
