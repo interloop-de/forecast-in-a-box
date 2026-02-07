@@ -38,7 +38,7 @@ export function BlockFactoryCard({
   const hasInputs = factory.inputs.length > 0
 
   return (
-    <Card className="p-4">
+    <Card className="gap-2 p-4">
       <div className="flex min-w-0 gap-3">
         <div className={cn('shrink-0 rounded-lg p-2', metadata.bgColor)}>
           <IconComponent className={cn('h-5 w-5', metadata.color)} />
@@ -78,7 +78,7 @@ export function BlockFactoryCard({
       <Button
         size="sm"
         variant="outline"
-        className="mt-2 w-full gap-1.5"
+        className="w-full gap-1.5"
         onClick={onStartConfiguration}
       >
         <Play className="h-3.5 w-3.5" />
