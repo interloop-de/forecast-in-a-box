@@ -4,6 +4,7 @@
   "actions": {
     "checkUpdates": "Check Updates",
     "install": "Install",
+    "installing": "Installing...",
     "uninstall": "Uninstall",
     "enable": "Enable",
     "disable": "Disable",

@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
+import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 
 interface PluginCardProps {
@@ -49,6 +50,7 @@ interface PluginCardProps {
   onUninstall: (compositeId: PluginCompositeId) => void
   onUpdate: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
+  isInstalling?: boolean
   variant?: DashboardVariant
   shadow?: PanelShadow
 }
@@ -69,6 +71,7 @@ export function PluginCard({
   onUninstall,
   onUpdate,
   onViewDetails,
+  isInstalling,
   variant,
   shadow,
 }: PluginCardProps) {
@@ -260,9 +263,14 @@ export function PluginCard({
               variant="outline"
               className="flex-1 border-primary text-primary hover:bg-primary/5"
               onClick={() => onInstall(plugin.id)}
+              disabled={isInstalling}
             >
-              <Download className="mr-1 h-4 w-4" />
-              {t('actions.install')}
+              {isInstalling ? (
+                <Spinner className="mr-1 h-4 w-4" />
+              ) : (
+                <Download className="mr-1 h-4 w-4" />
+              )}
+              {isInstalling ? t('actions.installing') : t('actions.install')}
             </Button>
           </>
         )}

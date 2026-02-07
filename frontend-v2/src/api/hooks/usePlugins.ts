@@ -121,113 +121,56 @@ export function usePlugins(catalogue?: BlockFactoryCatalogue) {
 }
 
 /**
- * Hook to install a plugin
+ * Create a plugin mutation that waits for catalogue + details to refresh.
+ *
+ * After any plugin operation the backend reloads plugins, which temporarily
+ * makes the catalogue endpoint return 503. The mutation stays pending until
+ * the catalogue is available again and details are refreshed.
  */
+function usePluginMutation<TVariables>(
+  action: (variables: TVariables) => Promise<void>,
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (variables: TVariables) => {
+      await action(variables)
+      await queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() })
+      await queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
+    },
+  })
+}
+
 export function useInstallPlugin() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (compositeId: PluginCompositeId) => installPlugin(compositeId),
-    onSuccess: async () => {
-      // Invalidate plugin details and fable catalogue (plugins provide block factories)
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
+  return usePluginMutation(installPlugin)
 }
 
-/**
- * Hook to uninstall a plugin
- */
 export function useUninstallPlugin() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (compositeId: PluginCompositeId) =>
-      uninstallPlugin(compositeId),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
+  return usePluginMutation(uninstallPlugin)
 }
 
-/**
- * Hook to enable a plugin
- */
 export function useEnablePlugin() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (compositeId: PluginCompositeId) => enablePlugin(compositeId),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
+  return usePluginMutation(enablePlugin)
 }
 
-/**
- * Hook to disable a plugin
- */
 export function useDisablePlugin() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (compositeId: PluginCompositeId) => disablePlugin(compositeId),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
+  return usePluginMutation(disablePlugin)
 }
 
-/**
- * Hook to modify plugin enabled state
- */
-export function useModifyPluginEnabled() {
-  const queryClient = useQueryClient()
+export function useUpdatePlugin() {
+  return usePluginMutation(updatePlugin)
+}
 
-  return useMutation({
-    mutationFn: ({
+export function useModifyPluginEnabled() {
+  return usePluginMutation(
+    ({
       compositeId,
       isEnabled,
     }: {
       compositeId: PluginCompositeId
       isEnabled: boolean
     }) => modifyPluginEnabled(compositeId, isEnabled),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
-}
-
-/**
- * Hook to update a plugin
- */
-export function useUpdatePlugin() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (compositeId: PluginCompositeId) => updatePlugin(compositeId),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: pluginKeys.details() }),
-        queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() }),
-      ])
-    },
-  })
+  )
 }
 
 /**

@@ -24,6 +24,7 @@ import {
   upsertFable,
 } from '@/api/endpoints/fable'
 import { getFactory } from '@/api/types/fable.types'
+import { ApiClientError } from '@/api/client'
 
 export const fableKeys = {
   all: ['fable'] as const,
@@ -40,6 +41,20 @@ export function useBlockCatalogue(language?: string) {
     queryFn: () => getCatalogue(language),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    retry: (failureCount, error) => {
+      // Retry more on 503 (plugins temporarily unavailable after install/update)
+      if (error instanceof ApiClientError && error.status === 503) {
+        return failureCount < 5
+      }
+      return failureCount < 3
+    },
+    retryDelay: (attemptIndex, error) => {
+      // Use fixed 1s delay for 503 since we just need to wait for plugins to load
+      if (error instanceof ApiClientError && error.status === 503) {
+        return 1000
+      }
+      return Math.min(1000 * 2 ** attemptIndex, 30000)
+    },
   })
 }
 

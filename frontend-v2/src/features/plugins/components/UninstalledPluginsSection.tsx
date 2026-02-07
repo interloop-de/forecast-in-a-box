@@ -26,6 +26,7 @@ interface UninstalledPluginsSectionProps {
   plugins: Array<PluginInfo>
   onInstall: (compositeId: PluginCompositeId) => void
   onViewDetails?: (plugin: PluginInfo) => void
+  installingId?: PluginCompositeId
   variant?: DashboardVariant
   shadow?: PanelShadow
 }
@@ -34,6 +35,7 @@ export function UninstalledPluginsSection({
   plugins,
   onInstall,
   onViewDetails,
+  installingId,
   variant,
   shadow,
 }: UninstalledPluginsSectionProps) {
@@ -120,6 +122,11 @@ export function UninstalledPluginsSection({
               onUninstall={() => {}}
               onUpdate={() => {}}
               onViewDetails={onViewDetails}
+              isInstalling={
+                !!installingId &&
+                installingId.store === plugin.id.store &&
+                installingId.local === plugin.id.local
+              }
               variant={variant}
               shadow={shadow}
             />

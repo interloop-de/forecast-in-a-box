@@ -269,6 +269,9 @@ function PluginsPage() {
         plugins={availablePlugins}
         onInstall={handleInstall}
         onViewDetails={handleViewDetails}
+        installingId={
+          installPlugin.isPending ? installPlugin.variables : undefined
+        }
         variant={dashboardVariant}
         shadow={panelShadow}
       />
