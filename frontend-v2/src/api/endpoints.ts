@@ -59,9 +59,9 @@ export const API_ENDPOINTS = {
   fable: {
     /** GET - Get block catalogue */
     catalogue: `${API_PREFIX}/fable/catalogue`,
-    /** POST - Expand a fable configuration */
+    /** PUT - Expand a fable configuration */
     expand: `${API_PREFIX}/fable/expand`,
-    /** POST - Compile a fable configuration */
+    /** PUT - Compile a fable configuration */
     compile: `${API_PREFIX}/fable/compile`,
     /** GET - Retrieve a saved fable */
     retrieve: `${API_PREFIX}/fable/retrieve`,

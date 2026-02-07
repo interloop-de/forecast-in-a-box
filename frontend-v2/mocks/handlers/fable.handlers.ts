@@ -38,7 +38,7 @@ export const fableHandlers = [
     return HttpResponse.json(mockCatalogue)
   }),
 
-  http.post(API_ENDPOINTS.fable.expand, async ({ request }) => {
+  http.put(API_ENDPOINTS.fable.expand, async ({ request }) => {
     await delay(400)
 
     let fable: FableBuilderV1
@@ -56,7 +56,7 @@ export const fableHandlers = [
     return HttpResponse.json(expansion)
   }),
 
-  http.post(API_ENDPOINTS.fable.compile, async ({ request }) => {
+  http.put(API_ENDPOINTS.fable.compile, async ({ request }) => {
     await delay(600)
 
     let fable: FableBuilderV1

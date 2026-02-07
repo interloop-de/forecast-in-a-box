@@ -57,7 +57,7 @@ export async function getCatalogue(
 export async function expandFable(
   fable: FableBuilderV1,
 ): Promise<FableValidationExpansion> {
-  return apiClient.post(API_ENDPOINTS.fable.expand, fable, {
+  return apiClient.put(API_ENDPOINTS.fable.expand, fable, {
     schema: FableValidationExpansionSchema,
   })
 }
@@ -66,7 +66,7 @@ export async function expandFable(
  * Compile a fable configuration
  */
 export async function compileFable(fable: FableBuilderV1): Promise<unknown> {
-  return apiClient.post(API_ENDPOINTS.fable.compile, fable)
+  return apiClient.put(API_ENDPOINTS.fable.compile, fable)
 }
 
 /**
