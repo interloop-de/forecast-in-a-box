@@ -77,19 +77,19 @@ describe('ValidationStatusBadge', () => {
   })
 
   describe('when has errors', () => {
-    it('shows error count for single error', async () => {
+    it('shows has errors for global error', async () => {
       mockStore({
         validationState: { globalErrors: ['Some error'], blockStates: {} },
         isValidating: false,
       })
       const screen = await render(<ValidationStatusBadge />)
-      await expect.element(screen.getByText('1 error')).toBeVisible()
+      await expect.element(screen.getByText('Has errors')).toBeVisible()
     })
 
-    it('shows error count for multiple errors', async () => {
+    it('shows has errors for block errors', async () => {
       mockStore({
         validationState: {
-          globalErrors: ['Error 1', 'Error 2'],
+          globalErrors: [],
           blockStates: {
             'block-1': { hasErrors: true, errors: ['Block error'] },
           },
@@ -97,7 +97,7 @@ describe('ValidationStatusBadge', () => {
         isValidating: false,
       })
       const screen = await render(<ValidationStatusBadge />)
-      await expect.element(screen.getByText('3 errors')).toBeVisible()
+      await expect.element(screen.getByText('Has errors')).toBeVisible()
     })
   })
 })
@@ -151,7 +151,7 @@ describe('ValidationStatus', () => {
   })
 
   describe('compact mode', () => {
-    it('shows compact error count for block errors only', async () => {
+    it('shows has errors for block errors only', async () => {
       mockStore({
         validationState: {
           globalErrors: [],
@@ -162,19 +162,7 @@ describe('ValidationStatus', () => {
         isValidating: false,
       })
       const screen = await render(<ValidationStatus compact />)
-      await expect.element(screen.getByText('2 block errors')).toBeVisible()
-    })
-
-    it('shows singular for single error', async () => {
-      mockStore({
-        validationState: {
-          globalErrors: [],
-          blockStates: { 'block-1': { hasErrors: true, errors: ['Error 1'] } },
-        },
-        isValidating: false,
-      })
-      const screen = await render(<ValidationStatus compact />)
-      await expect.element(screen.getByText('1 block error')).toBeVisible()
+      await expect.element(screen.getByText('Has errors')).toBeVisible()
     })
   })
 })

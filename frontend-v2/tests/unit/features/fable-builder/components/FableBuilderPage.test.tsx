@@ -121,6 +121,15 @@ vi.mock('@/hooks/useMedia', () => ({
   useMedia: vi.fn(() => true), // Default to desktop
 }))
 
+// Mock auth hooks used by EditStep
+vi.mock('@/features/auth/AuthContext', () => ({
+  useAuth: () => ({ authType: 'anonymous', isAuthenticated: true }),
+}))
+
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({ data: { is_superuser: true } }),
+}))
+
 describe('FableBuilderPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()

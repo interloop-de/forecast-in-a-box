@@ -438,10 +438,10 @@ describe('BlockInstanceCard', () => {
         <BlockInstanceCard instanceId="block-1" catalogue={mockCatalogue} />,
       )
 
-      expect(screen.container.textContent).toContain('1 error')
+      expect(screen.container.textContent).toContain('Has errors')
     })
 
-    it('shows multiple errors count', async () => {
+    it('shows has errors for multiple errors', async () => {
       useFableBuilderStore.setState({
         fable: {
           blocks: {
@@ -473,7 +473,7 @@ describe('BlockInstanceCard', () => {
         <BlockInstanceCard instanceId="block-1" catalogue={mockCatalogue} />,
       )
 
-      expect(screen.container.textContent).toContain('3 errors')
+      expect(screen.container.textContent).toContain('Has errors')
     })
 
     it('displays error messages', async () => {

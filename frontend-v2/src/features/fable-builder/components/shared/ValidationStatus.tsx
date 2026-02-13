@@ -37,14 +37,12 @@ export function ValidationStatusBadge({ className }: { className?: string }) {
     return null
   }
 
-  const globalErrorCount = validationState.globalErrors.length
-  const blockErrorCount = Object.values(validationState.blockStates).reduce(
-    (count, state) => count + (state.hasErrors ? state.errors.length : 0),
-    0,
+  const hasGlobalErrors = validationState.globalErrors.length > 0
+  const hasBlockErrors = Object.values(validationState.blockStates).some(
+    (state) => state.hasErrors,
   )
-  const totalErrors = globalErrorCount + blockErrorCount
 
-  if (totalErrors === 0) {
+  if (!hasGlobalErrors && !hasBlockErrors) {
     return (
       <Badge
         variant="outline"
@@ -59,7 +57,7 @@ export function ValidationStatusBadge({ className }: { className?: string }) {
   return (
     <Badge variant="destructive" className={cn('gap-1', className)}>
       <AlertCircle className="h-3 w-3" />
-      {totalErrors} {totalErrors === 1 ? 'error' : 'errors'}
+      Has errors
     </Badge>
   )
 }
@@ -75,23 +73,14 @@ export function ValidationStatus({
     if (!validationState) return null
 
     const globalErrors = validationState.globalErrors
-    const blockErrors: Array<{ blockId: string; errors: Array<string> }> = []
-
-    for (const [blockId, state] of Object.entries(
-      validationState.blockStates,
-    )) {
-      if (state.hasErrors && state.errors.length > 0) {
-        blockErrors.push({ blockId, errors: state.errors })
-      }
-    }
+    const blocksWithErrors = Object.entries(validationState.blockStates).filter(
+      ([, state]) => state.hasErrors && state.errors.length > 0,
+    )
 
     return {
       globalErrors,
-      blockErrors,
-      totalCount:
-        globalErrors.length +
-        blockErrors.reduce((sum, b) => sum + b.errors.length, 0),
-      isValid: globalErrors.length === 0 && blockErrors.length === 0,
+      blocksWithErrors,
+      isValid: globalErrors.length === 0 && blocksWithErrors.length === 0,
     }
   }, [validationState])
 
@@ -117,8 +106,7 @@ export function ValidationStatus({
     if (compact) {
       return (
         <div className={cn('text-sm text-destructive', className)}>
-          {errorSummary.totalCount} block{' '}
-          {errorSummary.totalCount === 1 ? 'error' : 'errors'}
+          Has errors
         </div>
       )
     }

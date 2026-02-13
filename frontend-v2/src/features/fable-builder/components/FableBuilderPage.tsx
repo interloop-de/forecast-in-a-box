@@ -9,7 +9,8 @@
  */
 
 import React, { useEffect, useRef } from 'react'
-import { AlertCircle } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { AlertCircle, Package } from 'lucide-react'
 import { FableBuilderHeader } from './FableBuilderHeader'
 import {
   BlockPalette,
@@ -34,6 +35,9 @@ import {
   useFableValidation,
 } from '@/api/hooks/useFable'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/features/auth/AuthContext'
+import { useUser } from '@/hooks/useUser'
 import { ApiClientError } from '@/api/client'
 
 /**
@@ -216,6 +220,33 @@ function EditStep({
   isDesktop,
   mode,
 }: EditStepProps): React.ReactNode {
+  const { authType } = useAuth()
+  const { data: user } = useUser()
+
+  if (Object.keys(catalogue).length === 0) {
+    const canManagePlugins = authType === 'anonymous' || user?.is_superuser
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+        <Package className="h-12 w-12 text-muted-foreground" />
+        <div className="max-w-md text-center">
+          <h2 className="text-lg font-semibold">No plugins enabled</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            At least one plugin must be enabled to use the Fable Builder.
+          </p>
+          {canManagePlugins && (
+            <Button
+              variant="outline"
+              className="mt-4"
+              render={<Link to="/admin/plugins" />}
+            >
+              Manage Plugins
+            </Button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   // Form mode: Render full-width without sidebars
   // Form mode has its own built-in UI for adding, configuring, and deleting blocks
   if (mode === 'form') {

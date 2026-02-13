@@ -158,8 +158,7 @@ export function BlockInstanceCard({
                     {hasErrors && (
                       <Badge variant="destructive" className="gap-1 text-sm">
                         <AlertCircle className="h-3 w-3" />
-                        {errors.length}{' '}
-                        {errors.length === 1 ? 'error' : 'errors'}
+                        Has errors
                       </Badge>
                     )}
                   </div>

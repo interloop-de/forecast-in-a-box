@@ -130,7 +130,7 @@ const initialState = {
   isMobileConfigOpen: false,
   isMiniMapOpen: true,
   fitViewTrigger: 0,
-  edgeStyle: 'step' as EdgeStyle,
+  edgeStyle: 'bezier' as EdgeStyle,
   autoLayout: true,
   layoutDirection: getDefaultLayoutDirection(),
   nodesLocked: true,

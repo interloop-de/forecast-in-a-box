@@ -274,41 +274,45 @@ export function PluginCard({
             </Button>
           </>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
-            <MoreVertical className="h-5 w-5" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {pypiUrl && (
-              <DropdownMenuItem
-                render={
-                  <a href={pypiUrl} target="_blank" rel="noopener noreferrer" />
-                }
-              >
-                {t('actions.viewOnPyPI')}
-              </DropdownMenuItem>
-            )}
-            {plugin.comment && (
-              <DropdownMenuItem disabled>
-                <span className="text-xs text-muted-foreground">
-                  {plugin.comment}
-                </span>
-              </DropdownMenuItem>
-            )}
-            {plugin.isInstalled && (
-              <>
-                {(pypiUrl || plugin.comment) && <DropdownMenuSeparator />}
+        {plugin.isInstalled && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="ghost" size="icon" />}
+            >
+              <MoreVertical className="h-5 w-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {pypiUrl && (
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => onUninstall(plugin.id)}
+                  render={
+                    <a
+                      href={pypiUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  }
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t('actions.uninstall')}
+                  {t('actions.viewOnPyPI')}
                 </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              )}
+              {plugin.comment && (
+                <DropdownMenuItem disabled>
+                  <span className="text-xs text-muted-foreground">
+                    {plugin.comment}
+                  </span>
+                </DropdownMenuItem>
+              )}
+              {(pypiUrl || plugin.comment) && <DropdownMenuSeparator />}
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onUninstall(plugin.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t('actions.uninstall')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </Card>
   )

@@ -24,6 +24,15 @@ vi.mock('@/features/fable-builder/hooks/useURLStateSync', () => ({
   useURLStateSync: () => ({ loadedFromURL: false }),
 }))
 
+// Mock auth hooks used by EditStep
+vi.mock('@/features/auth/AuthContext', () => ({
+  useAuth: () => ({ authType: 'anonymous', isAuthenticated: true }),
+}))
+
+vi.mock('@/hooks/useUser', () => ({
+  useUser: () => ({ data: { is_superuser: true } }),
+}))
+
 /**
  * Set up a valid fable with a source + sink block for review tests.
  * All config values are filled and the sink is connected to the source.
