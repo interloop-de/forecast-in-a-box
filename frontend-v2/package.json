@@ -21,6 +21,7 @@
     "format": "prettier --write .",
     "check": "prettier --check . && eslint . --max-warnings 0",
     "fix": "prettier --write . && eslint --fix .",
+    "analyze": "vite build --mode analyze",
     "validate": "npm run fix && npm run test:run && npm run build"
   },
   "dependencies": {
@@ -74,6 +75,7 @@
     "msw": "^2.12.7",
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "rollup-plugin-visualizer": "^6.0.5",
     "shadcn": "^3.6.3",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",

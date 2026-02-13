@@ -47,6 +47,7 @@ export default mergeConfig(
           'src/**/*.d.ts',
           'src/routes/routeTree.gen.ts',
           'src/vite-env.d.ts',
+          'src/components/ui/**',
         ],
         thresholds: {
           lines: 20,

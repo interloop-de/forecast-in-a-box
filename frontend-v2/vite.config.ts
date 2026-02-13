@@ -12,6 +12,7 @@ import { URL, fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
@@ -28,11 +29,32 @@ export default defineConfig(({ mode }) => {
       }),
       viteReact(),
       tailwindcss(),
+      ...(mode === 'analyze'
+        ? [
+            visualizer({
+              open: true,
+              filename: 'dist/stats.html',
+              gzipSize: true,
+            }),
+          ]
+        : []),
     ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@tests': fileURLToPath(new URL('./tests', import.meta.url)),
+      },
+    },
+    build: {
+      chunkSizeWarningLimit: 500,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            router: ['@tanstack/react-router'],
+            query: ['@tanstack/react-query'],
+          },
+        },
       },
     },
     server: {

@@ -40,23 +40,29 @@ const mockSourcesResponse = {
   sources: [
     {
       id: 'source-1',
+      factoryId: 'test-factory',
       name: 'Test Source',
-      type: 'model',
-      plugin: 'core-plugin',
-      status: 'active',
-      isEnabled: true,
       description: 'A test source',
+      sourceType: 'model',
+      pluginId: 'core-plugin',
+      pluginName: 'Core Plugin',
+      author: 'ECMWF',
       version: '1.0.0',
+      status: 'ready',
+      isEnabled: true,
+      isDefault: false,
     },
   ],
   registries: [
     {
       id: 'registry-1',
       name: 'Test Registry',
+      description: 'A test registry',
       url: 'https://registry.example.com',
       isDefault: true,
       isConnected: true,
       sourcesCount: 5,
+      stores: [],
       lastSyncedAt: '2025-01-01T00:00:00Z',
     },
   ],
@@ -65,13 +71,17 @@ const mockSourcesResponse = {
 const mockSourceDetail = {
   source: {
     id: 'source-1',
+    factoryId: 'test-factory',
     name: 'Test Source',
-    type: 'model',
-    plugin: 'core-plugin',
-    status: 'active',
-    isEnabled: true,
     description: 'A test source',
+    sourceType: 'model',
+    pluginId: 'core-plugin',
+    pluginName: 'Core Plugin',
+    author: 'ECMWF',
     version: '1.0.0',
+    status: 'ready',
+    isEnabled: true,
+    isDefault: false,
   },
 }
 
@@ -531,10 +541,7 @@ describe('useToggleSourceEnabled', () => {
 
     await screen.getByTestId('toggle').click()
 
-    // Wait for mutation to complete
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    expect(enableCalled).toBe(true)
+    await vi.waitFor(() => expect(enableCalled).toBe(true))
   })
 
   it('disables source when enabled is false', async () => {
@@ -560,10 +567,7 @@ describe('useToggleSourceEnabled', () => {
 
     await screen.getByTestId('toggle').click()
 
-    // Wait for mutation to complete
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    expect(disableCalled).toBe(true)
+    await vi.waitFor(() => expect(disableCalled).toBe(true))
   })
 
   it('reports pending state', async () => {
@@ -621,11 +625,12 @@ describe('useAddRegistry', () => {
           registry: {
             id: 'new-registry',
             name: 'New Registry',
+            description: 'A new test registry',
             url: 'https://new-registry.example.com',
             isDefault: false,
             isConnected: true,
             sourcesCount: 0,
-            lastSyncedAt: null,
+            stores: [],
           },
         })
       }),

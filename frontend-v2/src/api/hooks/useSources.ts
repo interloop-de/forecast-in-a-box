@@ -15,11 +15,17 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { z } from 'zod'
 import type {
   AddRegistryRequest,
   SourceInfo,
   SourceRegistry,
   SourcesApiResponse,
+} from '@/api/types/sources.types'
+import {
+  sourceInfoSchema,
+  sourceRegistrySchema,
+  sourcesApiResponseSchema,
 } from '@/api/types/sources.types'
 import { API_ENDPOINTS } from '@/api/endpoints'
 import { apiClient } from '@/api/client'
@@ -56,6 +62,7 @@ export function useSources() {
     queryFn: async () => {
       const response = await apiClient.get<SourcesApiResponse>(
         API_ENDPOINTS.sources.list,
+        { schema: sourcesApiResponseSchema },
       )
       return response
     },
@@ -71,6 +78,7 @@ export function useSource(sourceId: string) {
     queryFn: async () => {
       const response = await apiClient.get<{ source: SourceInfo }>(
         API_ENDPOINTS.sources.byId(sourceId),
+        { schema: z.object({ source: sourceInfoSchema }) },
       )
       return response.source
     },
@@ -215,11 +223,18 @@ export function useAddRegistry() {
 
   return useMutation({
     mutationFn: async (data: AddRegistryRequest) => {
+      const addRegistryResponseSchema = z.object({
+        success: z.boolean(),
+        message: z.string(),
+        registry: sourceRegistrySchema,
+      })
       const response = await apiClient.post<{
         success: boolean
         message: string
         registry: SourceRegistry
-      }>(API_ENDPOINTS.registries.add, data)
+      }>(API_ENDPOINTS.registries.add, data, {
+        schema: addRegistryResponseSchema,
+      })
       return response
     },
     onSuccess: () => {
@@ -258,11 +273,18 @@ export function useSyncRegistry() {
 
   return useMutation({
     mutationFn: async (registryId: string) => {
+      const syncRegistryResponseSchema = z.object({
+        success: z.boolean(),
+        message: z.string(),
+        lastSyncedAt: z.string(),
+      })
       const response = await apiClient.post<{
         success: boolean
         message: string
         lastSyncedAt: string
-      }>(API_ENDPOINTS.registries.sync(registryId))
+      }>(API_ENDPOINTS.registries.sync(registryId), undefined, {
+        schema: syncRegistryResponseSchema,
+      })
       return response
     },
     onSuccess: () => {

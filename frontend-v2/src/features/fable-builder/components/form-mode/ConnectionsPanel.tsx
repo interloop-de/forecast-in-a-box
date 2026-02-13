@@ -18,12 +18,8 @@ import {
 import '@xyflow/react/dist/style.css'
 import { AlertTriangle, ChevronRight } from 'lucide-react'
 import { AddBlockNode, MiniPipelineNode } from './mini-graph'
-import type { Edge } from '@xyflow/react'
-import type {
-  AddBlockNodeType,
-  ControlDirection,
-  MiniPipelineNodeType,
-} from './mini-graph'
+import type { ControlDirection } from './mini-graph'
+import type { Edge, Node, NodeTypes } from '@xyflow/react'
 import type {
   BlockFactoryCatalogue,
   BlockInstanceId,
@@ -51,10 +47,7 @@ interface ConnectedBlock {
   hasErrors: boolean
 }
 
-// Node type registry - cast needed because React Flow's generic types
-// expect Record<string, unknown> but our components use specific data interfaces
-
-const nodeTypes: Record<string, any> = {
+const nodeTypes: NodeTypes = {
   miniPipeline: MiniPipelineNode,
   addBlock: AddBlockNode,
 }
@@ -195,7 +188,7 @@ function ConnectionsPanelContent({
 
   // Build nodes and edges
   const { nodes, edges, graphHeight } = useMemo(() => {
-    const nodeList: Array<MiniPipelineNodeType | AddBlockNodeType> = []
+    const nodeList: Array<Node> = []
     const edgeList: Array<Edge> = []
     const seenIds = new Set<string>()
 
@@ -427,7 +420,7 @@ function ConnectionsPanelContent({
             style={{ height: graphHeight }}
           >
             <ReactFlow
-              nodes={nodes as any}
+              nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
               panOnDrag={false}

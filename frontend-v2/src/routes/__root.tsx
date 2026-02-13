@@ -9,7 +9,7 @@
  */
 
 import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import {
   useBackendBaseUrl,
   useConfig,
@@ -17,8 +17,13 @@ import {
   useEnvironment,
 } from '@/hooks/useConfig'
 import { useLanguageSync } from '@/hooks/useLanguageSync'
-import { CommandPalette } from '@/components/CommandPalette'
 import { createLogger } from '@/lib/logger'
+
+const CommandPalette = lazy(() =>
+  import('@/components/CommandPalette').then((m) => ({
+    default: m.CommandPalette,
+  })),
+)
 
 const log = createLogger('Root')
 
@@ -52,7 +57,9 @@ export const Route = createRootRoute({
         {/* Header and Footer are rendered by individual layouts */}
         <Outlet />
         {/* Global command palette (⌘K / Ctrl+K) */}
-        <CommandPalette />
+        <Suspense fallback={null}>
+          <CommandPalette />
+        </Suspense>
         {/* {debugMode && (*/}
         {/*  <TanStackDevtools*/}
         {/*    config={{*/}
