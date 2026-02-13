@@ -22,7 +22,7 @@ export function BaseHandle({
     <Handle
       {...props}
       className={cn(
-        'h-[11px] w-[11px] rounded-full border border-slate-300 bg-slate-100 transition dark:border-slate-600 dark:bg-secondary',
+        'h-2.75 w-2.75 rounded-full border border-slate-300 bg-slate-100 transition dark:border-slate-600 dark:bg-secondary',
         className,
       )}
     >

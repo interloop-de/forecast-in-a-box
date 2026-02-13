@@ -298,7 +298,7 @@ describe('apiClient', () => {
   })
 
   describe('non-JSON responses', () => {
-    it('returns empty object for non-JSON content-type', async () => {
+    it('returns undefined for non-JSON content-type', async () => {
       worker.use(
         http.get('/api/v1/test', () => {
           return new HttpResponse('OK', {
@@ -309,10 +309,10 @@ describe('apiClient', () => {
       )
 
       const result = await apiClient.get('/api/v1/test')
-      expect(result).toEqual({})
+      expect(result).toBeUndefined()
     })
 
-    it('returns empty object when no content-type header', async () => {
+    it('returns undefined for 204 no-content response', async () => {
       worker.use(
         http.get('/api/v1/test', () => {
           return new HttpResponse(null, { status: 204 })
@@ -320,7 +320,32 @@ describe('apiClient', () => {
       )
 
       const result = await apiClient.get('/api/v1/test')
-      expect(result).toEqual({})
+      expect(result).toBeUndefined()
+    })
+
+    it('returns undefined for 202 accepted with no body', async () => {
+      worker.use(
+        http.post('/api/v1/test', () => {
+          return new HttpResponse(null, { status: 202 })
+        }),
+      )
+
+      const result = await apiClient.post('/api/v1/test', { id: '123' })
+      expect(result).toBeUndefined()
+    })
+
+    it('returns undefined for DELETE with non-JSON response', async () => {
+      worker.use(
+        http.delete('/api/v1/test/456', () => {
+          return new HttpResponse(null, {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          })
+        }),
+      )
+
+      const result = await apiClient.delete('/api/v1/test/456')
+      expect(result).toBeUndefined()
     })
   })
 })

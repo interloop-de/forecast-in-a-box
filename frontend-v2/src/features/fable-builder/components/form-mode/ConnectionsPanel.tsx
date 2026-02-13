@@ -51,7 +51,6 @@ interface ConnectedBlock {
   hasErrors: boolean
 }
 
-// Node type registry
 // Node type registry - cast needed because React Flow's generic types
 // expect Record<string, unknown> but our components use specific data interfaces
 

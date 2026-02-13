@@ -14,9 +14,9 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
-import reportWebVitals from './reportWebVitals.ts'
 import { ConfigLoader } from '@/components/ConfigLoader.tsx'
 import { AppProviders } from '@/providers'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 import './styles.css'
 
@@ -61,17 +61,14 @@ if (rootElement && !rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
       <StrictMode>
-        <ConfigLoader>
-          <AppProviders>
-            <RouterProvider router={router} />
-          </AppProviders>
-        </ConfigLoader>
+        <ErrorBoundary>
+          <ConfigLoader>
+            <AppProviders>
+              <RouterProvider router={router} />
+            </AppProviders>
+          </ConfigLoader>
+        </ErrorBoundary>
       </StrictMode>,
     )
   })
 }
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()

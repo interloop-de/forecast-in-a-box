@@ -94,7 +94,7 @@ export const MiniPipelineNode = memo(function MiniPipelineNode({
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-2 !w-2 !border !border-border !bg-background"
+        className="h-2! w-2! border! border-border! bg-background!"
         style={{ left: 8 }}
       />
 
@@ -108,14 +108,14 @@ export const MiniPipelineNode = memo(function MiniPipelineNode({
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
         className={cn(
-          'relative flex h-9 w-[100px] flex-col overflow-hidden rounded-md border bg-card transition-all',
+          'relative flex h-9 w-25 flex-col overflow-hidden rounded-md border bg-card transition-all',
           'cursor-pointer hover:shadow-md',
           isCurrentBlock && 'ring-2 ring-primary ring-offset-2',
           hasErrors && 'border-destructive/50',
         )}
       >
         {/* Top bar */}
-        <div className={cn('h-[3px] w-full shrink-0', metadata.topBarColor)} />
+        <div className={cn('h-0.75 w-full shrink-0', metadata.topBarColor)} />
 
         {/* Content */}
         <div className="flex flex-1 items-center justify-between px-2">
@@ -134,7 +134,7 @@ export const MiniPipelineNode = memo(function MiniPipelineNode({
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-2 !w-2 !border !border-border !bg-background"
+        className="h-2! w-2! border! border-border! bg-background!"
         style={{ right: 8 }}
       />
 

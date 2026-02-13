@@ -145,7 +145,7 @@ export const BlockNode = memo(function BlockNode({
       ref={containerRef}
       onClick={handleClick}
       className={cn(
-        'relative w-[280px] rounded-2xl border bg-card shadow-sm',
+        'relative w-70 rounded-2xl border bg-card shadow-sm',
         'cursor-pointer transition-all duration-300 hover:shadow-lg',
         isSelected &&
           'shadow-[0_0_0_2px_rgba(18,69,222,1),0_15px_35px_-5px_rgba(18,69,222,0.15)]',
@@ -159,7 +159,7 @@ export const BlockNode = memo(function BlockNode({
           <TooltipTrigger className="absolute -top-2 -right-2 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground">
             <AlertCircle className="h-3 w-3" />
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[300px]">
+          <TooltipContent side="top" className="max-w-75">
             <div className="space-y-1">
               <p className="font-medium text-destructive">Validation Errors</p>
               <ul className="list-disc space-y-0.5 pl-4 text-sm">
@@ -322,13 +322,13 @@ export const BlockNode = memo(function BlockNode({
             id={inputName}
             title={inputName}
             className={cn(
-              '!h-5 !w-5 !rounded-full !border-4 !bg-card',
-              isHorizontalLayout ? '!-left-2.5' : '!-top-2.5',
-              inputPosition === Position.Right && '!-right-2.5 !left-auto',
-              inputPosition === Position.Bottom && '!top-auto !-bottom-2.5',
+              'h-5! w-5! rounded-full! border-4! bg-card!',
+              isHorizontalLayout ? '-left-2.5!' : '-top-2.5!',
+              inputPosition === Position.Right && '-right-2.5! left-auto!',
+              inputPosition === Position.Bottom && 'top-auto! -bottom-2.5!',
               isConnected
-                ? '!border-primary'
-                : '!border-muted-foreground/30 hover:!border-muted-foreground/50',
+                ? 'border-primary!'
+                : 'border-muted-foreground/30! hover:border-muted-foreground/50!',
               'transition-all hover:scale-110',
             )}
             style={
@@ -348,11 +348,11 @@ export const BlockNode = memo(function BlockNode({
             id="output"
             title="Output"
             className={cn(
-              '!h-5 !w-5 !rounded-full !border-4 !bg-card',
+              'h-5! w-5! rounded-full! border-4! bg-card!',
               metadata.handleColor,
-              isHorizontalLayout ? '!-right-2.5' : '!-bottom-2.5',
-              outputPosition === Position.Left && '!right-auto !-left-2.5',
-              outputPosition === Position.Top && '!-top-2.5 !bottom-auto',
+              isHorizontalLayout ? '-right-2.5!' : '-bottom-2.5!',
+              outputPosition === Position.Left && 'right-auto! -left-2.5!',
+              outputPosition === Position.Top && '-top-2.5! bottom-auto!',
               'transition-all hover:scale-110',
             )}
             style={

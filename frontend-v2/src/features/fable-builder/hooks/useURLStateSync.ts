@@ -17,6 +17,9 @@ import {
   encodeFableToURL,
   isStateTooLarge,
 } from '@/features/fable-builder/utils/url-state'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('URLStateSync')
 
 interface UseURLStateSyncOptions {
   encodedState?: string
@@ -61,10 +64,9 @@ export function useURLStateSync({
       isUpdatingURLRef.current = true
 
       if (isStateTooLarge(encoded)) {
-        console.warn(
-          'Configuration is large. URL may not work in all browsers.',
-          `Encoded length: ${encoded.length} chars`,
-        )
+        log.warn('Configuration is large. URL may not work in all browsers.', {
+          encodedLength: encoded.length,
+        })
       }
 
       navigate({

@@ -144,7 +144,7 @@ export function RegistriesSection({
                   disabled={isAddingRegistry}
                 />
               </div>
-              <div className="sm:flex-[2]">
+              <div className="sm:flex-2">
                 <Input
                   type="url"
                   placeholder={t('registry.urlPlaceholder')}

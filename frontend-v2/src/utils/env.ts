@@ -28,6 +28,8 @@
  *
  * @returns Backend API base URL (e.g., '' or 'http://localhost:8000')
  */
+import { createLogger } from '@/lib/logger'
+
 export function getBackendBaseUrl(): string {
   // Use nullish coalescing to preserve empty string as a valid value
   return import.meta.env.VITE_API_BASE_URL ?? ''
@@ -77,18 +79,20 @@ export function isDevelopment(): boolean {
   return import.meta.env.DEV
 }
 
+const log = createLogger('Environment')
+
 /**
- * Log environment configuration to console (for debugging)
+ * Log environment configuration (for debugging)
  * Only logs in development or when debug is enabled
  */
 export function logEnvironmentConfig(): void {
   if (isDevelopment() || isDebugEnabled()) {
-    console.group('🔧 Build-Time Environment Configuration')
-    console.log('Backend Base URL:', getBackendBaseUrl())
-    console.log('Debug Mode:', isDebugEnabled())
-    console.log('Environment:', getEnvironment())
-    console.log('Production:', isProduction())
-    console.log('Development:', isDevelopment())
-    console.groupEnd()
+    log.debug('Build-Time Environment Configuration', {
+      backendBaseUrl: getBackendBaseUrl(),
+      debugMode: isDebugEnabled(),
+      environment: getEnvironment(),
+      production: isProduction(),
+      development: isDevelopment(),
+    })
   }
 }

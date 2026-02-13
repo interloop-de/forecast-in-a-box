@@ -135,7 +135,7 @@ function SectionDescription({
   return (
     <p
       className={cn(
-        'max-w-[800px] text-lg text-muted-foreground md:text-xl',
+        'max-w-200 text-lg text-muted-foreground md:text-xl',
         className,
       )}
       {...props}
@@ -152,46 +152,3 @@ export {
   sectionVariants,
   containerVariants,
 }
-
-// TODO: Current usage: But this should be added more into the sections itself
-// <Section variant="default" padding="lg" className="border-b">
-//   <Container className="flex flex-col items-center text-center">
-//     <SectionTitle className="text-5xl md:text-6xl lg:text-7xl">
-//       Build Faster.
-//     </SectionTitle>
-//     <SectionDescription className="mt-6 text-xl md:text-2xl">
-//       The ultimate consistent UI kit for React developers.
-//     </SectionDescription>
-//     <div className="mt-8 flex gap-4">{/* Your Buttons */}</div>
-//   </Container>
-// </Section>
-// <Section variant="default" padding="default">
-//   <Container size="default">
-//     {/* Header Block */}
-//     <SectionHeader className="items-center text-center">
-//             <span className="text-sm font-semibold text-primary uppercase tracking-wider">
-//               Features
-//             </span>
-//       <SectionTitle>Everything you need</SectionTitle>
-//       <SectionDescription>
-//         We handle the boring stuff so you can focus on building the next
-//         big thing.
-//       </SectionDescription>
-//     </SectionHeader>
-//
-//     {/* Content Block (Grid) */}
-//     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-//       <div className="p-6 border rounded-lg">Feature 1</div>
-//       <div className="p-6 border rounded-lg">Feature 2</div>
-//       <div className="p-6 border rounded-lg">Feature 3</div>
-//     </div>
-//   </Container>
-// </Section>
-// <Section variant="muted">
-//   <Container>
-//     <SectionHeader>
-//       <SectionTitle>What people are saying</SectionTitle>
-//     </SectionHeader>
-//     {/* Testimonial cards here */}
-//   </Container>
-// </Section>

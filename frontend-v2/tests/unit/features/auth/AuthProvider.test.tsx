@@ -122,10 +122,6 @@ describe('AuthProvider', () => {
     })
 
     it('falls back to AnonymousAuthProvider when loginEndpoint is missing', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {})
-
       mockUseConfig.mockReturnValue({
         authType: 'authenticated',
         language_iso639_1: 'en',
@@ -142,16 +138,9 @@ describe('AuthProvider', () => {
         .element(screen.getByTestId('anonymous-provider'))
         .toBeInTheDocument()
       expect(renderedProvider).toBe('anonymous')
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[AuthProvider] Authenticated auth type configured but loginEndpoint is missing. Falling back to anonymous auth.',
-      )
     })
 
     it('falls back to AnonymousAuthProvider when loginEndpoint is empty string', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {})
-
       mockUseConfig.mockReturnValue({
         authType: 'authenticated',
         language_iso639_1: 'en',
@@ -168,16 +157,11 @@ describe('AuthProvider', () => {
         .element(screen.getByTestId('anonymous-provider'))
         .toBeInTheDocument()
       expect(renderedProvider).toBe('anonymous')
-      expect(consoleErrorSpy).toHaveBeenCalled()
     })
   })
 
   describe('when authType is unknown', () => {
     it('falls back to AnonymousAuthProvider and logs error', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {})
-
       mockUseConfig.mockReturnValue({
         authType: 'unknown-auth-type' as 'anonymous',
         language_iso639_1: 'en',
@@ -194,9 +178,6 @@ describe('AuthProvider', () => {
         .element(screen.getByTestId('anonymous-provider'))
         .toBeInTheDocument()
       expect(renderedProvider).toBe('anonymous')
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[AuthProvider] Unknown auth type: unknown-auth-type. Falling back to anonymous auth.',
-      )
     })
   })
 

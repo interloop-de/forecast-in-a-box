@@ -53,7 +53,7 @@ export function PipelineSidebar({ children }: PipelineSidebarProps) {
         <div
           className={cn(
             'flex h-full flex-col border-l bg-card transition-all duration-300',
-            isOpen ? 'w-[220px] lg:w-[260px]' : 'w-0',
+            isOpen ? 'w-55 lg:w-65' : 'w-0',
           )}
         >
           {isOpen && (
@@ -72,7 +72,7 @@ export function PipelineSidebar({ children }: PipelineSidebarProps) {
         <div
           className={cn(
             'fixed inset-x-0 bottom-0 z-50 border-t bg-card shadow-lg transition-all duration-300',
-            isOpen ? 'h-[280px]' : 'h-12',
+            isOpen ? 'h-70' : 'h-12',
           )}
         >
           <button

@@ -19,8 +19,8 @@ import { AlertCircle, Eye, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { CapabilityBadges } from './CapabilityBadges'
 import { PluginIcon } from './PluginIcon'
-import { PluginStatusBadge } from './PluginStatusBadge'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
+import { PluginStatusBadge } from '@/features/plugins'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

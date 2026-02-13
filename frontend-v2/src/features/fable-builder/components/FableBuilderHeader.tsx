@@ -280,10 +280,7 @@ export function FableBuilderHeader({
                       >
                         <MoreVertical className="h-4 w-4" />
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className="min-w-[150px]"
-                      >
+                      <DropdownMenuContent align="end" className="min-w-37.5">
                         <DropdownMenuItem
                           onClick={handleShare}
                           disabled={!hasBlocks}
@@ -341,7 +338,7 @@ export function FableBuilderHeader({
                   >
                     <MoreVertical className="h-4 w-4" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="min-w-[160px]">
+                  <DropdownMenuContent align="end" className="min-w-40">
                     <DropdownMenuItem
                       onClick={handleShare}
                       disabled={!hasBlocks}

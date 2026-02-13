@@ -67,8 +67,6 @@ export const API_ENDPOINTS = {
     retrieve: `${API_PREFIX}/fable/retrieve`,
     /** POST - Create or update a fable */
     upsert: `${API_PREFIX}/fable/upsert`,
-    /** GET - List all saved fables */
-    list: `${API_PREFIX}/fable/list`,
   },
 
   /**
@@ -118,7 +116,7 @@ export const API_ENDPOINTS = {
   },
 
   /**
-   * Sources management endpoints
+   * Sources management endpoints. Currently only used in mocks
    */
   sources: {
     /** GET - List all sources and registries */
@@ -138,7 +136,7 @@ export const API_ENDPOINTS = {
   },
 
   /**
-   * Source Registry management endpoints
+   * Source Registry management endpoints. Currently only used in mocks
    */
   registries: {
     /** GET - List all registries */
@@ -202,8 +200,3 @@ export const API_PATTERNS = {
     sync: `${API_PREFIX}/registries/:registryId/sync`,
   },
 } as const
-
-/**
- * Type helper for endpoint paths
- */
-export type ApiEndpointPath = string

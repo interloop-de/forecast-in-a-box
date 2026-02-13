@@ -105,10 +105,6 @@ describe('fableKeys', () => {
     expect(fableKeys.detail('test-id')).toEqual(['fable', 'detail', 'test-id'])
   })
 
-  it('generates correct list key', () => {
-    expect(fableKeys.list()).toEqual(['fable', 'list'])
-  })
-
   it('generates correct validation key', () => {
     const fable = { blocks: {} }
     expect(fableKeys.validation(fable)).toEqual([

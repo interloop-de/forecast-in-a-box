@@ -9,7 +9,7 @@
  */
 
 /**
- * useEventSource Hook
+ * useEventSource Hook. Currently not used.
  *
  * React hook for Server-Sent Events (SSE) connections.
  * Manages connection lifecycle, reconnection, and event handling.

@@ -30,7 +30,6 @@ export const fableKeys = {
   all: ['fable'] as const,
   catalogue: () => [...fableKeys.all, 'catalogue'] as const,
   detail: (id: string) => [...fableKeys.all, 'detail', id] as const,
-  list: () => [...fableKeys.all, 'list'] as const,
   validation: (fable: FableBuilderV1) =>
     [...fableKeys.all, 'validation', JSON.stringify(fable)] as const,
 }
@@ -121,7 +120,6 @@ export function useUpsertFable() {
   >({
     mutationFn: ({ fable, fableId, tags }) => upsertFable(fable, fableId, tags),
     onSuccess: (newId, variables) => {
-      queryClient.invalidateQueries({ queryKey: fableKeys.list() })
       if (variables.fableId) {
         queryClient.invalidateQueries({
           queryKey: fableKeys.detail(variables.fableId),

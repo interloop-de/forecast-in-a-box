@@ -98,11 +98,11 @@ export function SourceRow({
       {/* Status */}
       <div className="flex items-center sm:col-span-2">
         {source.status === 'downloading' ? (
-          <div className="flex w-full max-w-[150px] items-center gap-3">
+          <div className="flex w-full max-w-37.5 items-center gap-3">
             <span className="w-10 text-sm font-bold">
               {Math.round(source.downloadProgress ?? 0)}%
             </span>
-            <div className="h-2 flex-grow overflow-hidden rounded-full bg-muted">
+            <div className="h-2 grow overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-primary transition-all"
                 style={{ width: `${source.downloadProgress ?? 0}%` }}

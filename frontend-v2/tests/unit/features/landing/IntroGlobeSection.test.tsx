@@ -12,6 +12,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { IntroGlobeSection } from '@/features/landing/components/IntroGlobeSection'
 
+// Mock useAuth
+vi.mock('@/features/auth', () => ({
+  useAuth: () => ({ signIn: vi.fn() }),
+}))
+
 // Mock TanStack Router Link
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
@@ -57,18 +62,6 @@ describe('IntroGlobeSection', () => {
           ),
         )
         .toBeVisible()
-    })
-
-    it('renders Getting Started button', async () => {
-      const screen = await render(<IntroGlobeSection />)
-
-      await expect.element(screen.getByText('Getting Started')).toBeVisible()
-    })
-
-    it('renders link to configure page', async () => {
-      const screen = await render(<IntroGlobeSection />)
-
-      await expect.element(screen.getByTestId('link-configure')).toBeVisible()
     })
 
     it('renders globe component', async () => {

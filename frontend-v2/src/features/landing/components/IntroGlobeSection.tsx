@@ -9,9 +9,9 @@
  */
 
 import { Suspense, lazy } from 'react'
-import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { H1, Typography } from '@/components/base/typography'
+import { useAuth } from '@/features/auth'
 
 // Lazy load the globe to ensure Three.js initializes properly in production builds
 const RotatingGlobe = lazy(
@@ -19,6 +19,7 @@ const RotatingGlobe = lazy(
 )
 
 export function IntroGlobeSection() {
+  const { signIn } = useAuth()
   return (
     <section>
       <div className="relative overflow-x-hidden bg-muted py-24">
@@ -57,7 +58,7 @@ export function IntroGlobeSection() {
               <Button
                 size="lg"
                 className="border-transparent px-4 text-sm shadow-2xl shadow-indigo-900/40"
-                render={<Link to="/configure">Getting Started</Link>}
+                onClick={() => signIn()}
                 nativeButton={false}
               />
             </div>
@@ -65,7 +66,7 @@ export function IntroGlobeSection() {
           <div className="flex items-center justify-center">
             <Suspense
               fallback={
-                <div className="flex h-[400px] w-[400px] items-center justify-center">
+                <div className="flex h-100 w-100 items-center justify-center">
                   <div className="h-48 w-48 animate-pulse rounded-full bg-muted-foreground/10" />
                 </div>
               }

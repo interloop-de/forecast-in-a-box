@@ -105,7 +105,7 @@ export function SourcesFilters({
                 onStatusChange(value as SourceStatusFilter)
               }
             >
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-30">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +127,7 @@ export function SourcesFilters({
                   }
                 }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-35">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

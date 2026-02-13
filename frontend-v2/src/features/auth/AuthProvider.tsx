@@ -25,6 +25,9 @@ import { AnonymousAuthProvider } from './AnonymousAuthProvider.tsx'
 import { AuthenticatedAuthProvider } from './AuthenticatedAuthProvider.tsx'
 import type { ReactNode } from 'react'
 import { useConfig } from '@/hooks/useConfig'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('AuthProvider')
 
 interface AuthProviderProps {
   children: ReactNode
@@ -61,8 +64,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     case 'authenticated':
       if (!config.loginEndpoint) {
-        console.error(
-          '[AuthProvider] Authenticated auth type configured but loginEndpoint is missing. Falling back to anonymous auth.',
+        log.error(
+          'Authenticated auth type configured but loginEndpoint is missing. Falling back to anonymous auth.',
         )
         return <AnonymousAuthProvider>{children}</AnonymousAuthProvider>
       }
@@ -73,8 +76,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       )
 
     default:
-      console.error(
-        `[AuthProvider] Unknown auth type: ${config.authType}. Falling back to anonymous auth.`,
+      log.error(
+        `Unknown auth type: ${config.authType}. Falling back to anonymous auth.`,
       )
       return <AnonymousAuthProvider>{children}</AnonymousAuthProvider>
   }

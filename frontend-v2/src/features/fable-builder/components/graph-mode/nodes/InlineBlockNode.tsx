@@ -138,7 +138,7 @@ export const InlineBlockNode = memo(function InlineBlockNode({
           <TooltipTrigger className="absolute -top-2 -right-2 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground">
             <AlertCircle className="h-3 w-3" />
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[300px]">
+          <TooltipContent side="top" className="max-w-75">
             <div className="space-y-1">
               <p className="font-medium text-destructive">Validation Errors</p>
               <ul className="list-disc space-y-0.5 pl-4 text-sm">
@@ -306,10 +306,10 @@ export const InlineBlockNode = memo(function InlineBlockNode({
             id={inputName}
             title={inputName}
             className={cn(
-              '!-left-2.5 !h-5 !w-5 !rounded-full !border-4 !bg-card',
+              '-left-2.5! h-5! w-5! rounded-full! border-4! bg-card!',
               isConnected
-                ? '!border-primary'
-                : '!border-muted-foreground/30 hover:!border-muted-foreground/50',
+                ? 'border-primary!'
+                : 'border-muted-foreground/30! hover:border-muted-foreground/50!',
               'transition-all hover:scale-110',
             )}
             style={{
@@ -327,7 +327,7 @@ export const InlineBlockNode = memo(function InlineBlockNode({
           id="output"
           title="Output"
           className={cn(
-            '!-right-2.5 !h-5 !w-5 !rounded-full !border-4 !bg-card',
+            '-right-2.5! h-5! w-5! rounded-full! border-4! bg-card!',
             metadata.handleColor,
             'transition-all hover:scale-110',
           )}

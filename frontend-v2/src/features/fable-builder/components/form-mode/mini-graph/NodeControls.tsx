@@ -88,7 +88,7 @@ function NodeControlButton({
         >
           <Plus className="h-3 w-3" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="min-w-[160px]">
+        <DropdownMenuContent className="min-w-40">
           {addOptions.length > 0 && (
             <DropdownMenuGroup>
               <DropdownMenuLabel>

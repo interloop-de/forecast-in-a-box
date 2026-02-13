@@ -178,23 +178,4 @@ export const fableHandlers = [
 
     return HttpResponse.json(newId)
   }),
-
-  http.get(API_ENDPOINTS.fable.list, async () => {
-    await delay(300)
-
-    const list = Object.entries(savedFablesState)
-      .filter(
-        (entry): entry is [string, SavedFableEntry] => entry[1] !== undefined,
-      )
-      .map(([id, data]) => ({
-        id,
-        name: data.name,
-        tags: data.tags,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
-        block_count: Object.keys(data.fable.blocks).length,
-      }))
-
-    return HttpResponse.json(list)
-  }),
 ]

@@ -120,10 +120,12 @@ async function request<T>(
       )
     }
 
-    // Handle empty responses
+    // Handle non-JSON responses
     const contentType = response.headers.get('content-type')
     if (!contentType || !contentType.includes('application/json')) {
-      return {} as T
+      // No content-type or non-JSON: treat as void response
+      // Common for DELETE, 202 Accepted, 204 No Content
+      return undefined as T
     }
 
     const data = await response.json()

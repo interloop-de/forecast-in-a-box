@@ -153,7 +153,7 @@ export function FableBuilderPage({
 
   if (catalogueLoading || (fableId && fableLoading)) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-100 items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     )
@@ -161,7 +161,7 @@ export function FableBuilderPage({
 
   if (fableId && fableError) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+      <div className="flex min-h-100 flex-col items-center justify-center gap-4">
         <p className="text-destructive">
           Failed to load configuration: {fableError.message}
         </p>
@@ -171,7 +171,7 @@ export function FableBuilderPage({
 
   if (!catalogue) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+      <div className="flex min-h-100 flex-col items-center justify-center gap-4">
         <p className="text-destructive">Failed to load block catalogue</p>
       </div>
     )

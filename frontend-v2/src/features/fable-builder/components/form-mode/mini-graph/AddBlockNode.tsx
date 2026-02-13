@@ -59,13 +59,13 @@ export const AddBlockNode = memo(function AddBlockNode({
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-2 !w-2 !border !border-border !bg-background"
+        className="h-2! w-2! border! border-border! bg-background!"
       />
 
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(
-            'flex h-9 w-[100px] items-center justify-center gap-1.5 rounded-md border-2 border-dashed bg-card/50',
+            'flex h-9 w-25 items-center justify-center gap-1.5 rounded-md border-2 border-dashed bg-card/50',
             'text-muted-foreground transition-colors',
             'hover:border-primary/50 hover:bg-muted/50 hover:text-foreground',
             'focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none',
@@ -90,7 +90,7 @@ export const AddBlockNode = memo(function AddBlockNode({
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-2 !w-2 !border !border-border !bg-background"
+        className="h-2! w-2! border! border-border! bg-background!"
       />
     </div>
   )

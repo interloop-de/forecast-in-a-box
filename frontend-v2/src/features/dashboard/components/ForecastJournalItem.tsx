@@ -55,7 +55,7 @@ export function ForecastJournalItem({ job }: ForecastJournalItemProps) {
         </div>
 
         {/* Job Details */}
-        <div className="flex-grow">
+        <div className="grow">
           <div className="mb-1 flex items-center gap-2">
             <h3 className="text-sm font-medium">{job.name}</h3>
           </div>
@@ -94,7 +94,7 @@ export function ForecastJournalItem({ job }: ForecastJournalItemProps) {
           {job.status === 'running' && job.progress !== undefined ? (
             <div className="flex w-32 items-center gap-3">
               <span className="w-8 text-sm font-bold">{job.progress}%</span>
-              <div className="h-2 flex-grow overflow-hidden rounded-full bg-muted">
+              <div className="h-2 grow overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-foreground transition-all"
                   style={{ width: `${job.progress}%` }}

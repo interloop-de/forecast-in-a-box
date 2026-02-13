@@ -18,6 +18,9 @@ import {
 } from '@/hooks/useConfig'
 import { useLanguageSync } from '@/hooks/useLanguageSync'
 import { CommandPalette } from '@/components/CommandPalette'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('Root')
 
 export const Route = createRootRoute({
   component: () => {
@@ -32,14 +35,15 @@ export const Route = createRootRoute({
     // Log configuration in debug mode
     useEffect(() => {
       if (debugMode && config) {
-        console.log('🔧 Application Configuration')
-        console.log('  Backend Base URL (build-time):', backendBaseUrl)
-        console.log('  Environment (build-time):', environment)
-        console.log('  Debug Mode (build-time):', debugMode)
-        console.log('  Language (runtime):', config.language_iso639_1)
-        console.log('  Auth Type (runtime):', config.authType)
-        console.log('  Login Endpoint (runtime):', config.loginEndpoint)
-        console.log('  Full Config:', config)
+        log.debug('Application Configuration', {
+          backendBaseUrl,
+          environment,
+          debugMode,
+          language: config.language_iso639_1,
+          authType: config.authType,
+          loginEndpoint: config.loginEndpoint,
+          config,
+        })
       }
     }, [config, debugMode, backendBaseUrl, environment])
 

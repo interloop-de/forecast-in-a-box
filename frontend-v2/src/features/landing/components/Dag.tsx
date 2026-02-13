@@ -14,35 +14,25 @@ export function Dag() {
   return (
     <section>
       <div className="_border-x _border-b relative mx-auto max-w-7xl px-3 pt-24 pb-10 md:pt-16 md:pb-20">
-        {/* <GridDecorator className="-left-[3.5px] -top-[3.5px]" />*/}
-        {/* <GridDecorator className="-right-[3.5px] -top-[3.5px]" />*/}
-
-        {/* <div className="grid max-md:divide-y md:grid-cols-2 md:divide-x ">*/}
         <div className="mx-auto mb-12 max-w-xl text-center text-balance md:mb-16">
           <H2 className="border-0 pb-0 text-4xl">Dynamic Product Execution</H2>
           <P className="mt-4">From anemoi to pproc, all in the box.</P>
         </div>
-        {/* <div className="bg-linear-to-b to-foreground/[0.025] relative border-x">*/}
         <iframe
           src="/dag/example.html"
           width="100%"
           height="620px"
           style={{ border: 'none' }}
           title="Dynamic Product Execution"
-          // Security: Restrict iframe capabilities to prevent potential attacks
+          // Security: Restrict iframe capabilities
           sandbox="allow-scripts allow-same-origin"
           referrerPolicy="strict-origin-when-cross-origin"
           loading="lazy"
         />
       </div>
-      {/* </div>*/}
-      {/* </div>*/}
 
       <div className="_border-b">
-        <div className="relative mx-auto max-w-7xl border-x px-4 sm:px-6 md:px-12">
-          {/* <GridDecorator className="-bottom-[3.5px] -left-[3.5px]" />*/}
-          {/* <GridDecorator className="-bottom-[3.5px] -right-[3.5px]" />*/}
-        </div>
+        <div className="relative mx-auto max-w-7xl border-x px-4 sm:px-6 md:px-12"></div>
       </div>
     </section>
   )

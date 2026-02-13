@@ -79,7 +79,7 @@ export function PluginsFilters({
           value={statusFilter}
           onValueChange={(value) => onStatusFilterChange(value as StatusFilter)}
         >
-          <SelectTrigger className="min-w-[160px]">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +107,7 @@ export function PluginsFilters({
             onCapabilityFilterChange(value as CapabilityFilter)
           }
         >
-          <SelectTrigger className="min-w-[160px]">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
