@@ -245,6 +245,318 @@ describe('useFableBuilderStore', () => {
     })
   })
 
+  describe('removeBlockCascade', () => {
+    const chainedFable: FableBuilderV1 = {
+      blocks: {
+        source: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'source',
+          },
+          configuration_values: {},
+          input_ids: {},
+        },
+        transform: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'transform',
+          },
+          configuration_values: {},
+          input_ids: { input: 'source' },
+        },
+        sink: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'sink',
+          },
+          configuration_values: {},
+          input_ids: { dataset: 'transform' },
+        },
+        independent: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'other',
+          },
+          configuration_values: {},
+          input_ids: {},
+        },
+      },
+    }
+
+    beforeEach(() => {
+      act(() => useFableBuilderStore.getState().setFable(chainedFable))
+    })
+
+    it('removes the target block and all downstream dependents', () => {
+      act(() => useFableBuilderStore.getState().removeBlockCascade('source'))
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(blocks['source']).toBeUndefined()
+      expect(blocks['transform']).toBeUndefined()
+      expect(blocks['sink']).toBeUndefined()
+      expect(blocks['independent']).toBeDefined()
+    })
+
+    it('keeps blocks not in the dependency chain', () => {
+      act(() => useFableBuilderStore.getState().removeBlockCascade('source'))
+      expect(Object.keys(useFableBuilderStore.getState().fable.blocks)).toEqual(
+        ['independent'],
+      )
+    })
+
+    it('removes only the leaf when a leaf block is cascaded', () => {
+      act(() => useFableBuilderStore.getState().removeBlockCascade('sink'))
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(blocks['source']).toBeDefined()
+      expect(blocks['transform']).toBeDefined()
+      expect(blocks['sink']).toBeUndefined()
+    })
+
+    it('cascades through multi-level chains correctly', () => {
+      // Removing transform should also remove sink (which depends on transform)
+      act(() => useFableBuilderStore.getState().removeBlockCascade('transform'))
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(blocks['transform']).toBeUndefined()
+      expect(blocks['sink']).toBeUndefined()
+      expect(blocks['source']).toBeDefined()
+      expect(blocks['independent']).toBeDefined()
+    })
+
+    it('clears selection if selected block is in cascade', () => {
+      act(() => useFableBuilderStore.getState().selectBlock('sink'))
+      act(() => useFableBuilderStore.getState().removeBlockCascade('source'))
+      expect(useFableBuilderStore.getState().selectedBlockId).toBeNull()
+    })
+
+    it('marks as dirty', () => {
+      act(() => useFableBuilderStore.getState().removeBlockCascade('source'))
+      expect(useFableBuilderStore.getState().isDirty).toBe(true)
+    })
+  })
+
+  describe('duplicateBlock', () => {
+    beforeEach(() => {
+      act(() => useFableBuilderStore.getState().setFable(mockFable))
+    })
+
+    it('creates a copy with a new instance id', () => {
+      let newId: string | undefined
+      act(() => {
+        newId = useFableBuilderStore.getState().duplicateBlock('block-1')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(newId).toBeDefined()
+      expect(newId).not.toBe('block-1')
+      expect(blocks[newId!]).toBeDefined()
+    })
+
+    it('preserves factory_id and configuration_values', () => {
+      let newId: string | undefined
+      act(() => {
+        newId = useFableBuilderStore.getState().duplicateBlock('block-1')
+      })
+      const original = mockFable.blocks['block-1']
+      const copy = useFableBuilderStore.getState().fable.blocks[newId!]
+      expect(copy.factory_id).toEqual(original.factory_id)
+      expect(copy.configuration_values).toEqual(original.configuration_values)
+    })
+
+    it('preserves input_ids from original', () => {
+      let newId: string | undefined
+      act(() => {
+        newId = useFableBuilderStore.getState().duplicateBlock('block-2')
+      })
+      const copy = useFableBuilderStore.getState().fable.blocks[newId!]
+      expect(copy.input_ids).toEqual({ input: 'block-1' })
+    })
+
+    it('selects the new block', () => {
+      let newId: string | undefined
+      act(() => {
+        newId = useFableBuilderStore.getState().duplicateBlock('block-1')
+      })
+      expect(useFableBuilderStore.getState().selectedBlockId).toBe(newId)
+    })
+
+    it('marks as dirty', () => {
+      act(() => useFableBuilderStore.getState().duplicateBlock('block-1'))
+      expect(useFableBuilderStore.getState().isDirty).toBe(true)
+    })
+
+    it('does not affect the original block', () => {
+      act(() => useFableBuilderStore.getState().duplicateBlock('block-1'))
+      expect(useFableBuilderStore.getState().fable.blocks['block-1']).toEqual(
+        mockFable.blocks['block-1'],
+      )
+    })
+  })
+
+  describe('duplicateBlockWithChildren', () => {
+    const pipelineFable: FableBuilderV1 = {
+      blocks: {
+        source: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'source',
+          },
+          configuration_values: { model: 'aifs' },
+          input_ids: {},
+        },
+        transform: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'transform',
+          },
+          configuration_values: { op: 'regrid' },
+          input_ids: { input: 'source' },
+        },
+        sink: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'sink',
+          },
+          configuration_values: { path: '/out' },
+          input_ids: { dataset: 'transform' },
+        },
+        external: {
+          factory_id: {
+            plugin: { store: 'ecmwf', local: 'test' },
+            factory: 'other',
+          },
+          configuration_values: {},
+          input_ids: {},
+        },
+      },
+    }
+
+    beforeEach(() => {
+      act(() => useFableBuilderStore.getState().setFable(pipelineFable))
+    })
+
+    it('duplicates the source block and all downstream children', () => {
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('source')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      // Original 4 + 3 duplicated (source, transform, sink)
+      expect(Object.keys(blocks)).toHaveLength(7)
+      expect(idMapping!['source']).toBeDefined()
+      expect(idMapping!['transform']).toBeDefined()
+      expect(idMapping!['sink']).toBeDefined()
+      expect(idMapping!['external']).toBeUndefined()
+    })
+
+    it('remaps internal input_ids within the duplicated subtree', () => {
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('source')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      const newTransform = blocks[idMapping!['transform']]
+      const newSink = blocks[idMapping!['sink']]
+      // transform's input should point to the NEW source copy
+      expect(newTransform.input_ids['input']).toBe(idMapping!['source'])
+      // sink's input should point to the NEW transform copy
+      expect(newSink.input_ids['dataset']).toBe(idMapping!['transform'])
+    })
+
+    it('preserves external references (not in subtree)', () => {
+      // Add a block that references both a subtree block and an external block
+      act(() =>
+        useFableBuilderStore.getState().setFable({
+          blocks: {
+            ...pipelineFable.blocks,
+            joiner: {
+              factory_id: {
+                plugin: { store: 'ecmwf', local: 'test' },
+                factory: 'join',
+              },
+              configuration_values: {},
+              input_ids: { a: 'source', b: 'external' },
+            },
+          },
+        }),
+      )
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('source')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      const newJoiner = blocks[idMapping!['joiner']]
+      // 'a' should be remapped, 'b' should keep original 'external'
+      expect(newJoiner.input_ids['a']).toBe(idMapping!['source'])
+      expect(newJoiner.input_ids['b']).toBe('external')
+    })
+
+    it('preserves configuration_values in duplicated blocks', () => {
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('source')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(blocks[idMapping!['source']].configuration_values).toEqual({
+        model: 'aifs',
+      })
+      expect(blocks[idMapping!['transform']].configuration_values).toEqual({
+        op: 'regrid',
+      })
+      expect(blocks[idMapping!['sink']].configuration_values).toEqual({
+        path: '/out',
+      })
+    })
+
+    it('selects the root duplicated block', () => {
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('source')
+      })
+      expect(useFableBuilderStore.getState().selectedBlockId).toBe(
+        idMapping!['source'],
+      )
+    })
+
+    it('marks as dirty', () => {
+      act(() =>
+        useFableBuilderStore.getState().duplicateBlockWithChildren('source'),
+      )
+      expect(useFableBuilderStore.getState().isDirty).toBe(true)
+    })
+
+    it('does not modify original blocks', () => {
+      act(() =>
+        useFableBuilderStore.getState().duplicateBlockWithChildren('source'),
+      )
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      expect(blocks['source']).toEqual(pipelineFable.blocks['source'])
+      expect(blocks['transform']).toEqual(pipelineFable.blocks['transform'])
+      expect(blocks['sink']).toEqual(pipelineFable.blocks['sink'])
+    })
+
+    it('handles single block with no children', () => {
+      let idMapping: Record<string, string> | undefined
+      act(() => {
+        idMapping = useFableBuilderStore
+          .getState()
+          .duplicateBlockWithChildren('external')
+      })
+      const blocks = useFableBuilderStore.getState().fable.blocks
+      // Original 4 + 1 duplicated
+      expect(Object.keys(blocks)).toHaveLength(5)
+      expect(Object.keys(idMapping!)).toHaveLength(1)
+      expect(idMapping!['external']).toBeDefined()
+    })
+  })
+
   describe('updateBlockConfig', () => {
     beforeEach(() => {
       act(() => useFableBuilderStore.getState().setFable(mockFable))

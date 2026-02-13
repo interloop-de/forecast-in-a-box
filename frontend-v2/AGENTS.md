@@ -38,9 +38,15 @@ npm run dev:mock         # Dev server (mocked API)
 
 # Build & Test
 npm run build            # Production build
+npm run validate         # Fix + test + build (full check)
 npm run test             # Vitest watch mode
+npm run test:run         # Vitest single run (CI)
+npm run test:unit        # Unit tests only
+npm run test:integration # Integration tests only
 npm run test:coverage    # With coverage report
-npm run test:e2e         # Playwright E2E tests
+npm run test:e2e         # Playwright E2E - ALL tests against MSW mocks (no backend needed)
+npm run test:e2e:stack   # Playwright E2E - stack tests against real backend (port 8000)
+npm run analyze          # Bundle visualization (dist/stats.html)
 
 # Code Quality
 npm run check            # Lint + format check (CI)
@@ -242,15 +248,25 @@ Desktop-first, but **must work on mobile/tablet**:
 
 ## Testing
 
-**Vitest Browser Mode** (real Chromium, not JSDOM) + MSW v2 for mocking.
+**Vitest Browser Mode** (real Chromium, not JSDOM) + MSW v2 for mocking. **Playwright** for E2E.
 
-See [docs/TESTING.md](./docs/TESTING.md) for patterns and examples.
+See [docs/TESTING.md](./docs/TESTING.md) for patterns and [docs/TESTING_STRATEGY.md](./docs/TESTING_STRATEGY.md) for strategy.
 
-**Test locations:**
+**Test distribution:** 40 unit + 16 integration + 6 E2E = 62 test files
 
-- Unit: `tests/unit/`
-- Integration: `tests/integration/`
-- E2E: `tests/e2e/` (Playwright)
+| Layer       | Location                    | Tool             | Count |
+| ----------- | --------------------------- | ---------------- | ----- |
+| Unit        | `tests/unit/`               | Vitest           | 40    |
+| Integration | `tests/integration/`        | Vitest + MSW     | 16    |
+| E2E (mock)  | `tests/e2e/*.spec.ts`       | Playwright + MSW | 1     |
+| E2E (stack) | `tests/e2e/*.stack.spec.ts` | Playwright       | 5     |
+
+**Two Playwright configs:**
+
+- `playwright.config.ts` — MSW-mocked, runs ALL E2E tests, parallel, 30s timeout
+- `playwright.config.stack.ts` — real backend, runs only `*.stack.spec.ts`, sequential, 1 worker, 60s timeout
+
+All E2E tests run in both modes. MSW mocks cover all API endpoints, so `test:e2e` validates the full suite without a backend. `test:e2e:stack` confirms the same flows work against a real API.
 
 ## Common Tasks
 

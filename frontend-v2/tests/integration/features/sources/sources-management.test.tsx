@@ -20,7 +20,9 @@
  */
 
 import { useMemo, useState } from 'react'
+import { HttpResponse, http } from 'msw'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { worker } from '@tests/test-extend'
 import { renderWithRouter } from '@tests/utils/render'
 import type { SourceInfo } from '@/api/types/sources.types'
 import type {
@@ -36,6 +38,7 @@ import {
   useSyncRegistry,
   useToggleSourceEnabled,
 } from '@/api/hooks/useSources'
+import { API_ENDPOINTS } from '@/api/endpoints'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import {
   RegistriesSection,
@@ -457,6 +460,82 @@ describe('Sources Management Integration', () => {
 
       // Should work without errors
       await expect.element(cardButton).toBeInTheDocument()
+    })
+  })
+
+  describe('Error Handling', () => {
+    it('handles sources list API returning 500', async () => {
+      worker.use(
+        http.get(API_ENDPOINTS.sources.list, () => {
+          return HttpResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+          )
+        }),
+      )
+
+      const screen = await renderWithRouter(<TestSourcesPage />)
+
+      // Page should not crash — give it time to process the error
+      await expect.poll(() => true, { timeout: 2000 }).toBe(true)
+
+      // The page should still render (no crash) — the container exists
+      await expect.element(screen.getByText(/.*/)).toBeInTheDocument()
+    })
+
+    it('handles empty sources response', async () => {
+      worker.use(
+        http.get(API_ENDPOINTS.sources.list, () => {
+          return HttpResponse.json({ sources: [], registries: [] })
+        }),
+      )
+
+      const screen = await renderWithRouter(<TestSourcesPage />)
+
+      // Wait for page to render with empty data
+      await expect
+        .element(screen.getByRole('heading', { name: 'Sources Management' }))
+        .toBeVisible()
+
+      // Registries section should still appear (may show "Add Registry" button)
+      await expect
+        .element(screen.getByRole('heading', { name: 'Source Registries' }))
+        .toBeVisible()
+    })
+
+    it('handles add registry returning error', async () => {
+      const screen = await renderWithRouter(<TestSourcesPage />)
+
+      // Wait for page to load normally first
+      await expect
+        .element(screen.getByRole('heading', { name: 'Source Registries' }))
+        .toBeVisible()
+
+      // Override add registry handler to return 400
+      worker.use(
+        http.post(API_ENDPOINTS.registries.add, () => {
+          return HttpResponse.json(
+            { error: 'Invalid registry URL' },
+            { status: 400 },
+          )
+        }),
+      )
+
+      // Click "Add Registry" button
+      const addButton = screen.getByRole('button', { name: /Add Registry/i })
+      await addButton.click()
+
+      // Fill in form and submit
+      await screen
+        .getByPlaceholder('https://registry.example.com')
+        .fill('https://bad-registry.example.com')
+      await screen.getByRole('button', { name: /Connect/i }).click()
+
+      // Page should not crash after failed add
+      await expect.poll(() => true, { timeout: 1500 }).toBe(true)
+      await expect
+        .element(screen.getByRole('heading', { name: 'Source Registries' }))
+        .toBeVisible()
     })
   })
 })

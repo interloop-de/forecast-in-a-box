@@ -24,25 +24,26 @@ Testing patterns and best practices for the Forecast-in-a-Box frontend.
 ## Commands
 
 ```bash
-npm run test          # Watch mode
-npm run test:run      # Single run (CI)
-npm run test:coverage # With coverage
-npm run test:ui       # Interactive UI
-npm run test:e2e      # Playwright E2E
+npm run test            # Watch mode
+npm run test:run        # Single run (CI)
+npm run test:coverage   # With coverage
+npm run test:ui         # Interactive UI
+npm run test:e2e        # Playwright E2E - ALL tests against MSW mocks (fast, no backend needed)
+npm run test:e2e:stack  # Playwright E2E - stack tests against real backend (port 8000)
 ```
 
 ## Coverage
 
 | Directory         | Current | Target |
 | ----------------- | ------- | ------ |
-| `src/utils/`      | ~82%    | >80%   |
-| `src/lib/`        | ~86%    | >70%   |
-| `src/stores/`     | ~70%    | >70%   |
-| `src/hooks/`      | ~85%    | >50%   |
-| `src/components/` | ~11%    | >50%   |
+| `src/utils/`      | ~97%    | >80%   |
+| `src/lib/`        | ~94%    | >70%   |
+| `src/stores/`     | ~87%    | >70%   |
+| `src/hooks/`      | ~93%    | >50%   |
+| `src/components/` | ~39%    | >50%   |
 | `src/features/`   | ~20%    | >50%   |
 
-**Test count:** ~1,558 tests across 131 files
+**Test count:** 40 unit + 16 integration + 6 E2E = 62 test files
 
 ### What NOT to Test
 
@@ -59,9 +60,11 @@ tests/
 ├── utils/
 │   ├── render.tsx    # Custom render with providers
 │   └── factories.ts  # Test data factories
-├── unit/             # Unit tests
-├── integration/      # Integration tests
-└── e2e/              # Playwright E2E
+├── unit/             # Unit tests (40 files - pure logic, hooks, stores, utils, components)
+├── integration/      # Integration tests (16 files - feature flows with MSW)
+└── e2e/              # Playwright E2E (1 MSW-mocked + 5 stack tests)
+    ├── *.spec.ts           # MSW-mocked (playwright.config.ts)
+    └── *.stack.spec.ts     # Real backend (playwright.config.stack.ts)
 ```
 
 **Path alias:** `@tests/*` → `tests/*`
@@ -298,4 +301,4 @@ await expect(riskyOp()).rejects.toThrow('Expected error')
 
 **Browser DevTools:** Tests run in real browser - use `debugger` and `console.log()`
 
-**Screenshots:** Failure screenshots saved to `tests/unit/lib/__screenshots__/`
+**Screenshots:** Failure screenshots saved to `__screenshots__/` directories alongside test files

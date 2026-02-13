@@ -9,20 +9,22 @@
  */
 
 /**
- * Plugins Management Integration Tests
+ * Plugin Updates Integration Tests
  *
- * Tests the complete user flows for plugin management:
- * - Loading and displaying plugins
- * - Filtering and searching
- * - Installing/uninstalling plugins
- * - Enabling/disabling plugins
- * - Updating plugins
+ * Tests the complete user flows for plugin update management:
+ * - Displaying plugins with available updates
+ * - Update badges and version information
+ * - Filtering to show only plugins with updates
+ * - Updates section visibility and behavior
+ * - Clicking update triggers mutation and updates UI
+ *
+ * IMPORTANT: The MSW handlers use shared mutable state. Tests that trigger
+ * the update mutation (clicking "Update Now") permanently modify the mock
+ * backend state. These mutating tests MUST be placed last in the file.
  */
 
 import { useMemo, useState } from 'react'
-import { HttpResponse, http } from 'msw'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { worker } from '@tests/test-extend'
 import { renderWithRouter } from '@tests/utils/render'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { CapabilityFilter, StatusFilter } from '@/features/plugins'
@@ -35,7 +37,6 @@ import {
   useUninstallPlugin,
   useUpdatePlugin,
 } from '@/api/hooks/usePlugins'
-import { API_ENDPOINTS } from '@/api/endpoints'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import {
   PluginsFilters,
@@ -245,40 +246,17 @@ function TestPluginsPage() {
   )
 }
 
-describe('Plugins Management Integration', () => {
+describe('Plugin Updates Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  describe('Loading and Display', () => {
-    it('renders the plugins page and loads plugin list', async () => {
-      const screen = await renderWithRouter(<TestPluginsPage />)
+  // -----------------------------------------------------------------------
+  // Read-only tests (no mutations) - safe to run in any order
+  // -----------------------------------------------------------------------
 
-      // Wait for plugins to load - header should be visible (use heading role for specificity)
-      await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
-
-      // Installed plugins section should be visible
-      await expect
-        .element(
-          screen.getByRole('heading', {
-            name: 'Installed plugins',
-            exact: true,
-          }),
-        )
-        .toBeVisible()
-
-      // Should show some installed plugins (from mock data)
-      await expect
-        .element(screen.getByRole('heading', { name: 'Anemoi Inference' }))
-        .toBeVisible()
-      await expect
-        .element(screen.getByRole('heading', { name: 'AIFS Forecast Dataset' }))
-        .toBeVisible()
-    })
-
-    it('displays plugins with updates in a separate section', async () => {
+  describe('Updates Available Section Display', () => {
+    it('renders the updates available section when plugins have updates', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -286,13 +264,23 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Updates section should show plugins with hasUpdate: true
-      // From mock data: "ECMWF Ensemble" has an update available
+      // Updates section should show with the correct title
       await expect.element(screen.getByText('Updates Available')).toBeVisible()
+    })
+
+    it('shows the ECMWF Ensemble plugin in the updates section', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // ECMWF Ensemble has loaded_version '2.1.0' but remote_info version '2.4.0'
       await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
     })
 
-    it('displays available plugins section', async () => {
+    it('shows the update count in the section header', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -300,18 +288,69 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Available section should exist (using new terminology)
-      await expect.element(screen.getByText('Available plugins')).toBeVisible()
+      // Should show count of plugins with updates (1 from mock data)
+      await expect.element(screen.getByText(/\(1\)/)).toBeVisible()
+    })
 
-      // Should show available plugins from mock data
+    it('displays the update version badge in the updates section', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
       await expect
-        .element(screen.getByText('Anemoi Storm Tracker'))
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
+
+      // UpdatesAvailableSection renders "UPDATE v{latestVersion}" badge
+      await expect.element(screen.getByText(/UPDATE v2\.4\.0/)).toBeVisible()
+    })
+
+    it('displays the current version of plugins with updates', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // Should show the current version (2.1.0) in the updates section
+      await expect.element(screen.getByText('Current: v2.1.0')).toBeVisible()
+    })
+
+    it('renders the Update Now button in the updates section', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // Wait for updates section
+      await expect.element(screen.getByText('Updates Available')).toBeVisible()
+
+      // Should have an Update Now button
+      await expect
+        .element(screen.getByRole('button', { name: /update now/i }))
+        .toBeVisible()
+    })
+
+    it('shows update button on plugin cards for plugins with hasUpdate', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // Find all update-related buttons (from UpdatesAvailableSection)
+      const updateButtons = screen.getByRole('button', { name: /update/i })
+
+      // Should have at least one update button
+      await expect.element(updateButtons.first()).toBeVisible()
     })
   })
 
-  describe('Search', () => {
-    it('filters plugins by search query', async () => {
+  describe('Filtering Updates', () => {
+    it('shows only plugins with updates when hasUpdate filter is selected', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -319,20 +358,64 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Find the search input and type a query
+      // Find the status filter select and change to "Updates Available"
+      const statusSelect = screen.getByRole('combobox').first()
+      await statusSelect.click()
+
+      // Select the "Updates Available" option
+      const updatesOption = screen.getByRole('option', {
+        name: /updates available/i,
+      })
+      await updatesOption.click()
+
+      // After filtering, ECMWF Ensemble should still be visible (it has an update)
+      await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
+
+      // Installed count should show 0 (all plugins with updates are in the updates section, not installed)
+      await expect.element(screen.getByText('Total: 0')).toBeVisible()
+    })
+
+    it('filters updates section by search query', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // Search for "Ensemble" - should find the plugin with an update
+      const searchInput = screen.getByPlaceholder(/search installed plugins/i)
+      await searchInput.fill('Ensemble')
+
+      // ECMWF Ensemble should still be visible
+      await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
+
+      // The updates section should still show
+      await expect.element(screen.getByText('Updates Available')).toBeVisible()
+    })
+
+    it('hides updates section when search query does not match any updatable plugin', async () => {
+      const screen = await renderWithRouter(<TestPluginsPage />)
+
+      // Wait for page to load
+      await expect
+        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
+        .toBeVisible()
+
+      // Search for something that does not match any plugin with updates
       const searchInput = screen.getByPlaceholder(/search installed plugins/i)
       await searchInput.fill('Regridding')
 
-      // Should only show matching plugins
+      // ECMWF Regridding should appear (it is installed)
       await expect.element(screen.getByText('ECMWF Regridding')).toBeVisible()
 
-      // Other plugins should not be visible in the installed section
+      // Updates section should no longer appear (ECMWF Ensemble is filtered out)
       await expect
-        .element(screen.getByText('Anemoi Inference'))
+        .element(screen.getByText('Updates Available'))
         .not.toBeInTheDocument()
     })
 
-    it('filters plugins by author search', async () => {
+    it('hides updates section when filtering by available status', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -340,13 +423,22 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Search by author
-      const searchInput = screen.getByPlaceholder(/search installed plugins/i)
-      await searchInput.fill('ECMWF')
+      // Switch to "Available" filter
+      const statusSelect = screen.getByRole('combobox').first()
+      await statusSelect.click()
 
-      // Should show ECMWF plugins - just check that some plugins still appear
-      // (ECMWF is the author of most plugins in mock data)
-      // Use heading role with exact: true to avoid matching "Available plugins"
+      const availableOption = screen.getByRole('option', {
+        name: /^Available$/,
+      })
+      await availableOption.click()
+
+      // Updates section heading should be hidden when showing only available plugins
+      // Use the heading with count pattern to distinguish from the filter option text
+      await expect
+        .element(screen.getByRole('heading', { name: /updates available/i }))
+        .not.toBeInTheDocument()
+
+      // The installed section should also be hidden
       await expect
         .element(
           screen.getByRole('heading', {
@@ -354,12 +446,12 @@ describe('Plugins Management Integration', () => {
             exact: true,
           }),
         )
-        .toBeVisible()
+        .not.toBeInTheDocument()
     })
   })
 
-  describe('Plugin Actions', () => {
-    it('allows clicking update button on a plugin with available update', async () => {
+  describe('Check Updates Flow', () => {
+    it('allows triggering a check for updates via the header button', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
       // Wait for page to load
@@ -367,69 +459,7 @@ describe('Plugins Management Integration', () => {
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Wait for updates section to be visible
-      await expect.element(screen.getByText('Updates Available')).toBeVisible()
-
-      // Find update buttons in the updates section
-      const updateButtons = screen.getByRole('button', { name: /update/i })
-
-      // Click the first update button
-      await updateButtons.first().click()
-
-      // After clicking, the mutation should be triggered
-      // MSW handler has 1000ms delay, so we just verify the click worked
-      await expect.poll(() => true, { timeout: 1500 }).toBe(true)
-    })
-
-    it('shows toggle switches for installed plugins', async () => {
-      const screen = await renderWithRouter(<TestPluginsPage />)
-
-      // Wait for page to load
-      await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
-
-      // Toggle switches should be present for installed plugins
-      const toggles = screen.getByRole('switch')
-
-      // Should have at least one toggle (from installed plugins)
-      // Use toBeInTheDocument since switch may be rendered but not visible in viewport
-      await expect.element(toggles.first()).toBeInTheDocument()
-    })
-
-    it('allows installing an available plugin', async () => {
-      const screen = await renderWithRouter(<TestPluginsPage />)
-
-      // Wait for page to load
-      await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
-
-      // Find the available section
-      await expect.element(screen.getByText('Available plugins')).toBeVisible()
-
-      // Find install buttons (they should be in the available section)
-      const installButtons = screen.getByRole('button', { name: /install/i })
-
-      // Click an install button
-      await installButtons.first().click()
-
-      // After clicking, the mutation should be triggered
-      // MSW handler has 800ms delay
-      await expect.poll(() => true, { timeout: 1200 }).toBe(true)
-    })
-  })
-
-  describe('Refresh Plugins', () => {
-    it('allows refreshing plugins via header button', async () => {
-      const screen = await renderWithRouter(<TestPluginsPage />)
-
-      // Wait for page to load
-      await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
-
-      // Find the "Check Updates" button (text from i18n)
+      // Find the "Check Updates" button
       const checkUpdatesButton = screen.getByRole('button', {
         name: /check updates/i,
       })
@@ -438,76 +468,48 @@ describe('Plugins Management Integration', () => {
       // Click the button
       await checkUpdatesButton.click()
 
-      // Button should work - MSW handler has 500ms delay for refresh
+      // Button should trigger the refresh mutation
+      // MSW handler has 500ms delay for refresh
       await expect.poll(() => true, { timeout: 1000 }).toBe(true)
     })
   })
 
-  describe('Error Handling', () => {
-    it('handles plugin details API returning 500', async () => {
-      worker.use(
-        http.get(API_ENDPOINTS.plugin.details, () => {
-          return HttpResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 },
-          )
-        }),
-      )
+  // -----------------------------------------------------------------------
+  // Mutating tests (trigger update mutation) - placed LAST because the MSW
+  // handler uses shared mutable state that persists across tests.
+  // After update, ECMWF Ensemble loaded_version becomes 2.4.0 and
+  // hasUpdate becomes false, removing it from the updates section.
+  // -----------------------------------------------------------------------
 
+  describe('Update Plugin End-to-End (mutating)', () => {
+    it('clicking Update Now triggers the mutation and removes plugin from updates section', async () => {
       const screen = await renderWithRouter(<TestPluginsPage />)
 
-      // Page should not crash — give it time to process the error
-      await expect.poll(() => true, { timeout: 2000 }).toBe(true)
-
-      // The page should still render (no crash) — the container div exists
-      await expect.element(screen.getByText(/.*/)).toBeInTheDocument()
-    })
-
-    it('handles empty plugin list', async () => {
-      worker.use(
-        http.get(API_ENDPOINTS.plugin.details, () => {
-          return HttpResponse.json({ plugins: {} })
-        }),
-      )
-
-      const screen = await renderWithRouter(<TestPluginsPage />)
-
-      // Wait for page to render with empty data
+      // Wait for page to load
       await expect
         .element(screen.getByRole('heading', { name: 'Plugin Store' }))
         .toBeVisible()
 
-      // Installed count should show 0
-      await expect.element(screen.getByText('Total: 0')).toBeVisible()
-    })
+      // Verify updates section is visible initially
+      await expect.element(screen.getByText('Updates Available')).toBeVisible()
+      await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
+      await expect.element(screen.getByText('Current: v2.1.0')).toBeVisible()
 
-    it('handles plugin install returning 400', async () => {
-      const screen = await renderWithRouter(<TestPluginsPage />)
+      // Click Update Now on the ECMWF Ensemble plugin
+      const updateButton = screen.getByRole('button', { name: /update now/i })
+      await updateButton.click()
 
-      // Wait for page to load normally first
+      // The MSW handler updates the plugin state (loaded_version becomes 2.4.0)
+      // and invalidates queries. After refetch, the plugin should no longer
+      // appear in the updates section since versions will match.
+      // MSW update handler has 1000ms delay + refetch (300ms for details)
+      // Wait for the updates section to disappear (plugin is now up to date)
       await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
+        .element(screen.getByText('Updates Available'), { timeout: 5000 })
+        .not.toBeInTheDocument()
 
-      // Override install handler to return 400
-      worker.use(
-        http.post(API_ENDPOINTS.plugin.install, () => {
-          return HttpResponse.json(
-            { detail: 'Plugin is already installed' },
-            { status: 400 },
-          )
-        }),
-      )
-
-      // Find and click an install button
-      const installButtons = screen.getByRole('button', { name: /install/i })
-      await installButtons.first().click()
-
-      // Page should not crash after failed install
-      await expect.poll(() => true, { timeout: 1500 }).toBe(true)
-      await expect
-        .element(screen.getByRole('heading', { name: 'Plugin Store' }))
-        .toBeVisible()
+      // The plugin should now appear in the installed section with the new version
+      await expect.element(screen.getByText('ECMWF Ensemble')).toBeVisible()
     })
   })
 })

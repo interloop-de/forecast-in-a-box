@@ -15,7 +15,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:full": "playwright test --config playwright.config.full.ts",
+    "test:e2e:stack": "playwright test --config playwright.config.stack.ts",
     "test:clean-screenshots": "find tests -path '*/__screenshots__/*' -type f -delete",
     "lint": "eslint .",
     "format": "prettier --write .",

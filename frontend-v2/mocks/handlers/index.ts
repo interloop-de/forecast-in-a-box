@@ -14,6 +14,7 @@
  * Exports all request handlers for MSW
  */
 
+import { authHandlers } from './auth.handlers'
 import { configHandlers } from './config.handlers'
 import { fableHandlers } from './fable.handlers'
 import { pluginsHandlers } from './plugins.handlers'
@@ -22,6 +23,7 @@ import { statusHandlers } from './status.handlers'
 import { usersHandlers } from './users.handlers'
 
 export const handlers = [
+  ...authHandlers,
   ...configHandlers,
   ...fableHandlers,
   ...pluginsHandlers,
