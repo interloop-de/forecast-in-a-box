@@ -84,26 +84,24 @@ function TestPluginsPage() {
       }
     }
 
+    // Shared filters applied to both available and installed lists
+    const matchesCapability = (p: PluginInfo) =>
+      capabilityFilter === 'all' || p.capabilities.includes(capabilityFilter)
+
+    const query = searchQuery.trim().toLowerCase()
+    const matchesSearch = (p: PluginInfo) =>
+      !query ||
+      p.name.toLowerCase().includes(query) ||
+      p.displayId.toLowerCase().includes(query) ||
+      p.author.toLowerCase().includes(query) ||
+      p.description.toLowerCase().includes(query)
+
     const filteringAvailable = statusFilter === 'available'
 
-    let available = data.plugins.filter((p) => p.status === 'available')
-
-    if (capabilityFilter !== 'all') {
-      available = available.filter((p) =>
-        p.capabilities.includes(capabilityFilter),
-      )
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      available = available.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.displayId.toLowerCase().includes(query) ||
-          p.author.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query),
-      )
-    }
+    const available = data.plugins
+      .filter((p) => p.status === 'available')
+      .filter(matchesCapability)
+      .filter(matchesSearch)
 
     let filteredPlugins = data.plugins.filter((p) => p.isInstalled)
 
@@ -119,22 +117,9 @@ function TestPluginsPage() {
       filteredPlugins = filteredPlugins.filter((p) => p.hasUpdate)
     }
 
-    if (capabilityFilter !== 'all') {
-      filteredPlugins = filteredPlugins.filter((p) =>
-        p.capabilities.includes(capabilityFilter),
-      )
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      filteredPlugins = filteredPlugins.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.displayId.toLowerCase().includes(query) ||
-          p.author.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query),
-      )
-    }
+    filteredPlugins = filteredPlugins
+      .filter(matchesCapability)
+      .filter(matchesSearch)
 
     const withUpdates = filteredPlugins.filter((p) => p.hasUpdate)
     const installed = filteredPlugins.filter((p) => !p.hasUpdate)

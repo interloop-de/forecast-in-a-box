@@ -58,6 +58,29 @@ export function toPluginDisplayId(id: PluginCompositeId): string {
 }
 
 /**
+ * Encode a PluginCompositeId for use in URL path segments.
+ * Format: "store--local" (e.g., "ecmwf--ecmwf-base")
+ */
+export function encodePluginId(id: PluginCompositeId): string {
+  return `${id.store}--${id.local}`
+}
+
+/**
+ * Decode a URL path segment back to a PluginCompositeId.
+ * Expects "store--local" format.
+ */
+export function decodePluginId(encoded: string): PluginCompositeId {
+  const separatorIndex = encoded.indexOf('--')
+  if (separatorIndex === -1) {
+    return { store: encoded, local: '' }
+  }
+  return {
+    store: encoded.slice(0, separatorIndex),
+    local: encoded.slice(separatorIndex + 2),
+  }
+}
+
+/**
  * Plugin status values from backend
  *
  * - available: Plugin is in store but not installed

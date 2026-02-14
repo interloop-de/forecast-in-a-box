@@ -15,11 +15,17 @@
  */
 
 import { Play } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { BlockFactory } from '@/api/types/fable.types'
 import { BLOCK_KIND_METADATA, getBlockKindIcon } from '@/api/types/fable.types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export interface BlockFactoryCardProps {
@@ -31,11 +37,26 @@ export function BlockFactoryCard({
   factory,
   onStartConfiguration,
 }: BlockFactoryCardProps) {
+  const { t } = useTranslation('plugins')
   const metadata = BLOCK_KIND_METADATA[factory.kind]
   const IconComponent = getBlockKindIcon(factory.kind)
+  const isSource = factory.kind === 'source'
 
   const configKeys = Object.keys(factory.configuration_options)
   const hasInputs = factory.inputs.length > 0
+
+  const button = (
+    <Button
+      size="sm"
+      variant="outline"
+      className="w-full gap-1.5"
+      disabled={!isSource}
+      onClick={isSource ? onStartConfiguration : undefined}
+    >
+      <Play className="h-3.5 w-3.5" />
+      {t('blockFactory.useInConfig', { kind: metadata.label })}
+    </Button>
+  )
 
   return (
     <Card className="gap-2 p-4">
@@ -75,15 +96,14 @@ export function BlockFactoryCard({
           </div>
         </div>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        className="w-full gap-1.5"
-        onClick={onStartConfiguration}
-      >
-        <Play className="h-3.5 w-3.5" />
-        Use {metadata.label} in Configuration
-      </Button>
+      {isSource ? (
+        button
+      ) : (
+        <Tooltip>
+          <TooltipTrigger render={<span />}>{button}</TooltipTrigger>
+          <TooltipContent>{t('blockFactory.sourceOnlyTooltip')}</TooltipContent>
+        </Tooltip>
+      )}
     </Card>
   )
 }

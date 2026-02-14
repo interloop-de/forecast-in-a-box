@@ -20,6 +20,8 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedConfigureFableIdRouteImport } from './routes/_authenticated/configure.$fableId'
 import { Route as AuthenticatedAdminSourcesRouteImport } from './routes/_authenticated/admin/sources'
 import { Route as AuthenticatedAdminPluginsRouteImport } from './routes/_authenticated/admin/plugins'
+import { Route as AuthenticatedAdminPluginsIndexRouteImport } from './routes/_authenticated/admin/plugins.index'
+import { Route as AuthenticatedAdminPluginsPluginIdRouteImport } from './routes/_authenticated/admin/plugins.$pluginId'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -78,6 +80,18 @@ const AuthenticatedAdminPluginsRoute =
     path: '/plugins',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPluginsIndexRoute =
+  AuthenticatedAdminPluginsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminPluginsRoute,
+  } as any)
+const AuthenticatedAdminPluginsPluginIdRoute =
+  AuthenticatedAdminPluginsPluginIdRouteImport.update({
+    id: '/$pluginId',
+    path: '/$pluginId',
+    getParentRoute: () => AuthenticatedAdminPluginsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,10 +100,12 @@ export interface FileRoutesByFullPath {
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
-  '/admin/plugins': typeof AuthenticatedAdminPluginsRoute
+  '/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,10 +113,11 @@ export interface FileRoutesByTo {
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
-  '/admin/plugins': typeof AuthenticatedAdminPluginsRoute
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/admin/plugins': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -111,10 +128,12 @@ export interface FileRoutesById {
   '/_authenticated/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
-  '/_authenticated/admin/plugins': typeof AuthenticatedAdminPluginsRoute
+  '/_authenticated/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
   '/_authenticated/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/_authenticated/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/_authenticated/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -129,6 +148,8 @@ export interface FileRouteTypes {
     | '/admin/sources'
     | '/configure/$fableId'
     | '/admin/'
+    | '/admin/plugins/$pluginId'
+    | '/admin/plugins/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -136,10 +157,11 @@ export interface FileRouteTypes {
     | '/configure'
     | '/dashboard'
     | '/history'
-    | '/admin/plugins'
     | '/admin/sources'
     | '/configure/$fableId'
     | '/admin'
+    | '/admin/plugins/$pluginId'
+    | '/admin/plugins'
   id:
     | '__root__'
     | '/'
@@ -153,6 +175,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sources'
     | '/_authenticated/configure/$fableId'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/plugins/$pluginId'
+    | '/_authenticated/admin/plugins/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -240,17 +264,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPluginsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/plugins/': {
+      id: '/_authenticated/admin/plugins/'
+      path: '/'
+      fullPath: '/admin/plugins/'
+      preLoaderRoute: typeof AuthenticatedAdminPluginsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminPluginsRoute
+    }
+    '/_authenticated/admin/plugins/$pluginId': {
+      id: '/_authenticated/admin/plugins/$pluginId'
+      path: '/$pluginId'
+      fullPath: '/admin/plugins/$pluginId'
+      preLoaderRoute: typeof AuthenticatedAdminPluginsPluginIdRouteImport
+      parentRoute: typeof AuthenticatedAdminPluginsRoute
+    }
   }
 }
 
+interface AuthenticatedAdminPluginsRouteChildren {
+  AuthenticatedAdminPluginsPluginIdRoute: typeof AuthenticatedAdminPluginsPluginIdRoute
+  AuthenticatedAdminPluginsIndexRoute: typeof AuthenticatedAdminPluginsIndexRoute
+}
+
+const AuthenticatedAdminPluginsRouteChildren: AuthenticatedAdminPluginsRouteChildren =
+  {
+    AuthenticatedAdminPluginsPluginIdRoute:
+      AuthenticatedAdminPluginsPluginIdRoute,
+    AuthenticatedAdminPluginsIndexRoute: AuthenticatedAdminPluginsIndexRoute,
+  }
+
+const AuthenticatedAdminPluginsRouteWithChildren =
+  AuthenticatedAdminPluginsRoute._addFileChildren(
+    AuthenticatedAdminPluginsRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminPluginsRoute: typeof AuthenticatedAdminPluginsRoute
+  AuthenticatedAdminPluginsRoute: typeof AuthenticatedAdminPluginsRouteWithChildren
   AuthenticatedAdminSourcesRoute: typeof AuthenticatedAdminSourcesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminPluginsRoute: AuthenticatedAdminPluginsRoute,
+  AuthenticatedAdminPluginsRoute: AuthenticatedAdminPluginsRouteWithChildren,
   AuthenticatedAdminSourcesRoute: AuthenticatedAdminSourcesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }

@@ -105,5 +105,17 @@
     "showing": "Showing {{start}}-{{end}} of {{total}} plugins",
     "previous": "Previous",
     "next": "Next"
+  },
+  "blockFactory": {
+    "useInConfig": "Use {{kind}} in Configuration",
+    "sourceOnlyTooltip": "Configurations must start with a source block"
+  },
+  "detail": {
+    "backToPlugins": "Back to Plugins",
+    "useAllBlocks": "Use All Blocks ({{count}})",
+    "blockFactories": "Block Factories",
+    "searchBlocks": "Search blocks...",
+    "noMatchingBlocks": "No blocks match your search.",
+    "noBlocks": "This plugin does not provide any block factories."
   }
 }

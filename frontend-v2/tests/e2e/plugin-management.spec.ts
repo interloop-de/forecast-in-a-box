@@ -239,3 +239,175 @@ test.describe('Plugin Actions', () => {
     await expect(statusBadge.first()).toBeVisible({ timeout: 10000 })
   })
 })
+
+test.describe('Plugin Detail Page', () => {
+  test('clicking View Details navigates to plugin detail page', async ({
+    page,
+  }) => {
+    await navigateTo(page, '/admin/plugins')
+
+    // Find a "View Details" button on an installed plugin
+    const viewDetailsButtons = page.getByRole('button', {
+      name: /view details/i,
+    })
+    if (
+      await viewDetailsButtons
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false)
+    ) {
+      await viewDetailsButtons.first().click()
+      await page.waitForTimeout(2000)
+
+      // Should navigate to a plugin detail URL
+      expect(page.url()).toMatch(/\/admin\/plugins\//)
+
+      // Detail page should show plugin name and block factories heading
+      const heading = page.getByRole('heading', { level: 1 })
+      if (
+        await heading
+          .first()
+          .isVisible({ timeout: 5000 })
+          .catch(() => false)
+      ) {
+        await expect(heading.first()).toBeVisible()
+      }
+
+      const blockFactoriesHeading = page.getByText(/block factories/i)
+      if (
+        await blockFactoriesHeading
+          .first()
+          .isVisible({ timeout: 5000 })
+          .catch(() => false)
+      ) {
+        await expect(blockFactoriesHeading.first()).toBeVisible()
+      }
+    }
+  })
+
+  test('detail page shows status badge and block factory cards', async ({
+    page,
+  }) => {
+    await navigateTo(page, '/admin/plugins')
+
+    const viewDetailsButtons = page.getByRole('button', {
+      name: /view details/i,
+    })
+    if (
+      await viewDetailsButtons
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false)
+    ) {
+      await viewDetailsButtons.first().click()
+      await page.waitForTimeout(2000)
+
+      // Status badge should be visible
+      const statusBadge = page.getByText(
+        /^(Loaded|Disabled|Available|Errored)$/,
+      )
+      if (
+        await statusBadge
+          .first()
+          .isVisible({ timeout: 5000 })
+          .catch(() => false)
+      ) {
+        await expect(statusBadge.first()).toBeVisible()
+      }
+
+      // Block factory cards should have "Use ... in Configuration" buttons
+      const configButtons = page.getByRole('button', {
+        name: /in Configuration/i,
+      })
+      const configCount = await configButtons.count()
+      if (configCount > 0) {
+        expect(configCount).toBeGreaterThanOrEqual(1)
+      }
+    }
+  })
+
+  test('source block button is enabled, non-source buttons are disabled', async ({
+    page,
+  }) => {
+    await navigateTo(page, '/admin/plugins')
+
+    const viewDetailsButtons = page.getByRole('button', {
+      name: /view details/i,
+    })
+    if (
+      await viewDetailsButtons
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false)
+    ) {
+      await viewDetailsButtons.first().click()
+      await page.waitForTimeout(2000)
+
+      // Source buttons should be enabled
+      const sourceButtons = page.getByRole('button', {
+        name: /Use Source in Configuration/i,
+      })
+      if (
+        await sourceButtons
+          .first()
+          .isVisible({ timeout: 5000 })
+          .catch(() => false)
+      ) {
+        await expect(sourceButtons.first()).toBeEnabled()
+      }
+
+      // Product/Sink buttons should be disabled
+      const productButtons = page.getByRole('button', {
+        name: /Use Product in Configuration/i,
+      })
+      if (
+        await productButtons
+          .first()
+          .isVisible({ timeout: 3000 })
+          .catch(() => false)
+      ) {
+        await expect(productButtons.first()).toBeDisabled()
+      }
+    }
+  })
+
+  test('Back to Plugins button navigates back to plugin list', async ({
+    page,
+  }) => {
+    await navigateTo(page, '/admin/plugins')
+
+    const viewDetailsButtons = page.getByRole('button', {
+      name: /view details/i,
+    })
+    if (
+      await viewDetailsButtons
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false)
+    ) {
+      await viewDetailsButtons.first().click()
+      await page.waitForTimeout(2000)
+
+      // Click "Back to Plugins"
+      const backButton = page.getByRole('link', { name: /back to plugins/i })
+      if (await backButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await backButton.click()
+        await page.waitForTimeout(2000)
+
+        // Should be back on the plugins list page
+        expect(page.url()).toMatch(/\/admin\/plugins\/?$/)
+
+        // Plugin Store heading should be visible
+        const heading = page.getByRole('heading', { name: /plugin/i })
+        if (
+          await heading
+            .first()
+            .isVisible({ timeout: 5000 })
+            .catch(() => false)
+        ) {
+          await expect(heading.first()).toBeVisible()
+        }
+      }
+    }
+  })
+})

@@ -19,7 +19,7 @@ export { BlockFactoryCard } from './components/BlockFactoryCard'
 export { BlockFactoryList } from './components/BlockFactoryList'
 export { CapabilityBadges } from './components/CapabilityBadges'
 export { PluginCard } from './components/PluginCard'
-export { PluginDetailsSheet } from './components/PluginDetailsSheet'
+export { PluginDetailPage } from './components/PluginDetailPage'
 export { PluginIcon } from './components/PluginIcon'
 export { PluginRow } from './components/PluginRow'
 export {
