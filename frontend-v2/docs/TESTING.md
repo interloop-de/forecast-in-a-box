@@ -2,12 +2,51 @@
 
 Testing patterns and best practices for the Forecast-in-a-Box frontend.
 
-## Philosophy
+## Testing Philosophy
 
 - **Test behavior, not implementation** - Focus on what code does, not how
 - **One behavior per test** - Keep tests focused and debuggable
 - **Use factories** - No hardcoded test data
 - **Descriptive names** - Test names should describe expected behavior
+
+### Integration-First
+
+Shallow component renders (render + check text visible) provide low confidence for the effort required. They break on refactors without catching bugs.
+
+**Prefer integration tests** that exercise real user flows through multiple components with MSW-mocked API responses. A single integration test covering "user navigates to plugins page, filters by status, installs a plugin" provides more confidence than 10 isolated component render tests.
+
+### What Requires Unit Tests
+
+Code that is **pure logic**, **used in 2+ locations**, or **complex enough to warrant isolated testing**:
+
+- **Hooks**: `src/hooks/` (all 7 hooks)
+- **Stores**: `src/stores/` (all 3 stores) + `src/features/fable-builder/stores/`
+- **Utilities**: `src/utils/`, `src/lib/`
+- **API client**: `src/api/client.ts`
+- **API endpoint functions**: `src/api/endpoints/`
+- **Type helpers**: Zod schemas, validation utilities
+- **Feature-specific utils**: `src/features/fable-builder/utils/`
+
+### What Requires Integration Tests
+
+**Feature flows** involving multiple components, API calls, and state changes:
+
+- Auth flow (login redirect, session restore, logout)
+- Dashboard (load data, quick actions, forecast journal)
+- Fable builder (block selection, configuration, validation, save)
+- Plugins (list, filter, install, uninstall, enable/disable)
+- Sources (list, filter, download, enable/disable, registry management)
+- Status page (system health, component status)
+
+### What Requires E2E Tests
+
+**Critical user journeys** that must work end-to-end with a real backend:
+
+- Login → Dashboard → Configure forecast → Submit
+- Plugin installation and activation
+- Source download and configuration
+
+---
 
 ## Technology Stack
 
@@ -28,8 +67,8 @@ npm run test            # Watch mode
 npm run test:run        # Single run (CI)
 npm run test:coverage   # With coverage
 npm run test:ui         # Interactive UI
-npm run test:e2e        # Playwright E2E - ALL tests against MSW mocks (fast, no backend needed)
-npm run test:e2e:stack  # Playwright E2E - stack tests against real backend (port 8000)
+npm run test:e2e        # Playwright E2E - all tests against MSW mocks (fast, no backend needed)
+npm run test:e2e:stack  # Playwright E2E - all tests against real backend (port 8000)
 ```
 
 ## Coverage
@@ -43,7 +82,7 @@ npm run test:e2e:stack  # Playwright E2E - stack tests against real backend (por
 | `src/components/` | ~39%    | >50%   |
 | `src/features/`   | ~20%    | >50%   |
 
-**Test count:** 40 unit + 16 integration + 6 E2E = 62 test files
+**Test count:** 40 unit + 16 integration + 7 E2E = 63 test files
 
 ### What NOT to Test
 
@@ -62,9 +101,8 @@ tests/
 │   └── factories.ts  # Test data factories
 ├── unit/             # Unit tests (40 files - pure logic, hooks, stores, utils, components)
 ├── integration/      # Integration tests (16 files - feature flows with MSW)
-└── e2e/              # Playwright E2E (1 MSW-mocked + 5 stack tests)
-    ├── *.spec.ts           # MSW-mocked (playwright.config.ts)
-    └── *.stack.spec.ts     # Real backend (playwright.config.stack.ts)
+└── e2e/              # Playwright E2E (7 test files, all run against both mock and real backend)
+    └── *.spec.ts           # Works with both playwright.config.ts (MSW) and playwright.config.stack.ts (real)
 ```
 
 **Path alias:** `@tests/*` → `tests/*`

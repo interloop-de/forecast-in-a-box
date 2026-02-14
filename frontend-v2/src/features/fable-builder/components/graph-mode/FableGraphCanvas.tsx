@@ -79,7 +79,9 @@ function FableGraphCanvasInner({ catalogue }: FableGraphCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const lastStateKeyRef = useRef<string>('')
+  const prevBlocksRef = useRef(fable.blocks)
+  const prevAutoLayoutRef = useRef(autoLayout)
+  const prevLayoutDirectionRef = useRef(layoutDirection)
   const hasInitializedViewportRef = useRef<boolean>(false)
   const lastBlockCountRef = useRef<number>(0)
 
@@ -124,37 +126,38 @@ function FableGraphCanvasInner({ catalogue }: FableGraphCanvasProps) {
   )
 
   useEffect(() => {
-    const stateKey = JSON.stringify({
-      blocks: fable.blocks,
-      autoLayout,
-      layoutDirection,
-    })
+    // Use reference equality instead of JSON.stringify for change detection.
+    // The Zustand store uses immutable updates, so fable.blocks reference
+    // changes if and only if the blocks content changes.
+    const blocksChanged = fable.blocks !== prevBlocksRef.current
+    const layoutChanged =
+      autoLayout !== prevAutoLayoutRef.current ||
+      layoutDirection !== prevLayoutDirectionRef.current
 
-    if (stateKey !== lastStateKeyRef.current) {
-      lastStateKeyRef.current = stateKey
+    if (!blocksChanged && !layoutChanged) return
 
-      const { nodes: newNodes, edges: newEdges } = fableToGraph(
-        fable,
-        catalogue,
-      )
+    prevBlocksRef.current = fable.blocks
+    prevAutoLayoutRef.current = autoLayout
+    prevLayoutDirectionRef.current = layoutDirection
 
-      const shouldLayout = autoLayout || needsLayout(newNodes)
-      const layouted = shouldLayout
-        ? layoutNodes(newNodes, newEdges, { direction: layoutDirection })
-        : newNodes
+    const { nodes: newNodes, edges: newEdges } = fableToGraph(fable, catalogue)
 
-      // Detect preset load: going from 0 blocks to multiple blocks
-      // In this case, reset the viewport initialization to reposition the graph
-      const currentBlockCount = Object.keys(fable.blocks).length
-      const previousBlockCount = lastBlockCountRef.current
-      if (previousBlockCount === 0 && currentBlockCount > 1) {
-        hasInitializedViewportRef.current = false
-      }
-      lastBlockCountRef.current = currentBlockCount
+    const shouldLayout = autoLayout || needsLayout(newNodes)
+    const layouted = shouldLayout
+      ? layoutNodes(newNodes, newEdges, { direction: layoutDirection })
+      : newNodes
 
-      setNodes(layouted)
-      setEdges(newEdges)
+    // Detect preset load: going from 0 blocks to multiple blocks
+    // In this case, reset the viewport initialization to reposition the graph
+    const currentBlockCount = Object.keys(fable.blocks).length
+    const previousBlockCount = lastBlockCountRef.current
+    if (previousBlockCount === 0 && currentBlockCount > 1) {
+      hasInitializedViewportRef.current = false
     }
+    lastBlockCountRef.current = currentBlockCount
+
+    setNodes(layouted)
+    setEdges(newEdges)
   }, [fable, catalogue, autoLayout, layoutDirection, setNodes, setEdges])
 
   // Position viewport once on initial load based on layout direction

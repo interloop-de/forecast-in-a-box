@@ -2,15 +2,59 @@
 
 Guidance for AI Assistants working with this frontend codebase.
 
+## Guidelines
+
+Follow these behavioral rules to avoid common LLM coding mistakes.
+
+### 1. Think Before Coding
+
+Don't assume. Don't hide confusion. Surface tradeoffs.
+
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### 2. Simplicity First
+
+Minimum code that solves the problem. Nothing speculative.
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+### 3. Surgical Changes
+
+Touch only what you must. Clean up only your own mess.
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+### 4. Goal-Driven Execution
+
+Define success criteria. Loop until verified.
+
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan with verifiable checks.
+
+---
+
 ## Project Overview
 
 Frontend UI for **Forecast-in-a-Box** (FIAB), a portable ML-based weather forecasting system for ECMWF.
-
-**Core workflows:**
-
-1. **Configure** - AI weather forecasts (model, parameters, region, outputs)
-2. **Monitor** - Real-time execution (progress, task graphs, logs)
-3. **Visualize** - Download results (images, plots, maps, data)
 
 ## Technology Stack
 
@@ -25,8 +69,7 @@ Frontend UI for **Forecast-in-a-Box** (FIAB), a portable ML-based weather foreca
 | Forms     | Zod 4                                         |
 | i18n      | i18next                                       |
 | HTTP      | Native fetch (no axios)                       |
-| Testing   | Vitest Browser Mode + Playwright              |
-| Mocking   | MSW v2                                        |
+| Testing   | Vitest Browser Mode + Playwright + MSW v2     |
 | Linting   | ESLint (TanStack config) + Prettier           |
 
 ## Commands
@@ -44,16 +87,14 @@ npm run test:run         # Vitest single run (CI)
 npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
 npm run test:coverage    # With coverage report
-npm run test:e2e         # Playwright E2E - ALL tests against MSW mocks (no backend needed)
-npm run test:e2e:stack   # Playwright E2E - stack tests against real backend (port 8000)
+npm run test:e2e         # Playwright E2E against MSW mocks
+npm run test:e2e:stack   # Playwright E2E against real backend (port 8000)
 npm run analyze          # Bundle visualization (dist/stats.html)
 
 # Code Quality
 npm run check            # Lint + format check (CI)
 npm run fix              # Auto-fix lint + format
 ```
-
-**Always use npm scripts** (not `npx` directly) for consistent tool versions.
 
 ## Project Structure
 
@@ -64,136 +105,43 @@ src/
 │   ├── base/            # Custom base components
 │   ├── common/          # Shared components (LoadingSpinner, ErrorBoundary, etc.)
 │   ├── layout/          # AppShell, Header, Sidebar, Footer
-│   └── ui/              # shadcn/ui components (auto-generated)
-├── features/            # Feature modules
-│   ├── admin/           # Admin panel
-│   ├── auth/            # Authentication
-│   ├── dashboard/       # Dashboard
-│   ├── fable-builder/   # Forecast configuration builder
-│   ├── landing/         # Landing page
-│   ├── plugins/         # Plugin management
-│   ├── sources/         # Data source management
-│   └── status/          # System status
+│   └── ui/              # shadcn/ui components (auto-generated, do not edit)
+├── features/            # Feature modules (admin, auth, dashboard, fable-builder, landing, plugins, sources, status)
 ├── hooks/               # Shared custom hooks
 ├── lib/                 # Utilities (logger, toast, queryClient, utils)
 ├── locales/             # i18n translations (en/)
 ├── providers/           # React context providers
-├── routes/              # TanStack Router (file-based)
+├── routes/              # TanStack Router (file-based, auto-generates routeTree)
 ├── stores/              # Zustand stores (configStore, uiStore)
 ├── types/               # Global TypeScript types
 └── utils/               # Helper functions
 
-mocks/                   # MSW handlers and fixtures
+mocks/                   # MSW handlers and test data
 tests/                   # Unit, integration, E2E tests
 ```
 
-## Architecture Patterns
+## Key Rules
 
-### Path Aliases
+- **No `any`** — use `unknown` with type guards
+- **No axios** — use native fetch via `src/api/client.ts`
+- **No `console.*`** — use `createLogger()` from `@/lib/logger`
+- **No hardcoded strings** — use i18next
+- **No `tailwind.config.js`** — config is in `src/styles.css`
+- **No editing `src/components/ui/`** — these are auto-generated by shadcn/ui
+- **Minimum font size: 14px (`text-sm`)** — avoid `text-xs`
+- **Never swallow errors** — always propagate to users via `showToast` from `@/lib/toast` and log with `createLogger()`. Silent `catch {}` blocks are forbidden.
+- **Path aliases:** `@/*` → `./src/*`, `@tests/*` → `./tests/*`
 
-| Alias      | Maps To     | Usage          |
-| ---------- | ----------- | -------------- |
-| `@/*`      | `./src/*`   | Source imports |
-| `@tests/*` | `./tests/*` | Test utilities |
+## API Layer
 
-```typescript
-// ✅ Good
-import { Button } from '@/components/ui/button'
-import { worker } from '@tests/test-extend'
-
-// ❌ Bad - deep relative imports
-import { Button } from '../../../components/ui/button'
-```
-
-### State Management
-
-- **Server state** → TanStack Query (caching, background refresh)
-- **Client state** → Zustand stores in `src/stores/`
-
-### API Layer
-
-Native fetch with typed client - **do NOT use axios**:
+All endpoint paths live in `src/api/endpoints.ts`. Hooks use TanStack Query with Zod validation:
 
 ```typescript
-// src/api/hooks/useModels.ts
-export function useModels() {
-  return useQuery({
-    queryKey: ['models'],
-    queryFn: () => modelsApi.getAll(),
-  })
-}
+import { API_ENDPOINTS } from '@/api/endpoints'
+import { apiClient } from '@/api/client'
 ```
 
-### Routing
-
-File-based routing in `src/routes/`:
-
-- `__root.tsx` - Root layout
-- `index.tsx` - Landing page (`/`)
-- `_authenticated.tsx` - Protected layout
-- `_authenticated/dashboard.tsx` - `/dashboard`
-- `_authenticated/configure.tsx` - `/configure`
-
-### i18n
-
-Namespace-based translations in `locales/en/`:
-
-```typescript
-const { t } = useTranslation('configuration')
-return <h1>{t('selectModel.title')}</h1>
-```
-
-## Coding Standards
-
-### TypeScript
-
-- Strict mode enabled
-- **Never use `any`** - use `unknown` with type guards
-- Use `type` for aliases, `interface` for extendable shapes
-
-### Components
-
-- Functional components only
-- Named exports
-- Props interface: `{ComponentName}Props`
-- **File naming**: kebab-case for shadcn/ui, PascalCase for custom
-
-```typescript
-interface ModelSelectorProps {
-  onSelect: (modelId: string) => void
-  disabled?: boolean
-}
-
-export function ModelSelector({
-  onSelect,
-  disabled = false,
-}: ModelSelectorProps) {
-  // ...
-}
-```
-
-### Styling (Tailwind CSS v4)
-
-- Config in `src/styles.css` (CSS custom properties, not JS config)
-- Use `cn()` from `@/lib/utils` for conditional classes
-- Semantic tokens: `primary`, `secondary`, `muted`, `destructive`
-- **Minimum font size: 14px (`text-sm`)** - avoid `text-xs`
-- See [docs/UI_DESIGN.md](./docs/UI_DESIGN.md) for design guidelines
-
-### Zod 4
-
-```typescript
-// ✅ Good: Zod 4 patterns
-z.url() // Not z.string().url()
-z.string().min(5, { error: 'msg' }) // Not { message: 'msg' }
-z.treeifyError(error) // Not error.format()
-```
-
-### Error Handling
-
-1. Use `createLogger()` from `@/lib/logger` (not `console.*`)
-2. Use `showToast` from `@/lib/toast` for user notifications
-3. Let TanStack Query handle API errors globally (don't wrap in try-catch)
+## Error Handling
 
 ```typescript
 import { createLogger } from '@/lib/logger'
@@ -202,71 +150,21 @@ log.error('Failed:', { id, error }) // Always logged
 log.debug('Debug info') // Dev only
 ```
 
-### Client-Side Storage
-
-All keys in `src/lib/storage-keys.ts` with `fiab.` prefix:
-
-```typescript
-import { STORAGE_KEYS, STORE_VERSIONS } from '@/lib/storage-keys'
-```
-
-Zustand stores with persistence use `version` + `migrate` pattern.
-
-### API Endpoints
-
-All paths in `src/api/endpoints.ts`:
-
-```typescript
-import { API_ENDPOINTS } from '@/api/endpoints'
-apiClient.get(API_ENDPOINTS.models.metadata(modelId))
-```
-
-## Responsive Design
-
-Desktop-first, but **must work on mobile/tablet**:
-
-```tsx
-// ✅ Good: Responsive patterns
-<div className="flex flex-col gap-4 sm:flex-row">
-<div className="min-w-0 flex-1">  {/* Allows truncation */}
-<SelectTrigger className="min-w-[200px]">  {/* Not w-[200px] */}
-```
-
-**Test all pages at 375px width** - horizontal scroll is a bug.
-
-## Accessibility
-
-- Must pass AXE checks
-- Must meet WCAG AA (focus, contrast, ARIA)
-
-## Security
-
-- BFF auth pattern (HTTPOnly cookies, no client-side tokens)
-- `isValidInternalRedirect()` for redirect validation
-- No `dangerouslySetInnerHTML`
-- External links: `rel="noopener noreferrer"`
+Use `showToast` from `@/lib/toast` for user notifications. Let TanStack Query handle API errors globally.
 
 ## Testing
 
-**Vitest Browser Mode** (real Chromium, not JSDOM) + MSW v2 for mocking. **Playwright** for E2E.
+**Vitest Browser Mode** (real Chromium, not JSDOM) + MSW v2 + Playwright for E2E.
 
-See [docs/TESTING.md](./docs/TESTING.md) for patterns and [docs/TESTING_STRATEGY.md](./docs/TESTING_STRATEGY.md) for strategy.
+| Layer | Location             | Tool             | Files |
+| ----- | -------------------- | ---------------- | ----- |
+| Unit  | `tests/unit/`        | Vitest           | 40    |
+| Integ | `tests/integration/` | Vitest + MSW     | 16    |
+| E2E   | `tests/e2e/`         | Playwright + MSW | 7     |
 
-**Test distribution:** 40 unit + 16 integration + 6 E2E = 62 test files
+Two Playwright configs: `playwright.config.ts` (MSW-mocked) and `playwright.config.stack.ts` (real backend). All E2E tests must work against both.
 
-| Layer       | Location                    | Tool             | Count |
-| ----------- | --------------------------- | ---------------- | ----- |
-| Unit        | `tests/unit/`               | Vitest           | 40    |
-| Integration | `tests/integration/`        | Vitest + MSW     | 16    |
-| E2E (mock)  | `tests/e2e/*.spec.ts`       | Playwright + MSW | 1     |
-| E2E (stack) | `tests/e2e/*.stack.spec.ts` | Playwright       | 5     |
-
-**Two Playwright configs:**
-
-- `playwright.config.ts` — MSW-mocked, runs ALL E2E tests, parallel, 30s timeout
-- `playwright.config.stack.ts` — real backend, runs only `*.stack.spec.ts`, sequential, 1 worker, 60s timeout
-
-All E2E tests run in both modes. MSW mocks cover all API endpoints, so `test:e2e` validates the full suite without a backend. `test:e2e:stack` confirms the same flows work against a real API.
+See [docs/TESTING.md](./docs/TESTING.md) for patterns and strategy.
 
 ## Common Tasks
 
@@ -279,22 +177,14 @@ All E2E tests run in both modes. MSW mocks cover all API endpoints, so `test:e2e
 
 ### Add route
 
-1. Create file in `src/routes/` - route tree auto-generates
+1. Create file in `src/routes/` — route tree auto-generates
 
 ### Add translation
 
 1. Add keys to `locales/en/{namespace}.json`
 2. Use `t('namespace:key')`
 
-### Add Zustand store
+## Reference Docs
 
-1. Create in `src/stores/{name}Store.ts`
-2. For persistence: add to `STORAGE_KEYS` and `STORE_VERSIONS`
-
-## Key Reminders
-
-- **No axios** - use native fetch
-- **No `tailwind.config.js`** - config is in `src/styles.css`
-- **No hardcoded strings** - use i18next
-- **No `console.*`** - use `createLogger()`
-- **Backend is FastAPI** (Python) via REST + SSE
+- [docs/TESTING.md](./docs/TESTING.md) — Test patterns and strategy
+- [docs/UI_DESIGN.md](./docs/UI_DESIGN.md) — Design guidelines

@@ -19,7 +19,6 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: '**/*.stack.spec.ts',
   fullyParallel: false, // Sequential for real backend
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

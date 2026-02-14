@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
   Check,
@@ -59,6 +59,9 @@ export function FableBuilderHeader({
   const [shareButtonText, setShareButtonText] = useState('Share')
   const [savePopoverOpen, setSavePopoverOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const shareTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  useEffect(() => () => clearTimeout(shareTimeoutRef.current), [])
 
   const mode = useFableBuilderStore((s) => s.mode)
   const step = useFableBuilderStore((s) => s.step)
@@ -90,7 +93,11 @@ export function FableBuilderHeader({
   function handleShare(): void {
     navigator.clipboard.writeText(window.location.href)
     setShareButtonText('Copied!')
-    setTimeout(() => setShareButtonText('Share'), 2000)
+    clearTimeout(shareTimeoutRef.current)
+    shareTimeoutRef.current = setTimeout(
+      () => setShareButtonText('Share'),
+      2000,
+    )
   }
 
   function handleReview(): void {

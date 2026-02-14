@@ -135,6 +135,10 @@ function usePluginMutation<TVariables>(
   return useMutation({
     mutationFn: async (variables: TVariables) => {
       await action(variables)
+      // Sequential on purpose: the catalogue endpoint returns 503 while plugins
+      // reload after an install/uninstall/update. Waiting for the catalogue to
+      // succeed (via retry) ensures plugins are fully loaded before we refetch
+      // details, so the UI sees the updated state. Do NOT parallelize these.
       await queryClient.invalidateQueries({ queryKey: fableKeys.catalogue() })
       await queryClient.invalidateQueries({ queryKey: pluginKeys.details() })
     },

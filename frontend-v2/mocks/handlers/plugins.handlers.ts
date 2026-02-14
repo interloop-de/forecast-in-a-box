@@ -34,6 +34,33 @@ import { API_ENDPOINTS } from '@/api/endpoints'
 const pluginsState: PluginListing = getMutablePluginListing()
 
 /**
+ * Tracks how many catalogue requests should return 503 to simulate
+ * the backend behaviour where the catalogue is temporarily unavailable
+ * while plugins are reloading after an install/uninstall/update.
+ */
+let catalogueUnavailableCount = 0
+
+/**
+ * Signal that the next N catalogue requests should return 503.
+ * Called by plugin mutation handlers to replicate real backend behaviour.
+ */
+export function setCatalogueUnavailable(count: number = 1): void {
+  catalogueUnavailableCount = count
+}
+
+/**
+ * Check and consume one 503 token. Returns true if the catalogue
+ * should respond with 503 for this request.
+ */
+export function consumeCatalogueUnavailable(): boolean {
+  if (catalogueUnavailableCount > 0) {
+    catalogueUnavailableCount--
+    return true
+  }
+  return false
+}
+
+/**
  * Helper to create a Python repr format plugin key
  */
 function createPluginKey(store: string, local: string): string {
@@ -124,6 +151,9 @@ export const pluginsHandlers = [
       update_date: getCurrentDate(),
     }
 
+    // Simulate backend reload: catalogue will 503 once while plugins restart
+    setCatalogueUnavailable(1)
+
     return HttpResponse.json({ success: true })
   }),
 
@@ -159,6 +189,9 @@ export const pluginsHandlers = [
       update_date: null,
       errored_detail: null,
     }
+
+    // Simulate backend reload: catalogue will 503 once while plugins restart
+    setCatalogueUnavailable(1)
 
     return HttpResponse.json({ success: true })
   }),
@@ -203,6 +236,9 @@ export const pluginsHandlers = [
       update_date: getCurrentDate(),
       errored_detail: null,
     }
+
+    // Simulate backend reload: catalogue will 503 once while plugins restart
+    setCatalogueUnavailable(1)
 
     return HttpResponse.json({ success: true })
   }),

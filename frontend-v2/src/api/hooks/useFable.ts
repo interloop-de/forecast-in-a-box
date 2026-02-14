@@ -76,23 +76,16 @@ export function useFableValidation(
   fable: FableBuilderV1 | null,
   enabled: boolean = true,
 ) {
-  // Memoize the serialized fable to ensure stable query key
-  const serializedFable = useMemo(
-    () => JSON.stringify(fable ?? { blocks: {} }),
+  const stableFable = useMemo(
+    () => fable ?? ({ blocks: {} } as FableBuilderV1),
     [fable],
-  )
-
-  // Parse back for the query function to avoid closure issues
-  const fableForQuery = useMemo(
-    () => JSON.parse(serializedFable) as FableBuilderV1,
-    [serializedFable],
   )
 
   const hasBlocks = fable !== null && Object.keys(fable.blocks).length > 0
 
   return useQuery<FableValidationExpansion, Error>({
-    queryKey: ['fable', 'validation', fableForQuery],
-    queryFn: () => expandFable(fableForQuery),
+    queryKey: fableKeys.validation(stableFable),
+    queryFn: () => expandFable(stableFable),
     enabled: enabled && hasBlocks,
     staleTime: 10 * 1000, // 10 seconds
     refetchOnWindowFocus: false,

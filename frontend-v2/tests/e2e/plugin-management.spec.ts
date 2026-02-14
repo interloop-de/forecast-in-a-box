@@ -233,20 +233,9 @@ test.describe('Plugin Actions', () => {
   })
 
   test('plugin card shows status badges', async ({ page }) => {
-    // Check for status badges (loaded, disabled, etc.)
-    const loadedBadge = page.getByText('Loaded')
-    const disabledBadge = page.getByText('Disabled')
-
-    const hasLoaded = await loadedBadge
-      .first()
-      .isVisible({ timeout: 3000 })
-      .catch(() => false)
-    const hasDisabled = await disabledBadge
-      .first()
-      .isVisible({ timeout: 3000 })
-      .catch(() => false)
-
-    // At least one status type should be visible
-    expect(hasLoaded || hasDisabled).toBe(true)
+    // At least one status badge (Loaded, Disabled, Available, or Errored)
+    // should be visible. Use auto-retrying assertion for reliability.
+    const statusBadge = page.getByText(/^(Loaded|Disabled|Available|Errored)$/)
+    await expect(statusBadge.first()).toBeVisible({ timeout: 10000 })
   })
 })

@@ -553,16 +553,8 @@ export function useSelectedBlock(): BlockInstance | null {
   })
 }
 
-export function useBlockInstances(): Array<{
-  id: string
-  instance: BlockInstance
-}> {
-  return useFableBuilderStore((state) =>
-    Object.entries(state.fable.blocks).map(([id, instance]) => ({
-      id,
-      instance,
-    })),
-  )
+export function useBlockInstances(): Record<BlockInstanceId, BlockInstance> {
+  return useFableBuilderStore((state) => state.fable.blocks)
 }
 
 export function useBlockCount(): number {

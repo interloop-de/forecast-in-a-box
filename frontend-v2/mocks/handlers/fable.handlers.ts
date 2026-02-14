@@ -14,6 +14,7 @@ import {
   mockCatalogue,
   mockSavedFables,
 } from '../data/fable.data'
+import { consumeCatalogueUnavailable } from './plugins.handlers'
 import type { FableBuilderV1 } from '@/api/types/fable.types'
 import { getFactory } from '@/api/types/fable.types'
 import { API_ENDPOINTS } from '@/api/endpoints'
@@ -35,6 +36,15 @@ let fableIdCounter = 100
 export const fableHandlers = [
   http.get(API_ENDPOINTS.fable.catalogue, async () => {
     await delay(300)
+
+    // Simulate 503 while plugins are reloading after install/uninstall/update
+    if (consumeCatalogueUnavailable()) {
+      return HttpResponse.json(
+        { detail: 'Plugins are reloading, please retry' },
+        { status: 503 },
+      )
+    }
+
     return HttpResponse.json(mockCatalogue)
   }),
 
