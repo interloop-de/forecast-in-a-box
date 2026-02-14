@@ -79,7 +79,7 @@ function FableGraphCanvasInner({ catalogue }: FableGraphCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const prevBlocksRef = useRef(fable.blocks)
+  const prevBlocksRef = useRef<typeof fable.blocks | null>(null)
   const prevAutoLayoutRef = useRef(autoLayout)
   const prevLayoutDirectionRef = useRef(layoutDirection)
   const hasInitializedViewportRef = useRef<boolean>(false)

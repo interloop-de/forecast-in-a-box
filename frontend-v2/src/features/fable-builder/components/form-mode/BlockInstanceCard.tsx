@@ -251,32 +251,8 @@ export function BlockInstanceCard({
                 </div>
               )}
 
-              {Object.keys(factory.configuration_options).length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(factory.configuration_options).map(
-                    ([key, option]) => (
-                      <FieldRenderer
-                        key={key}
-                        id={`${instanceId}-${key}`}
-                        valueType={option.value_type}
-                        value={instance.configuration_values[key] ?? ''}
-                        onChange={(value) =>
-                          updateBlockConfig(instanceId, key, value)
-                        }
-                        label={option.title}
-                        description={option.description}
-                      />
-                    ),
-                  )}
-                </div>
-              ) : (
-                <p className="py-2 text-center text-sm text-muted-foreground">
-                  No configuration options
-                </p>
-              )}
-
               {factory.inputs.length > 0 && (
-                <div className="mt-4 border-t pt-4">
+                <div className="mb-4 border-b pb-4">
                   <p className="mb-3 text-sm font-medium">Input Connections</p>
                   <div className="space-y-3">
                     {factory.inputs.map((inputName) => {
@@ -338,6 +314,30 @@ export function BlockInstanceCard({
                     })}
                   </div>
                 </div>
+              )}
+
+              {Object.keys(factory.configuration_options).length > 0 ? (
+                <div className="space-y-4">
+                  {Object.entries(factory.configuration_options).map(
+                    ([key, option]) => (
+                      <FieldRenderer
+                        key={key}
+                        id={`${instanceId}-${key}`}
+                        valueType={option.value_type}
+                        value={instance.configuration_values[key] ?? ''}
+                        onChange={(value) =>
+                          updateBlockConfig(instanceId, key, value)
+                        }
+                        label={option.title}
+                        description={option.description}
+                      />
+                    ),
+                  )}
+                </div>
+              ) : (
+                <p className="py-2 text-center text-sm text-muted-foreground">
+                  No configuration options
+                </p>
               )}
             </CardContent>
           )}
