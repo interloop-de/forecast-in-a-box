@@ -30,6 +30,7 @@ import {
   useUpdatePlugin,
 } from '@/api/hooks/usePlugins'
 import { encodePluginId } from '@/api/types/plugins.types'
+import { H3 } from '@/components/base/typography'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import {
   PluginsFilters,
@@ -222,9 +223,9 @@ function PluginsPage() {
       {!showAvailableOnly && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+            <H3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
               {t('installedSection.title')}
-            </h3>
+            </H3>
             <span className="font-mono text-sm text-muted-foreground">
               {t('installedSection.total', { count: installedPlugins.length })}
             </span>

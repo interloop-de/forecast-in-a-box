@@ -15,6 +15,7 @@
  */
 
 import type { ReactNode } from 'react'
+import { H3, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface GettingStartedCardProps {
@@ -64,10 +65,10 @@ export function GettingStartedCard({
         {icon}
       </div>
 
-      <h3 className="mb-2 text-base font-bold">{title}</h3>
-      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+      <H3 className="mb-2 text-base font-bold">{title}</H3>
+      <P className="mb-4 leading-relaxed text-muted-foreground">
         {description}
-      </p>
+      </P>
 
       <div className="mt-auto flex flex-wrap gap-2">
         {tags.map((tag, index) => (

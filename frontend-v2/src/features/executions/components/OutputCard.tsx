@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import type { LucideIcon } from 'lucide-react'
 import { getJobResult } from '@/api/endpoints/job'
 import { Button } from '@/components/ui/button'
+import { P } from '@/components/base/typography'
 import { createLogger } from '@/lib/logger'
 import { showToast } from '@/lib/toast'
 
@@ -165,8 +166,8 @@ export function OutputCard({
         )}
 
         <div className="space-y-0.5">
-          <p className="truncate text-sm font-medium">{productName}</p>
-          <p className="text-sm text-muted-foreground">{contentTypeLabel}</p>
+          <P className="truncate font-medium">{productName}</P>
+          <P className="text-muted-foreground">{contentTypeLabel}</P>
         </div>
 
         <div className="flex gap-1.5">

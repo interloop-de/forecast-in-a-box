@@ -39,6 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface JobListItemProps {
@@ -97,9 +98,9 @@ export function JobListItem({ jobId, status, metadata }: JobListItemProps) {
             </Link>
           </div>
           {metadata?.description && (
-            <p className="mb-1 line-clamp-1 text-sm text-muted-foreground">
+            <P className="mb-1 line-clamp-1 text-muted-foreground">
               {metadata.description}
-            </p>
+            </P>
           )}
           <div className="mb-2 text-sm text-muted-foreground">
             {t(`status.${status.status}`)}

@@ -10,6 +10,7 @@
 
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { P } from '@/components/base/typography'
 import { FiabStackSection } from '@/features/landing/components/FiabStackSection.tsx'
 import { IntroGlobeSection } from '@/features/landing/components/IntroGlobeSection.tsx'
 import { Collaboration } from '@/features/landing/components/Collaboration.tsx'
@@ -60,7 +61,7 @@ function Index() {
           <div className="mb-4">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
           </div>
-          <p className="text-muted-foreground">Loading...</p>
+          <P className="text-muted-foreground">Loading...</P>
         </div>
       </div>
     )

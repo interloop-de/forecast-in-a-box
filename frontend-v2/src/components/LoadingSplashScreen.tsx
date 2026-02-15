@@ -21,6 +21,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { H2, P } from '@/components/base/typography'
 
 interface LoadingSplashScreenProps {
   /** Error message to display, if any */
@@ -77,26 +78,26 @@ export function LoadingSplashScreen({
         {/* Loading Message */}
         {!error && (
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold">
+            <H2 className="text-xl font-semibold">
               Loading configuration{dots}
-            </h2>
-            <p className="text-sm text-muted-foreground">
+            </H2>
+            <P className="text-muted-foreground">
               Please wait while we set up the application
-            </p>
+            </P>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
           <div className="max-w-md space-y-4">
-            <h2 className="text-xl font-semibold text-destructive">
+            <H2 className="text-xl font-semibold text-destructive">
               Configuration Error
-            </h2>
-            <p className="text-sm text-muted-foreground">
+            </H2>
+            <P className="text-muted-foreground">
               Failed to load application configuration:
-            </p>
+            </P>
             <div className="rounded-lg bg-destructive/10 p-4">
-              <p className="font-mono text-sm text-destructive">{error}</p>
+              <P className="font-mono text-destructive">{error}</P>
             </div>
 
             {/* Retry Button */}
@@ -122,9 +123,9 @@ export function LoadingSplashScreen({
               </button>
             )}
 
-            <p className="text-sm text-muted-foreground">
+            <P className="text-muted-foreground">
               If the problem persists, please contact support.
-            </p>
+            </P>
           </div>
         )}
       </div>

@@ -26,6 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { H4, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 export interface BlockFactoryCardProps {
@@ -65,7 +66,7 @@ export function BlockFactoryCard({
           <IconComponent className={cn('h-5 w-5', metadata.color)} />
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="truncate font-semibold">{factory.title}</h4>
+          <H4 className="truncate font-semibold">{factory.title}</H4>
           <Badge
             variant="outline"
             className={cn('mt-1 text-sm', metadata.color)}
@@ -73,9 +74,9 @@ export function BlockFactoryCard({
             {metadata.label}
           </Badge>
           {factory.description && (
-            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+            <P className="mt-1 line-clamp-2 text-muted-foreground">
               {factory.description}
-            </p>
+            </P>
           )}
           <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
             {configKeys.length > 0 && (

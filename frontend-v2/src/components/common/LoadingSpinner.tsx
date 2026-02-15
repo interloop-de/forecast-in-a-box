@@ -14,6 +14,7 @@
  * A simple, reusable loading spinner component
  */
 
+import { P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface LoadingSpinnerProps {
@@ -48,7 +49,7 @@ export function LoadingSpinner({
           className,
         )}
       />
-      {text && <p className="text-sm text-muted-foreground">{text}</p>}
+      {text && <P className="text-muted-foreground">{text}</P>}
     </div>
   )
 }

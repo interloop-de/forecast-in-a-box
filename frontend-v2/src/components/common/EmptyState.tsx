@@ -15,6 +15,7 @@
  */
 
 import type { ReactNode } from 'react'
+import { H3, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 
 interface EmptyStateProps {
@@ -43,9 +44,9 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
       {icon && <div className="mb-4 text-muted-foreground">{icon}</div>}
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <H3 className="text-lg font-semibold">{title}</H3>
       {description && (
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <P className="mt-2 text-muted-foreground">{description}</P>
       )}
       {action && (
         <Button onClick={action.onClick} className="mt-4">

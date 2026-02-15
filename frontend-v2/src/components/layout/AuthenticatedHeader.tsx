@@ -32,6 +32,7 @@ import {
   Sun,
   User,
 } from 'lucide-react'
+import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -145,12 +146,12 @@ export function AuthenticatedHeader() {
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm leading-none font-medium">
+                        <P className="leading-none font-medium">
                           {user.email.split('@')[0] || 'User'}
-                        </p>
-                        <p className="text-sm leading-none text-muted-foreground">
+                        </P>
+                        <P className="leading-none text-muted-foreground">
                           {user.email}
-                        </p>
+                        </P>
                       </div>
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>

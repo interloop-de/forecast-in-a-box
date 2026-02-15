@@ -14,6 +14,7 @@ import { ConfigSummaryCard } from './ConfigSummaryCard'
 import type { BlockFactoryCatalogue, BlockKind } from '@/api/types/fable.types'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 import { SubmitJobDialog } from '@/features/executions/components/SubmitJobDialog'
+import { H2, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -101,10 +102,10 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
     <div className="h-full flex-1 overflow-y-auto bg-muted/30">
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
         <div>
-          <h2 className="text-2xl font-semibold">Review Configuration</h2>
-          <p className="mt-1 text-muted-foreground">
+          <H2 className="text-2xl font-semibold">Review Configuration</H2>
+          <P className="mt-1 text-muted-foreground">
             Review your forecast configuration before submitting.
-          </p>
+          </P>
         </div>
 
         {isValidating ? (
@@ -120,9 +121,9 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Configuration Has Errors</AlertTitle>
             <AlertDescription>
-              <p className="mb-2">
+              <P className="mb-2">
                 Please fix the following issues before submitting:
-              </p>
+              </P>
               {validationSummary.globalErrors.length > 0 && (
                 <ul className="list-disc space-y-1 pl-4">
                   {validationSummary.globalErrors.map((error, index) => (
@@ -131,11 +132,11 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
                 </ul>
               )}
               {validationSummary.blockErrorCount > 0 && (
-                <p className="mt-2">
+                <P className="mt-2">
                   {validationSummary.blockErrorCount} block-level{' '}
                   {validationSummary.blockErrorCount === 1 ? 'error' : 'errors'}{' '}
                   found.
-                </p>
+                </P>
               )}
             </AlertDescription>
           </Alert>

@@ -84,7 +84,9 @@ describe('Dashboard', () => {
       )
 
       await expect.element(screen.getByText('Manage Plugins')).toBeVisible()
-      await expect.element(screen.getByText('Manage Sources')).toBeVisible()
+      await expect
+        .element(screen.getByText('Manage Job Executions'))
+        .toBeVisible()
     })
 
     it('shows error status when status API fails', async () => {

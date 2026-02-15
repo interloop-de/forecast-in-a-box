@@ -16,6 +16,7 @@
 
 import { Component } from 'react'
 import type { ReactNode } from 'react'
+import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -106,9 +107,9 @@ export class ErrorBoundary extends Component<
             <CardContent className="space-y-4">
               {this.state.error && (
                 <div className="rounded-lg bg-muted p-3">
-                  <p className="font-mono text-sm text-muted-foreground">
+                  <P className="font-mono text-muted-foreground">
                     {this.state.error.message}
-                  </p>
+                  </P>
                 </div>
               )}
               <div className="flex gap-2">

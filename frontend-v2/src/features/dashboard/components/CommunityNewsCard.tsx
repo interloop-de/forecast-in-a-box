@@ -18,6 +18,7 @@ import { ChevronRight, MessageSquare, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import { mockForumTopics, mockModels } from '@/features/dashboard/data/mockData'
+import { H2, H3, H4, P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -31,22 +32,22 @@ export function CommunityNewsCard({ variant, shadow }: CommunityNewsCardProps) {
 
   return (
     <Card className="flex flex-col p-6" variant={variant} shadow={shadow}>
-      <h2 className="mb-6 text-xl font-semibold">{t('community.title')}</h2>
+      <H2 className="mb-6 text-xl font-semibold">{t('community.title')}</H2>
 
       <div className="grid flex-1 grid-cols-1 gap-8 sm:grid-cols-2">
         {/* Latest Available Models */}
         <div className="flex flex-col gap-5">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <H3 className="flex items-center gap-2 text-sm font-semibold text-primary">
             <Zap className="h-4 w-4" />
             {t('community.latestModels')}
-          </h3>
+          </H3>
           <div className="flex-1 space-y-4">
             {mockModels.map((model) => (
               <div key={`${model.name}-${model.version}`}>
                 <div className="flex items-start justify-between">
-                  <h4 className="text-sm font-medium">
+                  <H4 className="text-sm font-medium">
                     {model.name} {model.version}
-                  </h4>
+                  </H4>
                   {model.isNew && (
                     <Badge
                       variant="secondary"
@@ -56,9 +57,9 @@ export function CommunityNewsCard({ variant, shadow }: CommunityNewsCardProps) {
                     </Badge>
                   )}
                 </div>
-                <p className="mt-0.5 text-sm text-muted-foreground">
+                <P className="mt-0.5 text-muted-foreground">
                   {t('community.released', { time: model.releasedAt })}
-                </p>
+                </P>
               </div>
             ))}
           </div>
@@ -75,22 +76,22 @@ export function CommunityNewsCard({ variant, shadow }: CommunityNewsCardProps) {
 
         {/* Latest Forum Topics */}
         <div className="flex flex-col gap-5 border-l-0 border-border pl-0 sm:border-l sm:pl-8">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <H3 className="flex items-center gap-2 text-sm font-semibold text-primary">
             <MessageSquare className="h-4 w-4" />
             {t('community.latestTopics')}
-          </h3>
+          </H3>
           <div className="flex-1 space-y-4">
             {mockForumTopics.map((topic, index) => (
               <div key={index}>
-                <h4 className="text-sm leading-snug font-medium">
+                <H4 className="text-sm leading-snug font-medium">
                   {topic.title}
-                </h4>
-                <p className="mt-0.5 text-sm text-muted-foreground">
+                </H4>
+                <P className="mt-0.5 text-muted-foreground">
                   {t('community.postedBy', {
                     author: topic.author,
                     time: topic.postedAt,
                   })}
-                </p>
+                </P>
               </div>
             ))}
           </div>

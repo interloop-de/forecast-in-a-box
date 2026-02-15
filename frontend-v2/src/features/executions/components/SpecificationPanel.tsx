@@ -18,6 +18,7 @@ import { useMemo } from 'react'
 import { FileJson } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { FableBuilderV1 } from '@/api/types/fable.types'
+import { P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 
 interface SpecificationPanelProps {
@@ -100,12 +101,12 @@ export function SpecificationPanel({ fableSnapshot }: SpecificationPanelProps) {
       <Card className="overflow-hidden">
         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
           <FileJson className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm font-medium text-muted-foreground">
+          <P className="font-medium text-muted-foreground">
             {t('detail.specUnavailable')}
-          </p>
-          <p className="text-sm text-muted-foreground">
+          </P>
+          <P className="text-muted-foreground">
             {t('detail.specUnavailableDescription')}
-          </p>
+          </P>
         </div>
       </Card>
     )

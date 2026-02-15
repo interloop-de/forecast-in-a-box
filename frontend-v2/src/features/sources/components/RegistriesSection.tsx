@@ -30,6 +30,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import type { SourceRegistry } from '@/api/types/sources.types'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
+import { H3, H4, P } from '@/components/base/typography'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -112,9 +113,9 @@ export function RegistriesSection({
     <div className="space-y-4">
       {/* Section Header */}
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+        <H3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
           {t('registry.title')}
-        </h3>
+        </H3>
         <Button
           variant="ghost"
           size="sm"
@@ -198,16 +199,16 @@ export function RegistriesSection({
                 {/* Info */}
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
-                    <h4 className="truncate font-semibold">{registry.name}</h4>
+                    <H4 className="truncate font-semibold">{registry.name}</H4>
                     {registry.isDefault && (
                       <Badge variant="secondary" className="shrink-0">
                         {t('registry.default')}
                       </Badge>
                     )}
                   </div>
-                  <p className="mb-2 truncate text-sm text-muted-foreground">
+                  <P className="mb-2 truncate text-muted-foreground">
                     {registry.url}
-                  </p>
+                  </P>
 
                   {/* Stores */}
                   {registry.stores.length > 0 && (
@@ -229,11 +230,9 @@ export function RegistriesSection({
                             {store.name}
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="font-medium">{store.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {store.url}
-                            </p>
-                            <p className="text-sm capitalize">{store.type}</p>
+                            <P className="font-medium">{store.name}</P>
+                            <P className="text-muted-foreground">{store.url}</P>
+                            <P className="capitalize">{store.type}</P>
                           </TooltipContent>
                         </Tooltip>
                       ))}

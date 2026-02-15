@@ -15,14 +15,15 @@
  */
 
 import { useTranslation } from 'react-i18next'
+import { H1, P } from '@/components/base/typography'
 
 export function SourcesPageHeader() {
   const { t } = useTranslation('sources')
 
   return (
     <div className="flex flex-col gap-2">
-      <h1 className="text-3xl font-semibold tracking-tight">{t('title')}</h1>
-      <p className="text-base text-muted-foreground">{t('subtitle')}</p>
+      <H1>{t('title')}</H1>
+      <P className="text-base text-muted-foreground">{t('subtitle')}</P>
     </div>
   )
 }

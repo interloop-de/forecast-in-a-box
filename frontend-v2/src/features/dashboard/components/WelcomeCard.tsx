@@ -40,6 +40,7 @@ import { useJobStatusCounts } from '@/api/hooks/useJobStatusCounts'
 import { StatusDetailsPopover } from '@/components/common/StatusDetailsPopover'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/features/auth/AuthContext'
+import { H2 } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 
@@ -111,11 +112,11 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
 
   return (
     <Card className={cn('p-6', className)} variant={variant} shadow={shadow}>
-      <h2 className="mb-6 text-xl font-semibold">
+      <H2 className="mb-6 text-xl font-semibold">
         {isAnonymous
           ? t('welcome.titleAnonymous')
           : t('welcome.title', { name: displayName })}
-      </h2>
+      </H2>
 
       {/* Stats Grid */}
       <CardContent className="mb-6 p-0">

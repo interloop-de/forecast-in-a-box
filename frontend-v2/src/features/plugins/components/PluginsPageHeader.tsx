@@ -16,6 +16,7 @@
 
 import { RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { H2, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 
 interface PluginsPageHeaderProps {
@@ -32,10 +33,10 @@ export function PluginsPageHeader({
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-semibold tracking-tight">{t('title')}</h2>
-        <p className="max-w-2xl text-base text-muted-foreground">
+        <H2 className="text-3xl font-semibold tracking-tight">{t('title')}</H2>
+        <P className="max-w-2xl text-base text-muted-foreground">
           {t('subtitle')}
-        </p>
+        </P>
       </div>
       <div className="flex items-center gap-3">
         <Button

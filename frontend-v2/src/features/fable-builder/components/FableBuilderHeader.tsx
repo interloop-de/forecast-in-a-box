@@ -39,6 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { H1 } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 import { showToast } from '@/lib/toast'
 import {
@@ -198,9 +199,9 @@ export function FableBuilderHeader({
 
             <div className="min-w-0 overflow-hidden">
               <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-                <h1 className="min-w-0 truncate text-lg font-semibold">
+                <H1 className="min-w-0 truncate text-lg font-semibold">
                   {fableName}
-                </h1>
+                </H1>
                 {isDirty && (
                   <Badge
                     variant="outline"

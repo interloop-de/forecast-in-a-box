@@ -29,6 +29,7 @@ import {
   useBlockValidation,
   useFableBuilderStore,
 } from '@/features/fable-builder/stores/fableBuilderStore'
+import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { FieldRenderer } from '@/components/base/fields'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -162,9 +163,7 @@ export function BlockInstanceCard({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {factory.description}
-                  </p>
+                  <P className="text-muted-foreground">{factory.description}</P>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -240,9 +239,7 @@ export function BlockInstanceCard({
             <CardContent className="border-t px-4 py-3">
               {hasErrors && (
                 <div className="mb-4 rounded-md bg-destructive/10 p-3 text-destructive">
-                  <p className="mb-1 text-sm font-medium">
-                    Configuration Issues
-                  </p>
+                  <P className="mb-1 font-medium">Configuration Issues</P>
                   <ul className="list-disc space-y-0.5 pl-4 text-sm">
                     {errors.map((error, index) => (
                       <li key={index}>{error}</li>
@@ -253,7 +250,7 @@ export function BlockInstanceCard({
 
               {factory.inputs.length > 0 && (
                 <div className="mb-4 border-b pb-4">
-                  <p className="mb-3 text-sm font-medium">Input Connections</p>
+                  <P className="mb-3 font-medium">Input Connections</P>
                   <div className="space-y-3">
                     {factory.inputs.map((inputName) => {
                       const connectedTo = instance.input_ids[inputName]
@@ -335,9 +332,9 @@ export function BlockInstanceCard({
                   )}
                 </div>
               ) : (
-                <p className="py-2 text-center text-sm text-muted-foreground">
+                <P className="py-2 text-center text-muted-foreground">
                   No configuration options
-                </p>
+                </P>
               )}
             </CardContent>
           )}

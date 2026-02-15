@@ -17,6 +17,7 @@ import {
   useBlockValidation,
   useFableBuilderStore,
 } from '@/features/fable-builder/stores/fableBuilderStore'
+import { P } from '@/components/base/typography'
 import { getFactory } from '@/api/types/fable.types'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -120,7 +121,7 @@ export function ConfigSummaryCard({
       {configuredValues.length === 0 &&
         connectedInputs.length === 0 &&
         !hasErrors && (
-          <p className="text-sm text-muted-foreground">Default configuration</p>
+          <P className="text-muted-foreground">Default configuration</P>
         )}
     </div>
   )

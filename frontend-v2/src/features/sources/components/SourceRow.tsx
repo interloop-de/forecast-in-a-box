@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next'
 import { SourceStatusBadge } from './SourceStatusBadge'
 import { SourceTypeBadge } from './SourceTypeBadge'
 import type { SourceInfo } from '@/api/types/sources.types'
+import { H4, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -80,13 +81,11 @@ export function SourceRow({
           <Icon className="h-5 w-5 text-muted-foreground" />
         </div>
         <div>
-          <h4 className="text-sm font-semibold">{source.name}</h4>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {source.pluginName}
-          </p>
-          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
+          <H4 className="text-sm font-semibold">{source.name}</H4>
+          <P className="mt-0.5 text-muted-foreground">{source.pluginName}</P>
+          <P className="mt-1 line-clamp-1 text-muted-foreground">
             {source.description}
-          </p>
+          </P>
         </div>
       </div>
 
@@ -116,9 +115,7 @@ export function SourceRow({
 
       {/* Plugin */}
       <div className="hidden sm:col-span-2 sm:block">
-        <p className="line-clamp-1 text-sm text-muted-foreground">
-          {source.author}
-        </p>
+        <P className="line-clamp-1 text-muted-foreground">{source.author}</P>
       </div>
 
       {/* Actions */}

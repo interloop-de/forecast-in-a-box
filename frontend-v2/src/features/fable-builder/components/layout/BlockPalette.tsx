@@ -25,6 +25,7 @@ import {
   getBlockKindIcon,
   parseDisplayPluginId,
 } from '@/api/types/fable.types'
+import { H2, P } from '@/components/base/typography'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -130,7 +131,7 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border p-4">
-        <h2 className="mb-3 text-sm font-semibold">Block Palette</h2>
+        <H2 className="mb-3 text-sm font-semibold">Block Palette</H2>
         <div className="relative">
           <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -216,12 +217,12 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
                           <IconComponent className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">
+                          <P className="truncate font-medium">
                             {factory.title}
-                          </p>
-                          <p className="truncate text-sm text-muted-foreground">
+                          </P>
+                          <P className="truncate text-muted-foreground">
                             {factory.description}
-                          </p>
+                          </P>
                         </div>
                         <Plus
                           className={cn(
@@ -236,9 +237,9 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
                   })}
 
                   {factories.length === 0 && !searchQuery && (
-                    <p className="px-2 py-2 text-sm text-muted-foreground">
+                    <P className="px-2 py-2 text-muted-foreground">
                       No {metadata.label.toLowerCase()} blocks available
-                    </p>
+                    </P>
                   )}
                 </div>
               </CollapsibleContent>
@@ -248,13 +249,13 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
       </div>
 
       <div className="border-t border-border bg-muted/30 p-3">
-        <p className="text-center text-sm text-muted-foreground">
+        <P className="text-center text-muted-foreground">
           {isValidating
             ? 'Loading available blocks...'
             : Object.keys(fable.blocks).length === 0
               ? 'Click a source to get started'
               : 'Click to add blocks'}
-        </p>
+        </P>
       </div>
     </div>
   )

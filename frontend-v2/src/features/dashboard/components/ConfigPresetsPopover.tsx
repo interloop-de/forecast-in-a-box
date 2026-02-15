@@ -30,6 +30,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 export function ConfigPresetsPopover() {
@@ -75,10 +76,10 @@ export function ConfigPresetsPopover() {
         {presets.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center text-muted-foreground">
             <Bookmark className="h-8 w-8" />
-            <p className="text-sm font-medium">No saved configurations yet</p>
-            <p className="text-xs">
+            <P className="font-medium">No saved configurations yet</P>
+            <P className="text-xs">
               Save a configuration from the Fable Builder to see it here.
-            </p>
+            </P>
           </div>
         ) : (
           <div className="dark-scrollbar flex max-h-72 flex-col gap-3 overflow-y-auto">
@@ -89,11 +90,11 @@ export function ConfigPresetsPopover() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{title}</p>
+                    <P className="truncate font-medium">{title}</P>
                     {comments && (
-                      <p className="line-clamp-1 text-xs text-muted-foreground">
+                      <P className="line-clamp-1 text-xs text-muted-foreground">
                         {comments}
-                      </p>
+                      </P>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
@@ -130,11 +131,11 @@ export function ConfigPresetsPopover() {
                   className="flex flex-wrap gap-1"
                 />
 
-                <p className="text-xs text-muted-foreground">
+                <P className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(savedAt), {
                     addSuffix: true,
                   })}
-                </p>
+                </P>
               </div>
             ))}
           </div>

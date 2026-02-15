@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ForecastJob } from '@/features/dashboard/data/mockData'
+import { H3 } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface ForecastJournalItemProps {
@@ -57,7 +58,7 @@ export function ForecastJournalItem({ job }: ForecastJournalItemProps) {
         {/* Job Details */}
         <div className="grow">
           <div className="mb-1 flex items-center gap-2">
-            <h3 className="text-sm font-medium">{job.name}</h3>
+            <H3 className="text-sm font-medium">{job.name}</H3>
           </div>
           <div className="mb-2 text-sm text-muted-foreground">
             {t('journal.item.model', { model: job.model })} ·{' '}

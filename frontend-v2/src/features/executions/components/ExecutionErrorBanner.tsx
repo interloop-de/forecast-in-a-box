@@ -16,6 +16,7 @@
 
 import { AlertCircle, Download, RotateCcw, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { P } from '@/components/base/typography'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { downloadJobLogs } from '@/api/endpoints/job'
@@ -65,7 +66,7 @@ export function ExecutionErrorBanner({
       <AlertCircle className="h-4 w-4" />
       <AlertTitle>{t('errors.executionFailed')}</AlertTitle>
       <AlertDescription>
-        <p className="mb-3 text-sm">{error}</p>
+        <P className="mb-3">{error}</P>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={handleDownloadLogs}>
             <Download className="mr-1.5 h-4 w-4" />

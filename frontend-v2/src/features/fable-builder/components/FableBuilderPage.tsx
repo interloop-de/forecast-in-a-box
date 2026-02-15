@@ -34,6 +34,7 @@ import {
   useFable,
   useFableValidation,
 } from '@/api/hooks/useFable'
+import { H2, P } from '@/components/base/typography'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -166,9 +167,9 @@ export function FableBuilderPage({
   if (fableId && fableError) {
     return (
       <div className="flex min-h-100 flex-col items-center justify-center gap-4">
-        <p className="text-destructive">
+        <P className="text-destructive">
           Failed to load configuration: {fableError.message}
-        </p>
+        </P>
       </div>
     )
   }
@@ -176,7 +177,7 @@ export function FableBuilderPage({
   if (!catalogue) {
     return (
       <div className="flex min-h-100 flex-col items-center justify-center gap-4">
-        <p className="text-destructive">Failed to load block catalogue</p>
+        <P className="text-destructive">Failed to load block catalogue</P>
       </div>
     )
   }
@@ -229,10 +230,10 @@ function EditStep({
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <Package className="h-12 w-12 text-muted-foreground" />
         <div className="max-w-md text-center">
-          <h2 className="text-lg font-semibold">No plugins enabled</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <H2 className="text-lg font-semibold">No plugins enabled</H2>
+          <P className="mt-1 text-muted-foreground">
             At least one plugin must be enabled to use the Fable Builder.
-          </p>
+          </P>
           {canManagePlugins && (
             <Button
               variant="outline"

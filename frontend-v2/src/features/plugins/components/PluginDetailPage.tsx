@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { encodeFableToURL } from '@/features/fable-builder/utils/url-state'
+import { H1, H2, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 export interface PluginDetailPageProps {
@@ -154,11 +155,11 @@ export function PluginDetailPage({ plugin, catalogue }: PluginDetailPageProps) {
       <div className="flex items-start gap-4">
         <PluginIcon plugin={plugin} size="lg" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold">{plugin.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <H1 className="text-2xl font-bold">{plugin.name}</H1>
+          <P className="mt-1 text-muted-foreground">
             {plugin.author}
             {plugin.version && ` · v${plugin.version}`}
-          </p>
+          </P>
           <div className="mt-2">
             <PluginStatusBadge
               status={plugin.status}
@@ -170,7 +171,7 @@ export function PluginDetailPage({ plugin, catalogue }: PluginDetailPageProps) {
 
       {/* Description */}
       {plugin.description && (
-        <p className="text-sm text-muted-foreground">{plugin.description}</p>
+        <P className="text-muted-foreground">{plugin.description}</P>
       )}
 
       {/* Capabilities + Use All Blocks */}
@@ -202,14 +203,14 @@ export function PluginDetailPage({ plugin, catalogue }: PluginDetailPageProps) {
       {/* Block Factories */}
       <div>
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold">
+          <H2 className="text-lg font-semibold">
             {t('detail.blockFactories')}
             {blockCount > 0 && (
               <span className="ml-1.5 text-muted-foreground">
                 ({blockCount})
               </span>
             )}
-          </h2>
+          </H2>
           {blockCount > 3 && (
             <div className="relative w-full sm:w-64">
               <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

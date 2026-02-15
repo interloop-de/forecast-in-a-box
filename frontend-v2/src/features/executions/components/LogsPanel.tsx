@@ -25,6 +25,7 @@ import { downloadJobLogs } from '@/api/endpoints/job'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { H3, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 import { createLogger } from '@/lib/logger'
 import { showToast } from '@/lib/toast'
@@ -121,7 +122,7 @@ export function LogsPanel({ jobId, status }: LogsPanelProps) {
       <div className="space-y-3 p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">{t('logs.title')}</h3>
+            <H3 className="text-sm font-semibold">{t('logs.title')}</H3>
             <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <span className={cn('h-2 w-2 rounded-full', statusStyle.dot)} />
               {t(statusStyle.label)}
@@ -150,9 +151,7 @@ export function LogsPanel({ jobId, status }: LogsPanelProps) {
             className="max-h-[400px] overflow-y-auto rounded-lg border bg-muted/30 p-3 font-mono text-sm"
           >
             {filteredLines.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {t('outputs.noOutputs')}
-              </p>
+              <P className="text-muted-foreground">{t('outputs.noOutputs')}</P>
             ) : (
               filteredLines.map((line) => (
                 <div

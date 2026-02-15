@@ -18,6 +18,7 @@ import { Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PluginIcon } from './PluginIcon'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
+import { H3, H4, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 
 interface UpdatesAvailableSectionProps {
@@ -42,9 +43,9 @@ export function UpdatesAvailableSection({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-1">
         <span className="flex h-2 w-2 animate-pulse rounded-full bg-amber-500" />
-        <h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+        <H3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
           {t('updatesSection.title')} ({plugins.length})
-        </h3>
+        </H3>
       </div>
 
       {/* Updates Card */}
@@ -59,14 +60,14 @@ export function UpdatesAvailableSection({
                 <PluginIcon plugin={plugin} size="lg" />
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{plugin.name}</h4>
+                    <H4 className="font-semibold">{plugin.name}</H4>
                     <span className="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-sm font-bold text-amber-800 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                       UPDATE v{plugin.latestVersion}
                     </span>
                   </div>
-                  <p className="line-clamp-1 text-sm text-muted-foreground">
+                  <P className="line-clamp-1 text-muted-foreground">
                     {plugin.description}
-                  </p>
+                  </P>
                   <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
                     <span>{plugin.author}</span>
                     <span>·</span>

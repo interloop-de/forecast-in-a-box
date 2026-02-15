@@ -20,6 +20,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { GettingStartedCard } from './GettingStartedCard'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import type { PresetId } from '@/features/fable-builder/presets'
+import { H2, P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 
 interface GettingStartedSectionProps {
@@ -41,10 +42,10 @@ export function GettingStartedSection({
   const content = (
     <>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold">{t('gettingStarted.title')}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <H2 className="text-xl font-semibold">{t('gettingStarted.title')}</H2>
+        <P className="mt-1 text-muted-foreground">
           {t('gettingStarted.subtitle')}
-        </p>
+        </P>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

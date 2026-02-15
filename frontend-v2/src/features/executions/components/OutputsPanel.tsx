@@ -21,6 +21,7 @@ import type { JobStatus } from '@/api/types/job.types'
 import { isTerminalStatus } from '@/api/types/job.types'
 import { useJobAvailable, useJobOutputs } from '@/api/hooks/useJobs'
 import { OutputCard } from '@/features/executions/components/OutputCard'
+import { P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 
 interface OutputsPanelProps {
@@ -53,13 +54,13 @@ export function OutputsPanel({ jobId, status }: OutputsPanelProps) {
       <Card className="overflow-hidden">
         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
           <Package className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm font-medium text-muted-foreground">
+          <P className="font-medium text-muted-foreground">
             {t('outputs.noOutputs')}
-          </p>
+          </P>
           {isRunning && (
-            <p className="text-sm text-muted-foreground">
+            <P className="text-muted-foreground">
               {t('outputs.noOutputsRunning')}
-            </p>
+            </P>
           )}
         </div>
       </Card>
@@ -69,9 +70,9 @@ export function OutputsPanel({ jobId, status }: OutputsPanelProps) {
   return (
     <Card className="overflow-hidden">
       <div className="space-y-3 p-6">
-        <p className="text-sm text-muted-foreground">
+        <P className="text-muted-foreground">
           {t('outputs.generated')}: {availableIds.length}
-        </p>
+        </P>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {availableIds.map((taskId) => (
             <OutputCard

@@ -24,6 +24,7 @@ import type {
   DashboardVariant,
   PanelShadow,
 } from '@/stores/uiStore'
+import { H3, P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 import { useMedia } from '@/hooks/useMedia'
 
@@ -60,10 +61,10 @@ export function SourcesList({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Cloud className="mb-4 h-16 w-16 text-muted-foreground/50" />
-        <h3 className="mb-2 text-lg font-semibold">{t('emptyState.title')}</h3>
-        <p className="max-w-md text-muted-foreground">
+        <H3 className="mb-2 text-lg font-semibold">{t('emptyState.title')}</H3>
+        <P className="max-w-md text-muted-foreground">
           {t('emptyState.description')}
-        </p>
+        </P>
       </div>
     )
   }

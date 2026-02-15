@@ -35,6 +35,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useJobMetadataStore } from '@/features/executions/stores/useJobMetadataStore'
 import { encodeFableToURL } from '@/features/fable-builder/utils/url-state'
 import { useUiStore } from '@/stores/uiStore'
+import { P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 import { createLogger } from '@/lib/logger'
 
@@ -115,11 +116,11 @@ export function ExecutionDetailPage() {
 
     return (
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-8 text-center">
-        <p className="text-sm text-muted-foreground">
+        <P className="text-muted-foreground">
           {is404
             ? t('errors.jobNotFoundDescription')
             : statusQuery.error.message}
-        </p>
+        </P>
         <Button variant="outline" render={<Link to="/executions" />}>
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           {t('errors.backToExecutions')}
@@ -193,12 +194,12 @@ export function ExecutionDetailPage() {
         />
       ) : (
         <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-12 text-center">
-          <p className="text-sm font-medium text-muted-foreground">
+          <P className="font-medium text-muted-foreground">
             {t('detail.graphUnavailable')}
-          </p>
-          <p className="text-sm text-muted-foreground">
+          </P>
+          <P className="text-muted-foreground">
             {t('detail.graphUnavailableDescription')}
-          </p>
+          </P>
         </div>
       )}
 

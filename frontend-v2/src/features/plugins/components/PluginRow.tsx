@@ -35,6 +35,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { H4, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface PluginRowProps {
@@ -71,23 +72,23 @@ export function PluginRow({
         <PluginIcon plugin={plugin} />
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold">{plugin.name}</h4>
+            <H4 className="text-sm font-semibold">{plugin.name}</H4>
             {hasError && (
               <Tooltip>
                 <TooltipTrigger>
                   <AlertCircle className="h-4 w-4 text-red-500" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="max-w-xs text-xs">
+                  <P className="max-w-xs text-xs">
                     {plugin.errorDetail || t('status.errored')}
-                  </p>
+                  </P>
                 </TooltipContent>
               </Tooltip>
             )}
           </div>
-          <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+          <P className="mt-0.5 line-clamp-1 text-muted-foreground">
             {plugin.description}
-          </p>
+          </P>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             {plugin.version && (
               <span className="font-mono text-sm text-muted-foreground">

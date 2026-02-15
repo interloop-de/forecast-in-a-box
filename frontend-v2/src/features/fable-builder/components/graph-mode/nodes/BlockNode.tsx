@@ -28,6 +28,7 @@ import {
   useBlockValidation,
   useFableBuilderStore,
 } from '@/features/fable-builder/stores/fableBuilderStore'
+import { H3, P } from '@/components/base/typography'
 import { BLOCK_KIND_METADATA, getBlockKindIcon } from '@/api/types/fable.types'
 import { Button } from '@/components/ui/button'
 import {
@@ -161,7 +162,7 @@ export const BlockNode = memo(function BlockNode({
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-75">
             <div className="space-y-1">
-              <p className="font-medium text-destructive">Validation Errors</p>
+              <P className="font-medium text-destructive">Validation Errors</P>
               <ul className="list-disc space-y-0.5 pl-4 text-sm">
                 {errors.map((error, index) => (
                   <li key={index}>{error}</li>
@@ -273,13 +274,13 @@ export const BlockNode = memo(function BlockNode({
           </div>
         </div>
 
-        <h3 className="mb-1 text-lg font-semibold text-foreground">
+        <H3 className="mb-1 text-lg font-semibold text-foreground">
           {factory.title}
-        </h3>
+        </H3>
 
-        <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
+        <P className="mb-4 line-clamp-2 text-muted-foreground">
           {factory.description}
-        </p>
+        </P>
 
         {configSummary.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

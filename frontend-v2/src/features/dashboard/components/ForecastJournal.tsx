@@ -22,6 +22,7 @@ import { ForecastJournalItem } from './ForecastJournalItem'
 import type { FilterType } from './ForecastJournalFilters'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import { mockForecastJobs } from '@/features/dashboard/data/mockData'
+import { H2 } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 
@@ -66,7 +67,7 @@ export function ForecastJournal({ variant, shadow }: ForecastJournalProps) {
     <Card className="overflow-hidden" variant={variant} shadow={shadow}>
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 border-b border-border p-6 sm:flex-row sm:items-center">
-        <h2 className="text-xl font-semibold">{t('journal.title')}</h2>
+        <H2 className="text-xl font-semibold">{t('journal.title')}</H2>
 
         <div className="flex w-full items-center gap-3 sm:w-auto">
           {/* Search */}

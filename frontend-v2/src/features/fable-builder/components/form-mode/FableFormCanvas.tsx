@@ -28,6 +28,7 @@ import {
   getBlockKindIcon,
   getFactory,
 } from '@/api/types/fable.types'
+import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -345,11 +346,11 @@ export function FableFormCanvas({ catalogue }: FableFormCanvasProps) {
 
               {availableFactories.length > 0 && (
                 <div className="border-t pt-4">
-                  <p className="mb-3 text-sm text-muted-foreground">
+                  <P className="mb-3 text-muted-foreground">
                     {blocksByKind[currentStep].length === 0
                       ? `Select a ${BLOCK_KIND_METADATA[currentStep].label.toLowerCase()} to get started:`
                       : `Add another ${BLOCK_KIND_METADATA[currentStep].label.toLowerCase()}:`}
-                  </p>
+                  </P>
                   <div className="grid gap-2">
                     {availableFactories.map(({ factoryId, factory }) => {
                       const IconComponent = getBlockKindIcon(factory.kind)
@@ -369,12 +370,12 @@ export function FableFormCanvas({ catalogue }: FableFormCanvasProps) {
                             )}
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">
+                            <P className="truncate font-medium">
                               {factory.title}
-                            </p>
-                            <p className="truncate text-sm text-muted-foreground">
+                            </P>
+                            <P className="truncate text-muted-foreground">
                               {factory.description}
-                            </p>
+                            </P>
                           </div>
                           <Plus className="h-4 w-4 shrink-0 text-muted-foreground" />
                         </button>
@@ -387,11 +388,11 @@ export function FableFormCanvas({ catalogue }: FableFormCanvasProps) {
               {availableFactories.length === 0 &&
                 blocksByKind[currentStep].length === 0 && (
                   <div className="py-8 text-center text-muted-foreground">
-                    <p>
+                    <P>
                       {currentStep === 'source'
                         ? 'Loading available sources...'
                         : `Complete the previous step to see available ${BLOCK_KIND_METADATA[currentStep].label.toLowerCase()}s.`}
-                    </p>
+                    </P>
                   </div>
                 )}
             </CardContent>

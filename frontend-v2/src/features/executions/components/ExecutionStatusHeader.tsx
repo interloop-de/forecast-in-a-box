@@ -41,6 +41,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { H2, P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface ExecutionStatusHeaderProps {
@@ -117,7 +118,7 @@ export function ExecutionStatusHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold">{name}</h2>
+            <H2 className="text-2xl font-bold">{name}</H2>
             {onEdit && (
               <button
                 type="button"
@@ -129,11 +130,9 @@ export function ExecutionStatusHeader({
             )}
           </div>
           {description && (
-            <p className="line-clamp-2 text-sm text-muted-foreground">
-              {description}
-            </p>
+            <P className="line-clamp-2 text-muted-foreground">{description}</P>
           )}
-          <p className="truncate text-sm text-muted-foreground">{jobId}</p>
+          <P className="truncate text-muted-foreground">{jobId}</P>
         </div>
 
         <div className="flex items-center gap-2">

@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
 import { Spinner } from '@/components/ui/spinner'
+import { P } from '@/components/base/typography'
 import { cn } from '@/lib/utils'
 
 interface PluginCardProps {
@@ -122,9 +123,9 @@ export function PluginCard({
             >
               {plugin.name}
             </h3>
-            <p className="mt-0.5 truncate text-sm font-medium text-muted-foreground">
+            <P className="mt-0.5 truncate font-medium text-muted-foreground">
               {plugin.author}
-            </p>
+            </P>
           </div>
         </div>
         <PluginStatusBadge
@@ -149,14 +150,14 @@ export function PluginCard({
         </button>
       ) : (
         // Installed plugins: static truncated description
-        <p
+        <P
           className={cn(
-            'text-sm leading-relaxed text-muted-foreground',
+            'leading-relaxed text-muted-foreground',
             'mb-3 line-clamp-2 sm:mb-5',
           )}
         >
           {plugin.description}
-        </p>
+        </P>
       )}
 
       {/* Error Alert */}

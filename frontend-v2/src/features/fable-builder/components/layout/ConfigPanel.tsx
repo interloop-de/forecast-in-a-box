@@ -17,6 +17,7 @@ import {
   getBlockKindIcon,
   getFactory,
 } from '@/api/types/fable.types'
+import { H2, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { FieldRenderer } from '@/components/base/fields'
@@ -106,7 +107,7 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
       <div className="flex h-full flex-col items-center justify-center p-6 text-center">
         <div className="text-muted-foreground">
           <AlertCircle className="mx-auto mb-3 h-10 w-10 opacity-50" />
-          <p className="text-sm">Select a block to configure</p>
+          <P>Select a block to configure</P>
         </div>
       </div>
     )
@@ -126,9 +127,9 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
               <IconComponent className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="truncate text-sm font-semibold">
+              <H2 className="truncate text-sm font-semibold">
                 {factory.title}
-              </h2>
+              </H2>
               <Badge variant="outline" className="mt-1 text-sm">
                 {metadata.label}
               </Badge>
@@ -145,9 +146,7 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
           </Button>
         </div>
         {factory.description && (
-          <p className="mt-2 text-sm text-muted-foreground">
-            {factory.description}
-          </p>
+          <P className="mt-2 text-muted-foreground">{factory.description}</P>
         )}
       </div>
 

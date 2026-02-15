@@ -21,6 +21,7 @@ import { JobListItem } from './JobListItem'
 import type { JobStatus } from '@/api/types/job.types'
 import { useJobsStatus } from '@/api/hooks/useJobs'
 import { LoadingSpinner, PageHeader } from '@/components/common'
+import { H2, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -91,7 +92,7 @@ export function JobListPage() {
           description={t('page.description')}
         />
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
-          <p className="text-sm text-destructive">{error.message}</p>
+          <P className="text-destructive">{error.message}</P>
         </div>
       </div>
     )
@@ -133,7 +134,7 @@ export function JobListPage() {
         shadow={panelShadow}
       >
         <div className="flex flex-col items-start justify-between gap-4 border-b border-border p-6 sm:flex-row sm:items-center">
-          <h2 className="text-xl font-semibold">{t('page.title')}</h2>
+          <H2 className="text-xl font-semibold">{t('page.title')}</H2>
 
           <div className="flex w-full items-center gap-3 sm:w-auto">
             <div className="relative flex-1 sm:flex-initial">

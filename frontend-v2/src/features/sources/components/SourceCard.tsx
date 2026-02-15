@@ -27,6 +27,7 @@ import { SourceStatusBadge } from './SourceStatusBadge'
 import { SourceTypeBadge } from './SourceTypeBadge'
 import type { SourceInfo } from '@/api/types/sources.types'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
+import { H3, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -89,12 +90,12 @@ export function SourceCard({
             <Icon className="h-5 w-5 text-muted-foreground sm:h-7 sm:w-7" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-base font-semibold transition-colors group-hover:text-primary sm:text-lg">
+            <H3 className="truncate text-base font-semibold transition-colors group-hover:text-primary sm:text-lg">
               {source.name}
-            </h3>
-            <p className="mt-0.5 truncate text-sm font-medium text-muted-foreground">
+            </H3>
+            <P className="mt-0.5 truncate font-medium text-muted-foreground">
               {t('card.providedBy', { plugin: source.pluginName })}
-            </p>
+            </P>
           </div>
         </div>
         <SourceStatusBadge
@@ -130,9 +131,9 @@ export function SourceCard({
 
       {/* Description */}
       {source.status !== 'downloading' && source.status !== 'error' && (
-        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground sm:mb-5">
+        <P className="mb-3 line-clamp-2 leading-relaxed text-muted-foreground sm:mb-5">
           {source.description}
-        </p>
+        </P>
       )}
 
       {/* Metadata */}
