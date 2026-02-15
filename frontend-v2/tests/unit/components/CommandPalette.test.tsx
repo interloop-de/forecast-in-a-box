@@ -74,7 +74,7 @@ describe('CommandPalette', () => {
       .element(screen.getByText('Configure', { exact: true }))
       .toBeVisible()
     await expect
-      .element(screen.getByText('History', { exact: true }))
+      .element(screen.getByText('Executions', { exact: true }))
       .toBeVisible()
     await expect
       .element(screen.getByText('Admin', { exact: true }))

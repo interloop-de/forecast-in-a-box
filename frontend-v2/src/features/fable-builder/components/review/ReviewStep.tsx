@@ -8,11 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertCircle, CheckCircle2, Loader2, Play } from 'lucide-react'
 import { ConfigSummaryCard } from './ConfigSummaryCard'
 import type { BlockFactoryCatalogue, BlockKind } from '@/api/types/fable.types'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
+import { SubmitJobDialog } from '@/features/executions/components/SubmitJobDialog'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -29,7 +30,6 @@ import {
   getBlockKindIcon,
   getFactory,
 } from '@/api/types/fable.types'
-import { useCompileFable } from '@/api/hooks/useFable'
 import { cn } from '@/lib/utils'
 
 interface ReviewStepProps {
@@ -38,11 +38,13 @@ interface ReviewStepProps {
 
 export function ReviewStep({ catalogue }: ReviewStepProps) {
   const fable = useFableBuilderStore((state) => state.fable)
+  const fableName = useFableBuilderStore((state) => state.fableName)
+  const fableId = useFableBuilderStore((state) => state.fableId)
   const validationState = useFableBuilderStore((state) => state.validationState)
   const isValidating = useFableBuilderStore((state) => state.isValidating)
   const setStep = useFableBuilderStore((state) => state.setStep)
 
-  const compileFable = useCompileFable()
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
 
   const blocksByKind = useMemo(() => {
     const groups: Record<
@@ -84,10 +86,8 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
     }
   }, [validationState])
 
-  async function handleSubmit(): Promise<void> {
-    // Error handling is done globally by MutationCache.onError in queryClient.ts
-    // which logs the error and shows a toast notification
-    await compileFable.mutateAsync(fable)
+  function handleSubmit(): void {
+    setSubmitDialogOpen(true)
   }
 
   function handleBackToEdit(): void {
@@ -95,8 +95,7 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
   }
 
   const blockCount = Object.keys(fable.blocks).length
-  const canSubmit =
-    validationSummary?.isValid && !isValidating && !compileFable.isPending
+  const canSubmit = validationSummary?.isValid && !isValidating
 
   return (
     <div className="h-full flex-1 overflow-y-auto bg-muted/30">
@@ -200,43 +199,18 @@ export function ReviewStep({ catalogue }: ReviewStepProps) {
             disabled={!canSubmit}
             className="gap-2"
           >
-            {compileFable.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4" />
-                Submit Job
-              </>
-            )}
+            <Play className="h-4 w-4" />
+            Submit Job
           </Button>
         </div>
 
-        {compileFable.isError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Submission Failed</AlertTitle>
-            <AlertDescription>
-              {compileFable.error.message ||
-                'An error occurred while submitting the job.'}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {compileFable.isSuccess && (
-          <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-600">
-              Job Submitted Successfully
-            </AlertTitle>
-            <AlertDescription className="text-green-600/80">
-              Your forecast job has been submitted. You will be redirected to
-              the monitoring page.
-            </AlertDescription>
-          </Alert>
-        )}
+        <SubmitJobDialog
+          open={submitDialogOpen}
+          onOpenChange={setSubmitDialogOpen}
+          fable={fable}
+          fableName={fableName}
+          fableId={fableId}
+        />
       </div>
     </div>
   )

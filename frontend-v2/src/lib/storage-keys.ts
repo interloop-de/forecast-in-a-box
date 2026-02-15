@@ -64,6 +64,8 @@ export const STORAGE_KEYS = {
     config: 'fiab.store.config',
     /** Fable builder UI preferences */
     fableBuilder: 'fiab.store.fable-builder',
+    /** Client-side job metadata (name, description, tags, fable snapshot) */
+    jobMetadata: 'fiab.store.job-metadata',
   },
 } as const
 
@@ -87,6 +89,7 @@ export const STORE_VERSIONS = {
   ui: 3, // v3: Added sourcesViewMode
   config: 1,
   fableBuilder: 2, // v2: Removed configDisplayMode, added isMiniMapOpen
+  jobMetadata: 1,
 } as const
 
 /**

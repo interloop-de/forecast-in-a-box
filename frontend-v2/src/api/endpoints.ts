@@ -136,6 +136,51 @@ export const API_ENDPOINTS = {
   },
 
   /**
+   * Execution endpoints
+   */
+  execution: {
+    /** POST - Submit a job for execution */
+    execute: `${API_PREFIX}/execution/execute`,
+    /** POST - Visualise an execution specification */
+    visualise: `${API_PREFIX}/execution/visualise`,
+  },
+
+  /**
+   * Job monitoring endpoints
+   */
+  job: {
+    /** GET - Get paginated status of all jobs */
+    status: `${API_PREFIX}/job/status`,
+    /** GET - Get status of a single job */
+    statusById: (jobId: string) => `${API_PREFIX}/job/${jobId}/status`,
+    /** GET - Get job outputs (product-to-task mapping) */
+    outputs: (jobId: string) => `${API_PREFIX}/job/${jobId}/outputs`,
+    /** GET - Get job result data by task ID */
+    results: (jobId: string) => `${API_PREFIX}/job/${jobId}/results`,
+    /** GET - Get list of available output task IDs */
+    available: (jobId: string) => `${API_PREFIX}/job/${jobId}/available`,
+    /** GET - Download job logs as ZIP */
+    logs: (jobId: string) => `${API_PREFIX}/job/${jobId}/logs`,
+    /** GET - Get original job specification */
+    specification: (jobId: string) =>
+      `${API_PREFIX}/job/${jobId}/specification`,
+    /** POST - Restart a job */
+    restart: (jobId: string) => `${API_PREFIX}/job/${jobId}/restart`,
+    /** DELETE - Delete a job */
+    delete: (jobId: string) => `${API_PREFIX}/job/${jobId}`,
+  },
+
+  /**
+   * Gateway endpoints
+   */
+  gateway: {
+    /** GET - Get gateway status */
+    status: `${API_PREFIX}/gateway/status`,
+    /** GET - Stream gateway logs (SSE) */
+    logs: `${API_PREFIX}/gateway/logs`,
+  },
+
+  /**
    * Source Registry management endpoints. Currently only used in mocks
    */
   registries: {
@@ -180,6 +225,24 @@ export const API_PATTERNS = {
     uninstall: `${API_PREFIX}/plugin/uninstall`,
     update: `${API_PREFIX}/plugin/update`,
     modifyEnabled: `${API_PREFIX}/plugin/modifyEnabled`,
+  },
+  job: {
+    /** Pattern: /api/v1/job/:jobId/status */
+    statusById: `${API_PREFIX}/job/:jobId/status`,
+    /** Pattern: /api/v1/job/:jobId/outputs */
+    outputs: `${API_PREFIX}/job/:jobId/outputs`,
+    /** Pattern: /api/v1/job/:jobId/results */
+    results: `${API_PREFIX}/job/:jobId/results`,
+    /** Pattern: /api/v1/job/:jobId/available */
+    available: `${API_PREFIX}/job/:jobId/available`,
+    /** Pattern: /api/v1/job/:jobId/logs */
+    logs: `${API_PREFIX}/job/:jobId/logs`,
+    /** Pattern: /api/v1/job/:jobId/specification */
+    specification: `${API_PREFIX}/job/:jobId/specification`,
+    /** Pattern: /api/v1/job/:jobId/restart */
+    restart: `${API_PREFIX}/job/:jobId/restart`,
+    /** Pattern: /api/v1/job/:jobId (DELETE) */
+    delete: `${API_PREFIX}/job/:jobId`,
   },
   sources: {
     /** Pattern: /api/v1/sources/:sourceId */

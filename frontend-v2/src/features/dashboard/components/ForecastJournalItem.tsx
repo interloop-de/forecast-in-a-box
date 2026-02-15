@@ -103,16 +103,16 @@ export function ForecastJournalItem({ job }: ForecastJournalItemProps) {
             </div>
           ) : job.status === 'completed' ? (
             <Link
-              to="/history"
-              search={{ jobId: job.id }}
+              to="/executions/$jobId"
+              params={{ jobId: job.id }}
               className="text-sm font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
             >
               {t('journal.item.viewResults')}
             </Link>
           ) : job.status === 'error' ? (
             <Link
-              to="/history"
-              search={{ jobId: job.id, showError: true }}
+              to="/executions/$jobId"
+              params={{ jobId: job.id }}
               className="text-sm font-semibold text-red-600 hover:underline dark:text-red-400"
             >
               {t('journal.item.viewError')}

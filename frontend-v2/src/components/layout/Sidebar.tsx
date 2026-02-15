@@ -21,6 +21,9 @@ interface SidebarProps {
   className?: string
 }
 
+const linkClassName =
+  'block rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted'
+
 /**
  * Sidebar navigation component
  */
@@ -30,19 +33,23 @@ export function Sidebar({ className }: SidebarProps) {
       <nav className="space-y-2">
         <Link
           to="/"
-          className="block rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-          activeProps={{
-            className: 'bg-muted',
-          }}
+          className={linkClassName}
+          activeProps={{ className: 'bg-muted' }}
         >
           Dashboard
         </Link>
         <Link
+          to="/executions"
+          className={linkClassName}
+          activeProps={{ className: 'bg-muted' }}
+          activeOptions={{ includeSearch: false }}
+        >
+          Executions
+        </Link>
+        <Link
           to="/about"
-          className="block rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-          activeProps={{
-            className: 'bg-muted',
-          }}
+          className={linkClassName}
+          activeProps={{ className: 'bg-muted' }}
         >
           About
         </Link>

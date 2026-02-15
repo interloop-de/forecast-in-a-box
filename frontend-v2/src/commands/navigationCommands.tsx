@@ -94,13 +94,13 @@ export function navigationCommands(navigate: NavigateFn): Array<Command> {
       action: () => navigate({ to: '/configure' }),
     },
     {
-      id: 'nav-history',
-      label: 'History',
-      description: 'View forecast history',
+      id: 'nav-executions',
+      label: 'Executions',
+      description: 'Monitor forecast job executions',
       icon: <History className="h-4 w-4" />,
       category: 'Navigation',
-      keywords: ['history', 'past', 'runs', 'journal'],
-      action: () => navigate({ to: '/history' }),
+      keywords: ['executions', 'history', 'past', 'runs', 'journal', 'jobs'],
+      action: () => navigate({ to: '/executions' }),
     },
     {
       id: 'nav-admin',

@@ -12,11 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfigureRouteImport } from './routes/_authenticated/configure'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedExecutionsIndexRouteImport } from './routes/_authenticated/executions.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedExecutionsJobIdRouteImport } from './routes/_authenticated/executions.$jobId'
 import { Route as AuthenticatedConfigureFableIdRouteImport } from './routes/_authenticated/configure.$fableId'
 import { Route as AuthenticatedAdminSourcesRouteImport } from './routes/_authenticated/admin/sources'
 import { Route as AuthenticatedAdminPluginsRouteImport } from './routes/_authenticated/admin/plugins'
@@ -37,11 +38,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -57,11 +53,23 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedExecutionsIndexRoute =
+  AuthenticatedExecutionsIndexRouteImport.update({
+    id: '/executions/',
+    path: '/executions/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedExecutionsJobIdRoute =
+  AuthenticatedExecutionsJobIdRouteImport.update({
+    id: '/executions/$jobId',
+    path: '/executions/$jobId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedConfigureFableIdRoute =
   AuthenticatedConfigureFableIdRouteImport.update({
     id: '/$fableId',
@@ -99,11 +107,12 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/history': typeof AuthenticatedHistoryRoute
   '/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
+  '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/executions/': typeof AuthenticatedExecutionsIndexRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -112,10 +121,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/history': typeof AuthenticatedHistoryRoute
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
+  '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/executions': typeof AuthenticatedExecutionsIndexRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/admin/plugins': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -127,11 +137,12 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
   '/_authenticated/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/_authenticated/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
+  '/_authenticated/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/executions/': typeof AuthenticatedExecutionsIndexRoute
   '/_authenticated/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/_authenticated/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -143,11 +154,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/configure'
     | '/dashboard'
-    | '/history'
     | '/admin/plugins'
     | '/admin/sources'
     | '/configure/$fableId'
+    | '/executions/$jobId'
     | '/admin/'
+    | '/executions/'
     | '/admin/plugins/$pluginId'
     | '/admin/plugins/'
   fileRoutesByTo: FileRoutesByTo
@@ -156,10 +168,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/configure'
     | '/dashboard'
-    | '/history'
     | '/admin/sources'
     | '/configure/$fableId'
+    | '/executions/$jobId'
     | '/admin'
+    | '/executions'
     | '/admin/plugins/$pluginId'
     | '/admin/plugins'
   id:
@@ -170,11 +183,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/configure'
     | '/_authenticated/dashboard'
-    | '/_authenticated/history'
     | '/_authenticated/admin/plugins'
     | '/_authenticated/admin/sources'
     | '/_authenticated/configure/$fableId'
+    | '/_authenticated/executions/$jobId'
     | '/_authenticated/admin/'
+    | '/_authenticated/executions/'
     | '/_authenticated/admin/plugins/$pluginId'
     | '/_authenticated/admin/plugins/'
   fileRoutesById: FileRoutesById
@@ -208,13 +222,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/history': {
-      id: '/_authenticated/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -236,12 +243,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/executions/': {
+      id: '/_authenticated/executions/'
+      path: '/executions'
+      fullPath: '/executions/'
+      preLoaderRoute: typeof AuthenticatedExecutionsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/executions/$jobId': {
+      id: '/_authenticated/executions/$jobId'
+      path: '/executions/$jobId'
+      fullPath: '/executions/$jobId'
+      preLoaderRoute: typeof AuthenticatedExecutionsJobIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/configure/$fableId': {
       id: '/_authenticated/configure/$fableId'
@@ -331,14 +352,16 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedConfigureRoute: typeof AuthenticatedConfigureRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
+  AuthenticatedExecutionsJobIdRoute: typeof AuthenticatedExecutionsJobIdRoute
+  AuthenticatedExecutionsIndexRoute: typeof AuthenticatedExecutionsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedConfigureRoute: AuthenticatedConfigureRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
+  AuthenticatedExecutionsJobIdRoute: AuthenticatedExecutionsJobIdRoute,
+  AuthenticatedExecutionsIndexRoute: AuthenticatedExecutionsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
