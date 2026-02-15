@@ -55,7 +55,6 @@ export function DashboardLayout({
 
   return (
     <AppShell
-      showSidebar={false}
       showFooter
       useAuthenticatedHeader
       notificationBanner={notificationBanner}

@@ -11,7 +11,7 @@
 /**
  * UI Store
  *
- * Manages all UI-related state including theme, sidebar, and application initialization.
+ * Manages all UI-related state including theme, layout, and application initialization.
  * Merges functionality from the previous globalStore and themeStore.
  */
 
@@ -29,11 +29,6 @@ interface UiState {
   // Application state
   isInitialized: boolean
   setIsInitialized: (value: boolean) => void
-
-  // Sidebar state
-  isSidebarOpen: boolean
-  toggleSidebar: () => void
-  setSidebarOpen: (value: boolean) => void
 
   // Theme state
   theme: Theme
@@ -64,7 +59,6 @@ interface UiState {
 
 const initialState = {
   isInitialized: false,
-  isSidebarOpen: true,
   theme: 'system' as Theme,
   resolvedTheme: 'light' as 'light' | 'dark',
   layoutMode: 'fluid' as LayoutMode,
@@ -83,11 +77,6 @@ export const useUiStore = create<UiState>()(
 
         // Application initialization
         setIsInitialized: (value) => set({ isInitialized: value }),
-
-        // Sidebar management
-        toggleSidebar: () =>
-          set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
-        setSidebarOpen: (value) => set({ isSidebarOpen: value }),
 
         // Theme management
         setTheme: (theme) => {
@@ -158,8 +147,12 @@ export const useUiStore = create<UiState>()(
             state.sourcesViewMode = 'table'
           }
 
+          // Migration from v3 to v4: Remove sidebar state
+          if (version < 4) {
+            delete state.isSidebarOpen
+          }
+
           return state as {
-            isSidebarOpen: boolean
             theme: Theme
             layoutMode: LayoutMode
             dashboardVariant: DashboardVariant
@@ -170,7 +163,6 @@ export const useUiStore = create<UiState>()(
           }
         },
         partialize: (state) => ({
-          isSidebarOpen: state.isSidebarOpen,
           theme: state.theme,
           layoutMode: state.layoutMode,
           dashboardVariant: state.dashboardVariant,

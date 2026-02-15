@@ -14,7 +14,6 @@
 
 export { Header } from './Header'
 export { Footer } from './Footer'
-export { Sidebar } from './Sidebar'
 export { AppShell } from './AppShell'
 export { PublicLayout } from './PublicLayout'
 export { DashboardLayout } from './DashboardLayout'

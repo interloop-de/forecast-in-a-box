@@ -58,7 +58,7 @@ export const STORAGE_KEYS = {
    * Zustand store persistence keys
    */
   stores: {
-    /** UI preferences (theme, sidebar, layout) */
+    /** UI preferences (theme, layout) */
     ui: 'fiab.store.ui',
     /** Cached application configuration */
     config: 'fiab.store.config',
@@ -86,7 +86,7 @@ export const STORAGE_KEYS = {
  * ```
  */
 export const STORE_VERSIONS = {
-  ui: 3, // v3: Added sourcesViewMode
+  ui: 4, // v4: Removed sidebar state
   config: 1,
   fableBuilder: 2, // v2: Removed configDisplayMode, added isMiniMapOpen
   jobMetadata: 1,

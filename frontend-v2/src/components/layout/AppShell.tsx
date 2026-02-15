@@ -16,7 +16,6 @@
 
 import { Header } from './Header'
 import { AuthenticatedHeader } from './AuthenticatedHeader'
-import { Sidebar } from './Sidebar'
 import { Footer } from './Footer'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
@@ -24,8 +23,6 @@ import { useUiStore } from '@/stores/uiStore'
 
 interface AppShellProps {
   children: ReactNode
-  /** Whether to show the sidebar */
-  showSidebar?: boolean
   /** Whether to show the footer */
   showFooter?: boolean
   /** Whether to use authenticated header style */
@@ -39,12 +36,10 @@ interface AppShellProps {
  */
 export function AppShell({
   children,
-  showSidebar = true,
   showFooter = true,
   useAuthenticatedHeader = false,
   notificationBanner,
 }: AppShellProps) {
-  const isSidebarOpen = useUiStore((state) => state.isSidebarOpen)
   const layoutMode = useUiStore((state) => state.layoutMode)
 
   return (
@@ -52,7 +47,6 @@ export function AppShell({
       {notificationBanner}
       {useAuthenticatedHeader ? <AuthenticatedHeader /> : <Header />}
       <div className="flex min-w-0 flex-1">
-        {showSidebar && isSidebarOpen && <Sidebar />}
         <main
           className={cn(
             'min-w-0 flex-1',

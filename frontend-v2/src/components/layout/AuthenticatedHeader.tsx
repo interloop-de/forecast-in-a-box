@@ -27,7 +27,6 @@ import {
   Minimize2,
   Monitor,
   Moon,
-  PanelLeft,
   Settings,
   Sun,
   User,
@@ -65,8 +64,6 @@ export function AuthenticatedHeader() {
   const { authType, signOut } = useAuth()
   const theme = useUiStore((state) => state.theme)
   const setTheme = useUiStore((state) => state.setTheme)
-  const isSidebarOpen = useUiStore((state) => state.isSidebarOpen)
-  const toggleSidebar = useUiStore((state) => state.toggleSidebar)
   const layoutMode = useUiStore((state) => state.layoutMode)
   const setLayoutMode = useUiStore((state) => state.setLayoutMode)
   const dashboardVariant = useUiStore((state) => state.dashboardVariant)
@@ -168,10 +165,6 @@ export function AuthenticatedHeader() {
               {/* View Group */}
               <DropdownMenuGroup>
                 <DropdownMenuLabel>View</DropdownMenuLabel>
-                <DropdownMenuItem onClick={toggleSidebar}>
-                  <PanelLeft className="mr-2 h-4 w-4" />
-                  {isSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() =>
                     setLayoutMode(layoutMode === 'boxed' ? 'fluid' : 'boxed')

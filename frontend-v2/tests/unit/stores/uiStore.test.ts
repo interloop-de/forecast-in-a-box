@@ -17,28 +17,6 @@ describe('uiStore', () => {
     useUiStore.getState().reset()
   })
 
-  describe('sidebar', () => {
-    it('starts with sidebar open', () => {
-      expect(useUiStore.getState().isSidebarOpen).toBe(true)
-    })
-
-    it('toggles sidebar state', () => {
-      useUiStore.getState().toggleSidebar()
-      expect(useUiStore.getState().isSidebarOpen).toBe(false)
-
-      useUiStore.getState().toggleSidebar()
-      expect(useUiStore.getState().isSidebarOpen).toBe(true)
-    })
-
-    it('sets sidebar state directly', () => {
-      useUiStore.getState().setSidebarOpen(false)
-      expect(useUiStore.getState().isSidebarOpen).toBe(false)
-
-      useUiStore.getState().setSidebarOpen(true)
-      expect(useUiStore.getState().isSidebarOpen).toBe(true)
-    })
-  })
-
   describe('theme', () => {
     it('starts with system theme', () => {
       expect(useUiStore.getState().theme).toBe('system')
@@ -164,7 +142,6 @@ describe('uiStore', () => {
   describe('reset', () => {
     it('resets all state to initial values', () => {
       // Modify some state
-      useUiStore.getState().setSidebarOpen(false)
       useUiStore.getState().setTheme('dark')
       useUiStore.getState().setLayoutMode('boxed')
       useUiStore.getState().setIsInitialized(true)
@@ -173,7 +150,6 @@ describe('uiStore', () => {
       useUiStore.getState().reset()
 
       // Verify initial state is restored
-      expect(useUiStore.getState().isSidebarOpen).toBe(true)
       expect(useUiStore.getState().theme).toBe('system')
       expect(useUiStore.getState().layoutMode).toBe('fluid')
       expect(useUiStore.getState().isInitialized).toBe(false)
