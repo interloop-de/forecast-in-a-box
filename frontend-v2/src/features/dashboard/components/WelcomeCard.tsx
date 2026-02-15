@@ -30,11 +30,13 @@ import { useTranslation } from 'react-i18next'
 import { StatCard } from './StatCard'
 import { QuickActionButton } from './QuickActionButton'
 import { ConfigPresetsPopover } from './ConfigPresetsPopover'
+import { JobStatusDetailsPopover } from './JobStatusDetailsPopover'
 import type { ReactNode } from 'react'
 import type { TrafficLightStatus } from '@/types/status.types'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import { mockDashboardStats } from '@/features/dashboard/data/mockData'
 import { useStatus } from '@/api/hooks/useStatus'
+import { useJobStatusCounts } from '@/api/hooks/useJobStatusCounts'
 import { StatusDetailsPopover } from '@/components/common/StatusDetailsPopover'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -69,6 +71,7 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
   const { data: user } = useUser()
   const { t } = useTranslation('dashboard')
   const { trafficLightStatus } = useStatus()
+  const { runningCount, isLoading: isJobCountLoading } = useJobStatusCounts()
   const { authType } = useAuth()
 
   const isAnonymous = authType === 'anonymous'
@@ -136,19 +139,28 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
           </StatusDetailsPopover>
 
           {/* Currently Running */}
-          <StatCard
-            label={t('welcome.stats.currentlyRunning')}
-            icon={<Clock className="h-4 w-4" />}
-            value={
-              <>
-                <span className="text-lg font-semibold">
-                  {stats.runningForecasts}
-                </span>
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
-              </>
-            }
-            subtext={t('welcome.stats.activeForecasts')}
-          />
+          <JobStatusDetailsPopover align="start">
+            <StatCard
+              label={t('welcome.stats.currentlyRunning')}
+              icon={<Clock className="h-4 w-4" />}
+              value={
+                <>
+                  {isJobCountLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <span className="text-lg font-semibold">
+                      {runningCount}
+                    </span>
+                  )}
+                  {runningCount > 0 && (
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
+                  )}
+                </>
+              }
+              subtext={t('welcome.stats.activeForecasts')}
+              className="cursor-pointer transition-colors hover:bg-muted/80"
+            />
+          </JobStatusDetailsPopover>
 
           {/* Available Models */}
           <StatCard

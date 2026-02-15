@@ -18,7 +18,10 @@
       "of": "of {{total}}",
       "downloadedModels": "Downloaded models",
       "totalForecasts": "Total Forecasts",
-      "thisMonth": "Executed this month"
+      "thisMonth": "Executed this month",
+      "executionStatus": "Execution Status",
+      "totalJobs": "Total",
+      "noActiveJobs": "No active jobs"
     },
     "actions": {
       "managePlugins": "Manage Plugins",

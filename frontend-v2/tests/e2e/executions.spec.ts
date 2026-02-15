@@ -55,25 +55,15 @@ test.describe('Executions List Page', () => {
       const completedButton = page.getByRole('button', { name: 'Completed' })
       const erroredButton = page.getByRole('button', { name: 'Errored' })
 
-      if (
-        await runningButton
-          .isVisible({ timeout: 3000 })
-          .catch(() => false)
-      ) {
+      if (await runningButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await expect(runningButton).toBeVisible()
       }
       if (
-        await completedButton
-          .isVisible({ timeout: 3000 })
-          .catch(() => false)
+        await completedButton.isVisible({ timeout: 3000 }).catch(() => false)
       ) {
         await expect(completedButton).toBeVisible()
       }
-      if (
-        await erroredButton
-          .isVisible({ timeout: 3000 })
-          .catch(() => false)
-      ) {
+      if (await erroredButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await expect(erroredButton).toBeVisible()
       }
     }
@@ -104,11 +94,7 @@ test.describe('Executions List Page', () => {
       .catch(() => false)
 
     if (!hasJobs) {
-      if (
-        await emptyMessage
-          .isVisible({ timeout: 3000 })
-          .catch(() => false)
-      ) {
+      if (await emptyMessage.isVisible({ timeout: 3000 }).catch(() => false)) {
         await expect(emptyMessage).toBeVisible()
       }
     }
@@ -122,11 +108,7 @@ test.describe('Executions Status Filtering', () => {
 
   test('clicking a status filter updates the list', async ({ page }) => {
     const completedButton = page.getByRole('button', { name: 'Completed' })
-    if (
-      await completedButton
-        .isVisible({ timeout: 5000 })
-        .catch(() => false)
-    ) {
+    if (await completedButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await completedButton.click()
       await page.waitForTimeout(500)
 
@@ -259,11 +241,7 @@ test.describe('Execution Detail Page', () => {
     const logsTab = page.getByText('Logs', { exact: true })
     const specTab = page.getByText('Specification', { exact: true })
 
-    if (
-      await outputsTab
-        .isVisible({ timeout: 5000 })
-        .catch(() => false)
-    ) {
+    if (await outputsTab.isVisible({ timeout: 5000 }).catch(() => false)) {
       await expect(outputsTab).toBeVisible()
     }
     if (await logsTab.isVisible({ timeout: 3000 }).catch(() => false)) {
