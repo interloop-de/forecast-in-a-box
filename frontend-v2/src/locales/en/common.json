@@ -17,6 +17,12 @@
   "clear": "Clear",
   "yes": "Yes",
   "no": "No",
+  "nav": {
+    "label": "Main navigation",
+    "overview": "Overview",
+    "configuration": "Configuration",
+    "executions": "Executions"
+  },
   "status": {
     "title": "System Status",
     "allSystemsNormal": "All Systems Normal",

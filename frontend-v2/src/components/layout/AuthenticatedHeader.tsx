@@ -50,6 +50,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Logo } from '@/components/common/Logo'
+import { NavToggle } from '@/components/layout/NavToggle'
 import { StatusDetailsPopover } from '@/components/common/StatusDetailsPopover'
 import { StatusIndicator } from '@/components/common/StatusIndicator'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -84,7 +85,7 @@ export function AuthenticatedHeader() {
     <header className="sticky top-0 z-30 border-b border-border bg-card">
       <div
         className={cn(
-          'flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8',
+          'relative flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8',
           layoutMode === 'boxed' && 'mx-auto max-w-7xl',
         )}
       >
@@ -96,10 +97,15 @@ export function AuthenticatedHeader() {
             aria-label="Dashboard"
           >
             <Logo />
-            <span className="text-base font-semibold tracking-tight sm:text-xl">
+            <span className="hidden text-base font-semibold tracking-tight md:inline md:text-xl">
               Forecast-in-a-Box
             </span>
           </Link>
+        </div>
+
+        {/* NavToggle (center) - hidden on mobile */}
+        <div className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex">
+          <NavToggle />
         </div>
 
         {/* Right side - Status, Help, Settings */}
@@ -309,6 +315,11 @@ export function AuthenticatedHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
+
+      {/* NavToggle strip - visible only on mobile */}
+      <div className="flex justify-center border-t border-border py-1.5 md:hidden">
+        <NavToggle />
       </div>
     </header>
   )
