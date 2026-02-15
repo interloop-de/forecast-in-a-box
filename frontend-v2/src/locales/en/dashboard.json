@@ -26,6 +26,7 @@
     "actions": {
       "managePlugins": "Manage Plugins",
       "manageSources": "Manage Sources",
+      "manageExecutions": "Manage Job Executions",
       "myPresets": "My Configuration Presets",
       "scheduledForecasts": "My Scheduled Forecasts"
     }

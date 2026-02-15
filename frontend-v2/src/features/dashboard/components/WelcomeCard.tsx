@@ -205,8 +205,8 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
         />
         <QuickActionButton
           icon={<Settings2 className="h-4 w-4" />}
-          label={t('welcome.actions.manageSources')}
-          to="/admin/sources"
+          label={t('welcome.actions.manageExecutions')}
+          to="/executions"
         />
         <ConfigPresetsPopover />
         <QuickActionButton
