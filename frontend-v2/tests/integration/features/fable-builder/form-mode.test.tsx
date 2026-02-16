@@ -42,14 +42,13 @@ function setupValidFableWithSink(): void {
     blocks: {
       source1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
-          factory: 'model_forecast',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'test-model',
-          date: '2026-01-01T00:00',
-          lead_time: '24',
-          ensemble_members: '1',
+          source: 'mars',
+          date: '2026-01-01',
+          expver: '0001',
         },
         input_ids: {},
       },
@@ -96,7 +95,7 @@ describe('Fable Builder Form Mode', () => {
 
     // Add a source block via the palette
     const addSourceButton = screen.getByRole('button', {
-      name: /Compute Model Forecast/i,
+      name: /Earthkit Data Source/i,
     })
     await expect.element(addSourceButton).toBeVisible()
     await addSourceButton.click()
@@ -109,11 +108,9 @@ describe('Fable Builder Form Mode', () => {
     expect(state.selectedBlockId).toBeTruthy()
 
     // Configuration fields should be visible (FieldRenderer uses Label with htmlFor)
-    await expect.element(screen.getByLabelText('Model Name')).toBeVisible()
-    await expect.element(screen.getByLabelText('Lead Time')).toBeVisible()
-    await expect
-      .element(screen.getByLabelText('Ensemble Members'))
-      .toBeVisible()
+    // Source is an enum (combobox), Date and Expver are text inputs
+    await expect.element(screen.getByLabelText('Date')).toBeVisible()
+    await expect.element(screen.getByLabelText('Expver')).toBeVisible()
 
     // Fable should be marked as dirty
     expect(useFableBuilderStore.getState().isDirty).toBe(true)
@@ -132,28 +129,22 @@ describe('Fable Builder Form Mode', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // Add a source block via palette
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
-    // Fill configuration fields
-    const modelInput = screen.getByLabelText('Model Name')
-    await modelInput.fill('aifs/test-model')
+    // Fill text input configuration fields (Source is an enum/combobox, skip .fill())
+    const dateInput = screen.getByLabelText('Date')
+    await dateInput.fill('2026-01-15')
 
-    const leadTimeInput = screen.getByLabelText('Lead Time')
-    await leadTimeInput.fill('48')
-
-    const membersInput = screen.getByLabelText('Ensemble Members')
-    await membersInput.fill('8')
+    const expverInput = screen.getByLabelText('Expver')
+    await expverInput.fill('0001')
 
     // Verify store state was updated
     const state = useFableBuilderStore.getState()
     const blockId = Object.keys(state.fable.blocks)[0]
     const block = state.fable.blocks[blockId]
 
-    expect(block.configuration_values.model).toBe('aifs/test-model')
-    expect(block.configuration_values.lead_time).toBe('48')
-    expect(block.configuration_values.ensemble_members).toBe('8')
+    expect(block.configuration_values.date).toBe('2026-01-15')
+    expect(block.configuration_values.expver).toBe('0001')
 
     // Fable should be marked as dirty
     expect(state.isDirty).toBe(true)
@@ -166,17 +157,13 @@ describe('Fable Builder Form Mode', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // Add a source block
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
     // The block instance card should show the factory description
     // Use .first() since the description also appears in the palette
     await expect
       .element(
-        screen
-          .getByText('Download initial conditions, run model forecast')
-          .first(),
+        screen.getByText('Fetch data from mars or ecmwf open data').first(),
       )
       .toBeVisible()
   })
@@ -188,18 +175,14 @@ describe('Fable Builder Form Mode', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // Add a source block first so the UI renders the card
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
     // Now set up missing config to trigger validation errors
     // The block was added to store; clear its config values
     const blockId = Object.keys(useFableBuilderStore.getState().fable.blocks)[0]
-    useFableBuilderStore.getState().updateBlockConfig(blockId, 'model', '')
-    useFableBuilderStore.getState().updateBlockConfig(blockId, 'lead_time', '')
-    useFableBuilderStore
-      .getState()
-      .updateBlockConfig(blockId, 'ensemble_members', '')
+    useFableBuilderStore.getState().updateBlockConfig(blockId, 'source', '')
+    useFableBuilderStore.getState().updateBlockConfig(blockId, 'date', '')
+    useFableBuilderStore.getState().updateBlockConfig(blockId, 'expver', '')
 
     // Wait for validation to run and produce errors
     await expect
@@ -236,14 +219,14 @@ describe('Fable Builder Form Mode', () => {
     useFableBuilderStore.getState().selectBlock('source1')
 
     // The source block card should show pre-filled config values
-    // Model Name field should have "test-model"
-    const modelInput = screen.getByLabelText('Model Name')
-    await expect.element(modelInput).toBeVisible()
-    await expect.element(modelInput).toHaveValue('test-model')
+    // Expver field (text input) should have "0001"
+    const expverInput = screen.getByLabelText('Expver')
+    await expect.element(expverInput).toBeVisible()
+    await expect.element(expverInput).toHaveValue('0001')
 
-    // Lead Time is an int field (type=number), so the value is numeric
-    const leadTimeInput = screen.getByLabelText('Lead Time')
-    await expect.element(leadTimeInput).toHaveValue(24)
+    // Date field should have the configured date
+    const dateInput = screen.getByLabelText('Date')
+    await expect.element(dateInput).toHaveValue('2026-01-01')
   })
 
   it('renders pipeline structure sidebar text', async () => {
@@ -271,9 +254,7 @@ describe('Fable Builder Form Mode', () => {
     ).toHaveLength(0)
 
     // Add a source block via the palette
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
     // Verify block was added to store
     const state = useFableBuilderStore.getState()
@@ -282,11 +263,11 @@ describe('Fable Builder Form Mode', () => {
     // Block should be auto-selected
     expect(state.selectedBlockId).toBeTruthy()
 
-    // The selected block's factory should be model_forecast
+    // The selected block's factory should be ekdSource
     const blockId = state.selectedBlockId!
     const block = state.fable.blocks[blockId]
-    expect(block.factory_id.factory).toBe('model_forecast')
-    expect(block.factory_id.plugin.local).toBe('anemoi-inference')
+    expect(block.factory_id.factory).toBe('ekdSource')
+    expect(block.factory_id.plugin.local).toBe('ecmwf-base')
   })
 
   it('shows no configuration options message for blocks without config options', async () => {
@@ -295,15 +276,16 @@ describe('Fable Builder Form Mode', () => {
     // Wait for catalogue
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
-    // Set up a fable with a block that has no configuration_options
-    // product_456 (Comparity-Romparity Ratio) has empty configuration_options
+    // Set up a fable with a block whose factory has no configuration_options.
+    // We use a synthetic factory reference — the store accepts any factory_id,
+    // and we're only testing that the store holds the block correctly.
     const store = useFableBuilderStore.getState()
     store.setFable({
       blocks: {
         product1: {
           factory_id: {
-            plugin: { store: 'ecmwf', local: 'fiab-products' },
-            factory: 'product_456',
+            plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+            factory: 'noConfigFactory',
           },
           configuration_values: {},
           input_ids: {},
@@ -314,18 +296,13 @@ describe('Fable Builder Form Mode', () => {
     // Select the product block
     useFableBuilderStore.getState().selectBlock('product1')
 
-    // The block instance card should render since blocksByKind groups it under 'product'
-    // FableFormCanvas starts on 'source' step by default, so we need to verify
-    // that the block IS in the store and the "No configuration options" message is
-    // present in the DOM (even if we're on a different step visually)
-    // Check store correctness
+    // Check store correctness — the block is held in the store
     expect(
       Object.keys(useFableBuilderStore.getState().fable.blocks),
     ).toHaveLength(1)
 
-    // The block's factory has empty configuration_options
     const blockId = 'product1'
     const block = useFableBuilderStore.getState().fable.blocks[blockId]
-    expect(block.factory_id.factory).toBe('product_456')
+    expect(block.factory_id.factory).toBe('noConfigFactory')
   })
 })

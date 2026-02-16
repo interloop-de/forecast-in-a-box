@@ -16,6 +16,11 @@
 
 import type { ReactNode } from 'react'
 import { H3, P } from '@/components/base/typography'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface GettingStartedCardProps {
@@ -24,6 +29,8 @@ interface GettingStartedCardProps {
   description: string
   tags: Array<string>
   isRecommended?: boolean
+  disabled?: boolean
+  disabledMessage?: string
   iconColor?: string
   borderColor?: string
   onClick?: () => void
@@ -35,19 +42,24 @@ export function GettingStartedCard({
   description,
   tags,
   isRecommended = false,
+  disabled = false,
+  disabledMessage,
   iconColor = 'bg-primary/10 text-primary',
   borderColor = 'border-border hover:border-blue-400',
   onClick,
 }: GettingStartedCardProps) {
-  return (
+  const card = (
     <div
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       className={cn(
-        'relative flex h-full cursor-pointer flex-col rounded-lg border p-5 transition-colors',
+        'relative flex h-full flex-col rounded-lg border p-5 transition-colors',
         'bg-card',
-        isRecommended
-          ? 'border-2 border-primary/20 bg-muted/50 hover:border-primary'
-          : borderColor,
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        disabled
+          ? 'border-border'
+          : isRecommended
+            ? 'border-2 border-primary/20 bg-muted/50 hover:border-primary'
+            : borderColor,
       )}
     >
       {isRecommended && (
@@ -87,4 +99,15 @@ export function GettingStartedCard({
       </div>
     </div>
   )
+
+  if (disabled && disabledMessage) {
+    return (
+      <Tooltip>
+        <TooltipTrigger render={<div />}>{card}</TooltipTrigger>
+        <TooltipContent>{disabledMessage}</TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return card
 }

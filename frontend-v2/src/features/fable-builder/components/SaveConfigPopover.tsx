@@ -48,6 +48,7 @@ export interface FableSaveMetadata {
   comments: string
   summary: FableBlockSummary
   savedAt: string
+  isFavourite?: boolean
 }
 
 export type FableMetadataStore = Record<string, FableSaveMetadata>
@@ -92,8 +93,11 @@ export function BlockSummaryBadges({
   )
 }
 
-function generateShortTitle(fableId: string): string {
-  return `Config ${fableId.replace(/-/g, '').slice(0, 7)}`
+function generateDefaultTitle(): string {
+  const now = new Date()
+  const date = now.toISOString().split('T')[0]
+  const time = now.toTimeString().slice(0, 5)
+  return `Forecast Config ${date} ${time}`
 }
 
 interface SaveConfigPopoverProps {
@@ -112,7 +116,6 @@ export function SaveConfigPopover({
   onOpenChange,
 }: SaveConfigPopoverProps) {
   const fable = useFableBuilderStore((s) => s.fable)
-  const fableName = useFableBuilderStore((s) => s.fableName)
   const storeFableId = useFableBuilderStore((s) => s.fableId)
   const markSaved = useFableBuilderStore((s) => s.markSaved)
 
@@ -129,15 +132,14 @@ export function SaveConfigPopover({
   const effectiveFableId = fableId ?? storeFableId
   const isUpdate = !!effectiveFableId
 
-  const isDefault = fableName === 'Untitled Configuration'
-  const [title, setTitle] = useState(isDefault ? '' : fableName)
+  const [title, setTitle] = useState(generateDefaultTitle)
   const [comments, setComments] = useState('')
 
   const summary = computeBlockSummary(fable, catalogue)
 
   function handleOpenChange(nextOpen: boolean) {
     if (nextOpen) {
-      setTitle(isDefault ? '' : fableName)
+      setTitle(generateDefaultTitle())
       setComments('')
     }
     if (isControlled) {
@@ -154,7 +156,7 @@ export function SaveConfigPopover({
         fable,
         fableId: idToPass,
       })
-      const displayTitle = title.trim() || generateShortTitle(newId)
+      const displayTitle = title.trim() || generateDefaultTitle()
 
       setMetadataStore({
         ...metadataStore,
@@ -238,9 +240,13 @@ export function SaveConfigPopover({
 
         {/* Actions */}
         <div className="flex justify-end gap-2">
-          <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleOpenChange(false)}
+          >
             Cancel
-          </PopoverTrigger>
+          </Button>
           {isUpdate && (
             <Button
               variant="outline"

@@ -59,6 +59,7 @@ export function IntroGlobeSection() {
                 size="lg"
                 className="border-transparent px-4 text-sm shadow-2xl shadow-indigo-900/40"
                 onClick={() => signIn()}
+                render={<span>Get Started</span>}
                 nativeButton={false}
               />
             </div>

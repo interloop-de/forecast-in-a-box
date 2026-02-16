@@ -20,6 +20,9 @@ import { useNavigate } from '@tanstack/react-router'
 import { GettingStartedCard } from './GettingStartedCard'
 import type { DashboardVariant, PanelShadow } from '@/stores/uiStore'
 import type { PresetId } from '@/features/fable-builder/presets'
+import { useBlockCatalogue } from '@/api/hooks/useFable'
+import { generatePluginPipeline } from '@/features/plugins/utils/pipeline-generator'
+import { encodeFableToURL } from '@/features/fable-builder/utils/url-state'
 import { H2, P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
 
@@ -34,9 +37,22 @@ export function GettingStartedSection({
 }: GettingStartedSectionProps) {
   const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
+  const { data: catalogue } = useBlockCatalogue()
 
-  const handleCardClick = (preset: PresetId) => {
+  const handlePresetClick = (preset: PresetId) => {
     navigate({ to: '/configure', search: { preset } })
+  }
+
+  const handleQuickStart = () => {
+    if (!catalogue) return
+
+    const { fable } = generatePluginPipeline({
+      pluginId: 'ecmwf/ecmwf-base',
+      catalogue,
+    })
+
+    const encoded = encodeFableToURL(fable)
+    navigate({ to: '/configure', search: { state: encoded } })
   }
 
   const content = (
@@ -55,15 +71,30 @@ export function GettingStartedSection({
           title={t('gettingStarted.quickStart.title')}
           description={t('gettingStarted.quickStart.description')}
           tags={[
-            t('gettingStarted.quickStart.tags.model'),
-            t('gettingStarted.quickStart.tags.time'),
-            t('gettingStarted.quickStart.tags.products'),
+            t('gettingStarted.quickStart.tags.blocks'),
+            t('gettingStarted.quickStart.tags.connected'),
+            t('gettingStarted.quickStart.tags.ready'),
           ]}
           isRecommended
-          onClick={() => handleCardClick('quick-start')}
+          onClick={handleQuickStart}
         />
 
-        {/* Standard Forecast */}
+        {/* Custom Forecast */}
+        <GettingStartedCard
+          icon={<Layers className="h-5 w-5" />}
+          title={t('gettingStarted.customForecast.title')}
+          description={t('gettingStarted.customForecast.description')}
+          tags={[
+            t('gettingStarted.customForecast.tags.canvas'),
+            t('gettingStarted.customForecast.tags.control'),
+            t('gettingStarted.customForecast.tags.advanced'),
+          ]}
+          iconColor="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+          borderColor="border-border hover:border-emerald-400"
+          onClick={() => handlePresetClick('custom-model')}
+        />
+
+        {/* Standard Forecast - Coming soon */}
         <GettingStartedCard
           icon={<BarChart3 className="h-5 w-5" />}
           title={t('gettingStarted.standard.title')}
@@ -75,25 +106,11 @@ export function GettingStartedSection({
           ]}
           iconColor="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
           borderColor="border-border hover:border-blue-400"
-          onClick={() => handleCardClick('standard')}
+          disabled
+          disabledMessage={t('gettingStarted.standard.comingSoon')}
         />
 
-        {/* Custom Model Forecast */}
-        <GettingStartedCard
-          icon={<Layers className="h-5 w-5" />}
-          title={t('gettingStarted.customModel.title')}
-          description={t('gettingStarted.customModel.description')}
-          tags={[
-            t('gettingStarted.customModel.tags.canvas'),
-            t('gettingStarted.customModel.tags.control'),
-            t('gettingStarted.customModel.tags.advanced'),
-          ]}
-          iconColor="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-          borderColor="border-border hover:border-emerald-400"
-          onClick={() => handleCardClick('custom-model')}
-        />
-
-        {/* Dataset Forecast */}
+        {/* Dataset Forecast - Coming soon */}
         <GettingStartedCard
           icon={<Database className="h-5 w-5" />}
           title={t('gettingStarted.dataset.title')}
@@ -105,7 +122,8 @@ export function GettingStartedSection({
           ]}
           iconColor="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
           borderColor="border-border hover:border-purple-400"
-          onClick={() => handleCardClick('dataset')}
+          disabled
+          disabledMessage={t('gettingStarted.dataset.comingSoon')}
         />
       </div>
     </>

@@ -35,40 +35,39 @@ const quickStartPreset: FablePreset = {
     blocks: {
       source_1: {
         factory_id: {
-          plugin: pluginId('ecmwf', 'anemoi-inference'),
-          factory: 'model_forecast',
+          plugin: pluginId('ecmwf', 'ecmwf-base'),
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'aifs/single-mse-v0.2.1',
-          date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
-          lead_time: '72',
-          ensemble_members: '1',
+          source: 'ecmwf-open-data',
+          date: new Date().toISOString().split('T')[0],
+          expver: '0001',
         },
         input_ids: {},
       },
-      filter_1: {
+      product_1: {
         factory_id: {
-          plugin: pluginId('ecmwf', 'fiab-products'),
-          factory: 'variable_filter',
+          plugin: pluginId('ecmwf', 'ecmwf-base'),
+          factory: 'ensembleStatistics',
         },
         configuration_values: {
-          variables: 'temp_2m,wind_u,wind_v,precip,mslp',
-          interpolation_method: 'linear',
+          variable: '2t',
+          statistic: 'mean',
         },
         input_ids: {
-          forecast: 'source_1',
+          dataset: 'source_1',
         },
       },
-      viz_1: {
+      sink_1: {
         factory_id: {
-          plugin: pluginId('ecmwf', 'fiab-sinks'),
-          factory: 'plot',
+          plugin: pluginId('ecmwf', 'ecmwf-base'),
+          factory: 'zarrSink',
         },
         configuration_values: {
-          ekp_subcommand: 'contour --variable temp_2m',
+          path: '/data/output/quick_start.zarr',
         },
         input_ids: {
-          data: 'filter_1',
+          dataset: 'product_1',
         },
       },
     },
@@ -78,19 +77,18 @@ const quickStartPreset: FablePreset = {
 const standardPreset: FablePreset = {
   id: 'standard',
   name: 'Standard Forecast',
-  description: 'Standard model forecast setup',
+  description: 'Standard forecast data pipeline',
   fable: {
     blocks: {
       source_1: {
         factory_id: {
-          plugin: pluginId('ecmwf', 'anemoi-inference'),
-          factory: 'model_forecast',
+          plugin: pluginId('ecmwf', 'ecmwf-base'),
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'aifs/single-mse-v0.2.1',
-          date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
-          lead_time: '48',
-          ensemble_members: '1',
+          source: 'mars',
+          date: new Date().toISOString().split('T')[0],
+          expver: '0001',
         },
         input_ids: {},
       },
@@ -100,7 +98,7 @@ const standardPreset: FablePreset = {
 
 const customModelPreset: FablePreset = {
   id: 'custom-model',
-  name: 'Custom Model Forecast',
+  name: 'Custom Forecast',
   description: 'Start with empty canvas for full customization',
   fable: {
     blocks: {},
@@ -109,21 +107,19 @@ const customModelPreset: FablePreset = {
 
 const datasetPreset: FablePreset = {
   id: 'dataset',
-  name: 'Dataset Forecast',
-  description: 'Start with pre-existing forecast data from ECMWF AIFS',
+  name: 'Open Data Forecast',
+  description: 'Start with ECMWF open data as source',
   fable: {
     blocks: {
       source_1: {
         factory_id: {
-          plugin: pluginId('ecmwf', 'mars-connector'),
-          factory: 'mars_aifs_external',
+          plugin: pluginId('ecmwf', 'ecmwf-base'),
+          factory: 'ekdSource',
         },
         configuration_values: {
-          date: new Date().toISOString().split('T')[0] + 'T00:00:00Z',
-          time: '00:00:00',
-          step: '0/6/12/18/24',
-          levtype: 'sfc',
-          param: '2t/10u/10v/msl/tp',
+          source: 'ecmwf-open-data',
+          date: new Date().toISOString().split('T')[0],
+          expver: '0001',
         },
         input_ids: {},
       },

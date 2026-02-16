@@ -46,14 +46,13 @@ function setupFableWithSource(): string {
     blocks: {
       source1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
-          factory: 'model_forecast',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'aifs/single-mse-v0.2.1',
-          date: '2026-01-01T00:00',
-          lead_time: '24',
-          ensemble_members: '4',
+          source: 'mars',
+          date: '2026-01-01',
+          expver: '0001',
         },
         input_ids: {},
       },
@@ -206,15 +205,13 @@ describe('Fable Builder Save & Load', () => {
       // Config panel should show the source block's values
       await expect
         .element(
-          screen
-            .getByRole('heading', { name: 'Compute Model Forecast' })
-            .first(),
+          screen.getByRole('heading', { name: 'Earthkit Data Source' }).first(),
         )
         .toBeVisible()
 
-      // Model name field should contain the loaded value
-      const modelInput = screen.getByLabelText('Model Name')
-      await expect.element(modelInput).toHaveValue('aifs/single-mse-v0.2.1')
+      // Expver field (text input) should contain the loaded value
+      const expverInput = screen.getByLabelText('Expver')
+      await expect.element(expverInput).toHaveValue('0001')
     })
 
     it('handles retrieve error by keeping builder empty', async () => {
@@ -288,7 +285,7 @@ describe('Fable Builder Save & Load', () => {
       useFableBuilderStore.getState().selectBlock('block_source_1')
       useFableBuilderStore
         .getState()
-        .updateBlockConfig('block_source_1', 'lead_time', '72')
+        .updateBlockConfig('block_source_1', 'expver', '0002')
 
       // Should now be dirty
       expect(useFableBuilderStore.getState().isDirty).toBe(true)
@@ -340,11 +337,10 @@ describe('Fable Builder Save & Load', () => {
 
       // 2. Add and configure a source block via palette
       await screen
-        .getByRole('button', { name: /Compute Model Forecast/i })
+        .getByRole('button', { name: /Earthkit Data Source/i })
         .click()
-      await screen.getByLabelText('Model Name').fill('aifs/test-model')
-      await screen.getByLabelText('Lead Time').fill('24')
-      await screen.getByLabelText('Ensemble Members').fill('4')
+      await screen.getByLabelText('Date').fill('2026-01-15')
+      await screen.getByLabelText('Expver').fill('0001')
 
       // 3. First save
       await screen.getByRole('button', { name: /Save Config/i }).click()
@@ -359,7 +355,7 @@ describe('Fable Builder Save & Load', () => {
       expect(firstSaveId).toBeTruthy()
 
       // 4. Modify the configuration
-      await screen.getByLabelText('Lead Time').fill('48')
+      await screen.getByLabelText('Expver').fill('0002')
       expect(useFableBuilderStore.getState().isDirty).toBe(true)
 
       // 5. Re-save (should update existing)

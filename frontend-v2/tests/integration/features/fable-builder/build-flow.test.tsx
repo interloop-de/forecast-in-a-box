@@ -43,14 +43,13 @@ function setupValidFableWithSink(): void {
     blocks: {
       source1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
-          factory: 'model_forecast',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'test-model',
-          date: '2026-01-01T00:00',
-          lead_time: '24',
-          ensemble_members: '1',
+          source: 'mars',
+          date: '2026-01-01',
+          expver: '0001',
         },
         input_ids: {},
       },
@@ -93,7 +92,7 @@ describe('Fable Builder Integration', () => {
 
     // Verify source block buttons are visible and enabled (available by default when no validationState)
     const sourceButton = screen.getByRole('button', {
-      name: /Compute Model Forecast/i,
+      name: /Earthkit Data Source/i,
     })
     await expect.element(sourceButton).toBeVisible()
   })
@@ -104,10 +103,10 @@ describe('Fable Builder Integration', () => {
     // Wait for palette to load
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
-    // Find the "Compute Model Forecast" button in the palette
+    // Find the "Earthkit Data Source" button in the palette
     // For empty fables, validationState is null so all factories are available by default
     const addSourceButton = screen.getByRole('button', {
-      name: /Compute Model Forecast/i,
+      name: /Earthkit Data Source/i,
     })
     await expect.element(addSourceButton).toBeVisible()
 
@@ -139,7 +138,7 @@ describe('Fable Builder Integration', () => {
 
     // Add a source block
     const addSourceButton = screen.getByRole('button', {
-      name: /Compute Model Forecast/i,
+      name: /Earthkit Data Source/i,
     })
     await addSourceButton.click()
 
@@ -147,17 +146,15 @@ describe('Fable Builder Integration', () => {
     // Factory title appears as header in config panel (use heading role to be specific)
     await expect
       .element(
-        screen.getByRole('heading', { name: 'Compute Model Forecast' }).first(),
+        screen.getByRole('heading', { name: 'Earthkit Data Source' }).first(),
       )
       .toBeVisible()
 
     // Configuration fields should be visible with their titles as labels
-    // These come from mockCatalogue configuration_options
-    await expect.element(screen.getByLabelText('Model Name')).toBeVisible()
-    await expect.element(screen.getByLabelText('Lead Time')).toBeVisible()
-    await expect
-      .element(screen.getByLabelText('Ensemble Members'))
-      .toBeVisible()
+    // These come from mockCatalogue configuration_options for ekdSource
+    // Source is an enum (combobox), Date and Expver are text inputs
+    await expect.element(screen.getByLabelText('Date')).toBeVisible()
+    await expect.element(screen.getByLabelText('Expver')).toBeVisible()
   })
 
   it('allows configuring a block via input fields', async () => {
@@ -167,28 +164,22 @@ describe('Fable Builder Integration', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // Add a source block
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
-    // Fill configuration fields
-    const modelInput = screen.getByLabelText('Model Name')
-    await modelInput.fill('aifs/test-model')
+    // Fill text input configuration fields (Source is an enum/combobox, skip .fill())
+    const dateInput = screen.getByLabelText('Date')
+    await dateInput.fill('2026-01-15')
 
-    const leadTimeInput = screen.getByLabelText('Lead Time')
-    await leadTimeInput.fill('24')
-
-    const membersInput = screen.getByLabelText('Ensemble Members')
-    await membersInput.fill('10')
+    const expverInput = screen.getByLabelText('Expver')
+    await expverInput.fill('0001')
 
     // Verify store state was updated
     const state = useFableBuilderStore.getState()
     const blockId = Object.keys(state.fable.blocks)[0]
     const block = state.fable.blocks[blockId]
 
-    expect(block.configuration_values.model).toBe('aifs/test-model')
-    expect(block.configuration_values.lead_time).toBe('24')
-    expect(block.configuration_values.ensemble_members).toBe('10')
+    expect(block.configuration_values.date).toBe('2026-01-15')
+    expect(block.configuration_values.expver).toBe('0001')
   })
 
   it('allows saving a fable draft', async () => {
@@ -198,13 +189,10 @@ describe('Fable Builder Integration', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // Add and configure a source block
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
-    await screen.getByLabelText('Model Name').fill('aifs/test-model')
-    await screen.getByLabelText('Lead Time').fill('24')
-    await screen.getByLabelText('Ensemble Members').fill('10')
+    await screen.getByLabelText('Date').fill('2026-01-15')
+    await screen.getByLabelText('Expver').fill('0001')
 
     // Verify fable is dirty
     expect(useFableBuilderStore.getState().isDirty).toBe(true)
@@ -305,19 +293,22 @@ describe('Fable Builder Integration', () => {
     await expect.element(screen.getByText('Block Palette')).toBeVisible()
 
     // 2. Add a source block via palette
-    await screen
-      .getByRole('button', { name: /Compute Model Forecast/i })
-      .click()
+    await screen.getByRole('button', { name: /Earthkit Data Source/i }).click()
 
     // Verify block added
     expect(
       Object.keys(useFableBuilderStore.getState().fable.blocks),
     ).toHaveLength(1)
 
-    // 3. Configure the source block
-    await screen.getByLabelText('Model Name').fill('aifs/single-mse-v0.2.1')
-    await screen.getByLabelText('Lead Time').fill('48')
-    await screen.getByLabelText('Ensemble Members').fill('4')
+    // 3. Configure the source block (fill text inputs, set enum via store)
+    await screen.getByLabelText('Date').fill('2026-01-15')
+    await screen.getByLabelText('Expver').fill('0001')
+    const sourceBlockIdForConfig = Object.keys(
+      useFableBuilderStore.getState().fable.blocks,
+    )[0]
+    useFableBuilderStore
+      .getState()
+      .updateBlockConfig(sourceBlockIdForConfig, 'source', 'mars')
 
     // 4. Add a connected sink block programmatically for review eligibility
     const sourceBlockId = Object.keys(
@@ -355,10 +346,7 @@ describe('Fable Builder Integration', () => {
       .getState()
       .connectBlocks(sinkBlockId, 'dataset', sourceBlockId)
 
-    // Also fill the date field for the source (validation requires all config filled)
-    useFableBuilderStore
-      .getState()
-      .updateBlockConfig(sourceBlockId, 'date', '2026-01-01T00:00')
+    // Source config fields were already filled via UI, no additional fields to fill
 
     // 5. Save (open popover, then click Save)
     await screen.getByRole('button', { name: /Save Config/i }).click()

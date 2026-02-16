@@ -49,16 +49,21 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
   const validationState = useFableBuilderStore((state) => state.validationState)
   const isValidating = useFableBuilderStore((state) => state.isValidating)
 
+  const blockCount = Object.keys(fable.blocks).length
+
   const availableFactoryIds = useMemo(() => {
-    if (!validationState) return null
-
-    const blockCount = Object.keys(fable.blocks).length
-
     if (blockCount === 0) {
+      if (!validationState) {
+        // Validation not available yet — signal sources-only mode.
+        // TODO: Change when backend validation works properly
+        return 'sources-only' as const
+      }
       return new Set(
         validationState.possibleSources.map((id) => factoryIdToKey(id)),
       )
     }
+
+    if (!validationState) return null
 
     const allExpansions = new Set<string>()
     for (const blockState of Object.values(validationState.blockStates)) {
@@ -67,7 +72,7 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
       }
     }
     return allExpansions
-  }, [validationState, fable.blocks])
+  }, [validationState, blockCount])
 
   const groupedFactories = useMemo(() => {
     const groups = new Map<
@@ -101,7 +106,10 @@ export function BlockPalette({ catalogue }: BlockPaletteProps) {
         }
         const key = factoryIdToKey(pluginBlockFactoryId)
         const isAvailable =
-          availableFactoryIds === null || availableFactoryIds.has(key)
+          availableFactoryIds === null ||
+          (availableFactoryIds === 'sources-only'
+            ? factory.kind === 'source'
+            : availableFactoryIds.has(key))
         group.push({ id: pluginBlockFactoryId, factory, isAvailable })
       }
     }

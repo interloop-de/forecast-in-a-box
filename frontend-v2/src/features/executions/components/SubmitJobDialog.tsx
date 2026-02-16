@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlertCircle, Loader2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from '@tanstack/react-router'
@@ -39,6 +39,13 @@ interface SubmitJobDialogProps {
   fableId: string | null
 }
 
+function generateDefaultJobName(): string {
+  const now = new Date()
+  const date = now.toISOString().split('T')[0]
+  const time = now.toTimeString().slice(0, 5)
+  return `Forecast Job ${date} ${time}`
+}
+
 export function SubmitJobDialog({
   open,
   onOpenChange,
@@ -50,7 +57,7 @@ export function SubmitJobDialog({
   const navigate = useNavigate()
   const submitFable = useSubmitFable()
 
-  const [name, setName] = useState(fableName)
+  const [name, setName] = useState(generateDefaultJobName)
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState<Array<string>>([])
   const [tagInput, setTagInput] = useState('')
@@ -58,6 +65,17 @@ export function SubmitJobDialog({
     createDefaultEnvironment,
   )
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      setName(generateDefaultJobName())
+      setDescription('')
+      setTags([])
+      setTagInput('')
+      setError(null)
+      setEnvironment(createDefaultEnvironment)
+    }
+  }, [open])
 
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {

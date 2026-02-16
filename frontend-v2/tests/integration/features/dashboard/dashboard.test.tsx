@@ -87,6 +87,12 @@ describe('Dashboard', () => {
       await expect
         .element(screen.getByText('Manage Job Executions'))
         .toBeVisible()
+      await expect
+        .element(screen.getByText('Manage Configuration Presets'))
+        .toBeVisible()
+      await expect
+        .element(screen.getByText('Manage Scheduled Forecasts'))
+        .toBeVisible()
     })
 
     it('shows error status when status API fails', async () => {
@@ -116,7 +122,9 @@ describe('Dashboard', () => {
         </AuthContext.Provider>,
       )
 
-      await expect.element(screen.getByText('Getting Started')).toBeVisible()
+      await expect
+        .element(screen.getByText('Getting Started Presets'))
+        .toBeVisible()
     })
   })
 

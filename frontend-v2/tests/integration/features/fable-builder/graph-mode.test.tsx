@@ -52,27 +52,26 @@ function createMultiBlockFable(): FableBuilderV1 {
     blocks: {
       source1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
-          factory: 'model_forecast',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'test-model',
-          date: '2026-01-01T00:00',
-          lead_time: '24',
-          ensemble_members: '1',
+          source: 'mars',
+          date: '2026-01-01',
+          expver: '0001',
         },
         input_ids: {},
       },
       product1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'fiab-products' },
-          factory: 'variable_filter',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ensembleStatistics',
         },
         configuration_values: {
-          variables: 'temp_2m',
-          interpolation_method: 'linear',
+          variable: '2t',
+          statistic: 'mean',
         },
-        input_ids: { forecast: 'source1' },
+        input_ids: { dataset: 'source1' },
       },
       sink1: {
         factory_id: {
@@ -94,14 +93,13 @@ function createSourceOnlyFable(): FableBuilderV1 {
     blocks: {
       source1: {
         factory_id: {
-          plugin: { store: 'ecmwf', local: 'anemoi-inference' },
-          factory: 'model_forecast',
+          plugin: { store: 'ecmwf', local: 'ecmwf-base' },
+          factory: 'ekdSource',
         },
         configuration_values: {
-          model: 'test-model',
-          date: '2026-01-01T00:00',
-          lead_time: '24',
-          ensemble_members: '1',
+          source: 'mars',
+          date: '2026-01-01',
+          expver: '0001',
         },
         input_ids: {},
       },
@@ -141,7 +139,7 @@ describe('Graph Mode - Utility Functions', () => {
       const nodes = fableToNodes(fable, mockCatalogue)
 
       const sourceNode = nodes.find((n) => n.id === 'source1')
-      expect(sourceNode?.data.label).toBe('Compute Model Forecast')
+      expect(sourceNode?.data.label).toBe('Earthkit Data Source')
       expect(sourceNode?.data.instanceId).toBe('source1')
       expect(sourceNode?.data.factory.kind).toBe('source')
     })
@@ -179,12 +177,12 @@ describe('Graph Mode - Utility Functions', () => {
 
       expect(edges).toHaveLength(2)
 
-      // source1 -> product1 (via forecast input)
+      // source1 -> product1 (via dataset input)
       const sourceToProduct = edges.find(
         (e) => e.source === 'source1' && e.target === 'product1',
       )
       expect(sourceToProduct).toBeDefined()
-      expect(sourceToProduct?.data?.inputName).toBe('forecast')
+      expect(sourceToProduct?.data?.inputName).toBe('dataset')
 
       // product1 -> sink1 (via dataset input)
       const productToSink = edges.find(
@@ -365,11 +363,11 @@ describe('Graph Mode - Builder Integration', () => {
 
     // In graph mode, the ConfigPanel sidebar shows the factory title
     await expect
-      .element(screen.getByText('Compute Model Forecast').first())
+      .element(screen.getByText('Earthkit Data Source').first())
       .toBeVisible()
 
-    // Configuration fields should appear
-    await expect.element(screen.getByLabelText('Model Name')).toBeVisible()
+    // Configuration fields should appear (use Expver, a text input, to avoid enum combobox)
+    await expect.element(screen.getByLabelText('Expver')).toBeVisible()
   })
 
   it('shows "Select a block to configure" when no block is selected', async () => {

@@ -119,195 +119,6 @@ export const mockCatalogue: BlockFactoryCatalogue = {
       },
     },
   },
-
-  ['ecmwf/anemoi-inference']: {
-    factories: {
-      model_forecast: {
-        kind: 'source',
-        title: 'Compute Model Forecast',
-        description: 'Download initial conditions, run model forecast',
-        configuration_options: {
-          model: {
-            title: 'Model Name',
-            description: 'Locally available checkpoint to run',
-            value_type: 'str',
-          },
-          date: {
-            title: 'Initial Conditions DateTime',
-            description: 'DateTime of the initial conditions',
-            value_type: 'datetime',
-          },
-          lead_time: {
-            title: 'Lead Time',
-            description: 'Lead Time of the forecast in hours',
-            value_type: 'int',
-          },
-          ensemble_members: {
-            title: 'Ensemble Members',
-            description: 'How many ensemble members to use',
-            value_type: 'int',
-          },
-        },
-        inputs: [],
-      },
-    },
-  },
-
-  ['ecmwf/mars-connector']: {
-    factories: {
-      mars_aifs_external: {
-        kind: 'source',
-        title: 'Download AIFS Forecast',
-        description: 'Download an existing published AIFS forecast from MARS',
-        configuration_options: {
-          date: {
-            title: 'Initial Conditions DateTime',
-            description: 'DateTime of the initial conditions',
-            value_type: 'datetime',
-          },
-          lead_time: {
-            title: 'Lead Time',
-            description: 'Lead Time of the forecast in hours',
-            value_type: 'int',
-          },
-        },
-        inputs: [],
-      },
-    },
-  },
-
-  ['ecmwf/fiab-products']: {
-    factories: {
-      product_123: {
-        kind: 'product',
-        title: 'Thingily-Dingily Index',
-        description: 'Calculate the Thingily-Dingily index',
-        configuration_options: {
-          variables: {
-            title: 'Variables',
-            description:
-              'Which variables (st, precip, cc, ...) to compute the index for',
-            value_type: 'list[str]',
-          },
-          'thingily-dingily-coefficient': {
-            title: 'Thingily-Dingily Coefficient',
-            description: 'Coefficient of the Thingily-Dingiliness',
-            value_type: 'float',
-          },
-        },
-        inputs: ['forecast'],
-      },
-
-      product_456: {
-        kind: 'product',
-        title: 'Comparity-Romparity Ratio',
-        description:
-          'Estimate the Comparity-Romparity ratio between two forecasts',
-        configuration_options: {},
-        inputs: ['forecast1', 'forecast2'],
-      },
-
-      variable_filter: {
-        kind: 'product',
-        title: 'Variable Filter',
-        description: 'Select specific variables from the forecast data',
-        configuration_options: {
-          variables: {
-            title: 'Variables',
-            description:
-              'Select which variables to include (temp_2m, wind_u, wind_v, precip, etc.)',
-            value_type: 'list[str]',
-          },
-          interpolation_method: {
-            title: 'Interpolation Method',
-            description: 'Method used for spatial interpolation',
-            value_type: 'str',
-          },
-        },
-        inputs: ['forecast'],
-      },
-
-      region_subset: {
-        kind: 'product',
-        title: 'Region Subset',
-        description: 'Extract a geographic region from the data',
-        configuration_options: {
-          north: {
-            title: 'North Latitude',
-            description: 'Northern boundary (degrees)',
-            value_type: 'float',
-          },
-          south: {
-            title: 'South Latitude',
-            description: 'Southern boundary (degrees)',
-            value_type: 'float',
-          },
-          east: {
-            title: 'East Longitude',
-            description: 'Eastern boundary (degrees)',
-            value_type: 'float',
-          },
-          west: {
-            title: 'West Longitude',
-            description: 'Western boundary (degrees)',
-            value_type: 'float',
-          },
-        },
-        inputs: ['data'],
-      },
-    },
-  },
-
-  ['ecmwf/fiab-sinks']: {
-    factories: {
-      store_local_fdb: {
-        kind: 'sink',
-        title: 'Local FDB Persistence',
-        description: 'Store any GRIB data to local FDB',
-        configuration_options: {
-          fdb_key_prefix: {
-            title: 'FDB Prefix',
-            description: 'Like /experiments/run123',
-            value_type: 'str',
-          },
-        },
-        inputs: ['data'],
-      },
-
-      plot: {
-        kind: 'sink',
-        title: 'Visualize',
-        description: 'Visualize the result as a plot',
-        configuration_options: {
-          ekp_subcommand: {
-            title: 'Earthkit-Plots Subcommand',
-            description: 'Full subcommand as understood by earthkit-plots',
-            value_type: 'str',
-          },
-        },
-        inputs: ['data'],
-      },
-
-      api_output: {
-        kind: 'sink',
-        title: 'API Output',
-        description: 'Expose data through REST API endpoint',
-        configuration_options: {
-          endpoint_path: {
-            title: 'Endpoint Path',
-            description: 'URL path for the API endpoint',
-            value_type: 'str',
-          },
-          format: {
-            title: 'Output Format',
-            description: 'Data format (json, geojson, csv)',
-            value_type: 'str',
-          },
-        },
-        inputs: ['data'],
-      },
-    },
-  },
 }
 
 /**
@@ -381,40 +192,39 @@ export const mockSavedFables: Record<
       blocks: {
         block_source_1: {
           factory_id: {
-            plugin: pluginId('ecmwf', 'anemoi-inference'),
-            factory: 'model_forecast',
+            plugin: pluginId('ecmwf', 'ecmwf-base'),
+            factory: 'ekdSource',
           },
           configuration_values: {
-            model: 'aifs/single-mse-v0.2.1',
-            date: '2024-01-15T00:00:00Z',
-            lead_time: '24',
-            ensemble_members: '4',
+            source: 'mars',
+            date: '2024-01-15',
+            expver: '0001',
           },
           input_ids: {},
         },
         block_product_1: {
           factory_id: {
-            plugin: pluginId('ecmwf', 'fiab-products'),
-            factory: 'variable_filter',
+            plugin: pluginId('ecmwf', 'ecmwf-base'),
+            factory: 'ensembleStatistics',
           },
           configuration_values: {
-            variables: 'temp_2m,wind_u,wind_v',
-            interpolation_method: 'linear',
+            variable: '2t',
+            statistic: 'mean',
           },
           input_ids: {
-            forecast: 'block_source_1',
+            dataset: 'block_source_1',
           },
         },
         block_sink_1: {
           factory_id: {
-            plugin: pluginId('ecmwf', 'fiab-sinks'),
-            factory: 'plot',
+            plugin: pluginId('ecmwf', 'ecmwf-base'),
+            factory: 'zarrSink',
           },
           configuration_values: {
-            ekp_subcommand: 'contour --variable temp_2m',
+            path: '/data/output/european_temperature.zarr',
           },
           input_ids: {
-            data: 'block_product_1',
+            dataset: 'block_product_1',
           },
         },
       },
@@ -429,33 +239,34 @@ export const mockSavedFables: Record<
   'fable-002': {
     fable: {
       blocks: {
-        block_aifs_1: {
+        block_source_1: {
           factory_id: {
-            plugin: pluginId('ecmwf', 'mars-connector'),
-            factory: 'mars_aifs_external',
+            plugin: pluginId('ecmwf', 'ecmwf-base'),
+            factory: 'ekdSource',
           },
           configuration_values: {
-            date: '2024-01-14T12:00:00Z',
-            lead_time: '48',
+            source: 'ecmwf-open-data',
+            date: '2024-01-14',
+            expver: '0001',
           },
           input_ids: {},
         },
-        block_store_1: {
+        block_sink_1: {
           factory_id: {
-            plugin: pluginId('ecmwf', 'fiab-sinks'),
-            factory: 'store_local_fdb',
+            plugin: pluginId('ecmwf', 'ecmwf-base'),
+            factory: 'zarrSink',
           },
           configuration_values: {
-            fdb_key_prefix: '/experiments/aifs_download_test',
+            path: '/data/output/open_data_archive.zarr',
           },
           input_ids: {
-            data: 'block_aifs_1',
+            dataset: 'block_source_1',
           },
         },
       },
     },
-    name: 'AIFS Download and Store',
-    tags: ['aifs', 'archive'],
+    name: 'Open Data Archive',
+    tags: ['open-data', 'archive'],
     user_id: 'user-123',
     created_at: '2024-01-12T08:00:00Z',
     updated_at: '2024-01-12T08:00:00Z',
@@ -477,16 +288,9 @@ export function calculateExpansion(fable: FableBuilderV1): {
   const possible_expansions: Record<string, Array<PluginBlockFactoryId>> = {}
 
   // Available blocks by kind (using new PluginCompositeId format)
+  // Only ecmwf-base plugin is loaded
   const sourceBlocks: Array<PluginBlockFactoryId> = [
     { plugin: pluginId('ecmwf', 'ecmwf-base'), factory: 'ekdSource' },
-    {
-      plugin: pluginId('ecmwf', 'anemoi-inference'),
-      factory: 'model_forecast',
-    },
-    {
-      plugin: pluginId('ecmwf', 'mars-connector'),
-      factory: 'mars_aifs_external',
-    },
   ]
   const productBlocks: Array<PluginBlockFactoryId> = [
     {
@@ -497,16 +301,9 @@ export function calculateExpansion(fable: FableBuilderV1): {
       plugin: pluginId('ecmwf', 'ecmwf-base'),
       factory: 'temporalStatistics',
     },
-    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_123' },
-    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'product_456' },
-    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'variable_filter' },
-    { plugin: pluginId('ecmwf', 'fiab-products'), factory: 'region_subset' },
   ]
   const sinkBlocks: Array<PluginBlockFactoryId> = [
     { plugin: pluginId('ecmwf', 'ecmwf-base'), factory: 'zarrSink' },
-    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'store_local_fdb' },
-    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'plot' },
-    { plugin: pluginId('ecmwf', 'fiab-sinks'), factory: 'api_output' },
   ]
 
   for (const [blockId, instance] of Object.entries(fable.blocks)) {

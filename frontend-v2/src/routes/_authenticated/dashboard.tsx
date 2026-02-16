@@ -21,6 +21,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
   CommunityNewsCard,
+  ConfigPresetsSection,
   ForecastJournal,
   GettingStartedSection,
   WelcomeCard,
@@ -49,7 +50,10 @@ function DashboardPage() {
       {/* Row 2: Getting Started */}
       <GettingStartedSection variant={dashboardVariant} shadow={panelShadow} />
 
-      {/* Row 3: Forecast Journal */}
+      {/* Row 3: My Configuration Presets */}
+      <ConfigPresetsSection variant={dashboardVariant} shadow={panelShadow} />
+
+      {/* Row 4: Forecast Journal */}
       <ForecastJournal variant={dashboardVariant} shadow={panelShadow} />
     </div>
   )

@@ -47,23 +47,6 @@ export const mockPluginListing: PluginListing = {
       update_date: '2026/02/03',
     },
 
-    // Toy Plugin - available but not installed (matches live backend exactly)
-    [createPluginKey('ecmwf', 'toy1')]: {
-      status: 'available',
-      store_info: {
-        pip_source: 'fiab-plugin-toy',
-        module_name: 'fiab_plugin_toy',
-        display_title: 'Toy Plugin',
-        display_description: 'Example Fable Workflows',
-        display_author: 'ECMWF',
-        comment: 'just a placeholder for now',
-      },
-      remote_info: { version: 'unknown' },
-      errored_detail: null,
-      loaded_version: null,
-      update_date: null,
-    },
-
     // Disabled plugins (installed but not enabled)
     [createPluginKey('ecmwf', 'anemoi-inference')]: {
       status: 'disabled',

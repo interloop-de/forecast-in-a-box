@@ -17,6 +17,7 @@
 import {
   Activity,
   AlertTriangle,
+  Bookmark,
   Box,
   CheckCircle2,
   Clock,
@@ -29,7 +30,6 @@ import {
 import { useTranslation } from 'react-i18next'
 import { StatCard } from './StatCard'
 import { QuickActionButton } from './QuickActionButton'
-import { ConfigPresetsPopover } from './ConfigPresetsPopover'
 import { JobStatusDetailsPopover } from './JobStatusDetailsPopover'
 import type { ReactNode } from 'react'
 import type { TrafficLightStatus } from '@/types/status.types'
@@ -209,7 +209,11 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
           label={t('welcome.actions.manageExecutions')}
           to="/executions"
         />
-        <ConfigPresetsPopover />
+        <QuickActionButton
+          icon={<Bookmark className="h-4 w-4" />}
+          label={t('welcome.actions.myPresets')}
+          to="/presets"
+        />
         <QuickActionButton
           icon={<Clock className="h-4 w-4" />}
           label={t('welcome.actions.scheduledForecasts')}

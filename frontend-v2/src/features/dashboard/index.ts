@@ -17,6 +17,7 @@
 // Components
 export { WelcomeCard } from './components/WelcomeCard'
 export { CommunityNewsCard } from './components/CommunityNewsCard'
+export { ConfigPresetsSection } from './components/ConfigPresetsSection'
 export { GettingStartedSection } from './components/GettingStartedSection'
 export { GettingStartedCard } from './components/GettingStartedCard'
 export { ForecastJournal } from './components/ForecastJournal'
