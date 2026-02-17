@@ -107,8 +107,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Validate
-        run: npm run validate:ci
+      - name: Check formatting and linting
+        run: npm run check
+        working-directory: frontend-v2
+
+      - name: Run unit and integration tests
+        run: npm run test:run
+        working-directory: frontend-v2
+
+      - name: Build
+        run: npm run build
+        working-directory: frontend-v2
+
+      - name: Run fullstack E2E tests
+        run: npm run test:e2e:stack
+        working-directory: frontend-v2
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
