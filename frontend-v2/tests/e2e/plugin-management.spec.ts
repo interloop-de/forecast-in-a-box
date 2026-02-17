@@ -181,15 +181,22 @@ test.describe('Plugin Actions', () => {
 
       // Click to toggle
       await firstToggle.click()
-      await page.waitForTimeout(1000)
 
-      // State should have changed
-      const newChecked = await firstToggle.isChecked()
-      expect(newChecked).not.toBe(initialChecked)
+      // State should have changed (auto-retries until condition met)
+      if (initialChecked) {
+        await expect(firstToggle).not.toBeChecked()
+      } else {
+        await expect(firstToggle).toBeChecked()
+      }
 
       // Toggle back to restore original state
       await firstToggle.click()
-      await page.waitForTimeout(1000)
+
+      if (initialChecked) {
+        await expect(firstToggle).toBeChecked()
+      } else {
+        await expect(firstToggle).not.toBeChecked()
+      }
     }
   })
 
