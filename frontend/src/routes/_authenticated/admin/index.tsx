@@ -14,6 +14,7 @@
  * Redirects to the default admin page (plugins).
  */
 
+<<<<<<<< HEAD:frontend/src/routes/_authenticated/admin/index.tsx
 import { Navigate, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/admin/')({
@@ -22,4 +23,34 @@ export const Route = createFileRoute('/_authenticated/admin/')({
 
 function AdminIndex() {
   return <Navigate to="/admin/plugins" replace />
+========
+import 'i18next'
+import type commonEN from '@/locales/en/common.json'
+import type statusEN from '@/locales/en/status.json'
+import type landingEN from '@/locales/en/landing.json'
+import type authEN from '@/locales/en/auth.json'
+import type errorsEN from '@/locales/en/errors.json'
+import type validationEN from '@/locales/en/validation.json'
+import type dashboardEN from '@/locales/en/dashboard.json'
+import type pluginsEN from '@/locales/en/plugins.json'
+import type sourcesEN from '@/locales/en/sources.json'
+import type executionsEN from '@/locales/en/executions.json'
+
+declare module 'i18next' {
+  interface CustomTypeOptions {
+    defaultNS: 'common'
+    resources: {
+      common: typeof commonEN
+      status: typeof statusEN
+      landing: typeof landingEN
+      auth: typeof authEN
+      errors: typeof errorsEN
+      validation: typeof validationEN
+      dashboard: typeof dashboardEN
+      plugins: typeof pluginsEN
+      sources: typeof sourcesEN
+      executions: typeof executionsEN
+    }
+  }
+>>>>>>>> interloop/dev:frontend-v2/src/types/i18next.d.ts
 }

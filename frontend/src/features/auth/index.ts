@@ -12,6 +12,52 @@
  * Authentication module exports
  */
 
+<<<<<<<< HEAD:frontend/src/features/auth/index.ts
 export { AuthProvider } from './AuthProvider.tsx'
 export { useAuth } from './AuthContext.tsx'
 export type { AuthContextValue } from './AuthContext.tsx'
+========
+export function cn(...inputs: Array<ClassValue>) {
+  return twMerge(clsx(inputs))
+}
+
+/**
+ * Validate that a redirect URL is safe (internal only)
+ *
+ * Prevents open redirect vulnerabilities by ensuring:
+ * - URL starts with "/" (relative path)
+ * - URL does NOT start with "//" (protocol-relative, would allow external redirects)
+ * - URL does NOT contain backslashes (IE compatibility issue)
+ *
+ * @param url - The URL to validate
+ * @returns true if the URL is a safe internal redirect (type guard narrows to string)
+ */
+export function isValidInternalRedirect(url: string | null): url is string {
+  if (!url) return false
+
+  // Must start with single forward slash
+  if (!url.startsWith('/')) return false
+
+  // Must NOT start with // (protocol-relative URL)
+  if (url.startsWith('//')) return false
+
+  // Must NOT contain backslashes (IE treats them as forward slashes)
+  if (url.includes('\\')) return false
+
+  return true
+}
+
+/**
+ * Check if a URL is external
+ *
+ * External URLs start with:
+ * - http:// or https:// (absolute URLs)
+ * - // (protocol-relative URLs)
+ *
+ * @param url - The URL to check
+ * @returns true if the URL is external
+ */
+export function isExternalUrl(url: string): boolean {
+  return /^(https?:)?\/\//.test(url)
+}
+>>>>>>>> interloop/dev:frontend-v2/src/lib/utils.ts
