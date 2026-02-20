@@ -16,8 +16,10 @@ import { Route as AuthenticatedPresetsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfigureRouteImport } from './routes/_authenticated/configure'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedSchedulesIndexRouteImport } from './routes/_authenticated/schedules.index'
 import { Route as AuthenticatedExecutionsIndexRouteImport } from './routes/_authenticated/executions.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedSchedulesScheduleIdRouteImport } from './routes/_authenticated/schedules.$scheduleId'
 import { Route as AuthenticatedExecutionsJobIdRouteImport } from './routes/_authenticated/executions.$jobId'
 import { Route as AuthenticatedConfigureFableIdRouteImport } from './routes/_authenticated/configure.$fableId'
 import { Route as AuthenticatedAdminSourcesRouteImport } from './routes/_authenticated/admin/sources'
@@ -59,6 +61,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSchedulesIndexRoute =
+  AuthenticatedSchedulesIndexRouteImport.update({
+    id: '/schedules/',
+    path: '/schedules/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedExecutionsIndexRoute =
   AuthenticatedExecutionsIndexRouteImport.update({
     id: '/executions/',
@@ -70,6 +78,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedSchedulesScheduleIdRoute =
+  AuthenticatedSchedulesScheduleIdRouteImport.update({
+    id: '/schedules/$scheduleId',
+    path: '/schedules/$scheduleId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedExecutionsJobIdRoute =
   AuthenticatedExecutionsJobIdRouteImport.update({
     id: '/executions/$jobId',
@@ -118,8 +132,10 @@ export interface FileRoutesByFullPath {
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
+  '/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/executions/': typeof AuthenticatedExecutionsIndexRoute
+  '/schedules/': typeof AuthenticatedSchedulesIndexRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -132,8 +148,10 @@ export interface FileRoutesByTo {
   '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
+  '/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/executions': typeof AuthenticatedExecutionsIndexRoute
+  '/schedules': typeof AuthenticatedSchedulesIndexRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/admin/plugins': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -150,8 +168,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/_authenticated/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/_authenticated/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
+  '/_authenticated/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/executions/': typeof AuthenticatedExecutionsIndexRoute
+  '/_authenticated/schedules/': typeof AuthenticatedSchedulesIndexRoute
   '/_authenticated/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
   '/_authenticated/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
@@ -168,8 +188,10 @@ export interface FileRouteTypes {
     | '/admin/sources'
     | '/configure/$fableId'
     | '/executions/$jobId'
+    | '/schedules/$scheduleId'
     | '/admin/'
     | '/executions/'
+    | '/schedules/'
     | '/admin/plugins/$pluginId'
     | '/admin/plugins/'
   fileRoutesByTo: FileRoutesByTo
@@ -182,8 +204,10 @@ export interface FileRouteTypes {
     | '/admin/sources'
     | '/configure/$fableId'
     | '/executions/$jobId'
+    | '/schedules/$scheduleId'
     | '/admin'
     | '/executions'
+    | '/schedules'
     | '/admin/plugins/$pluginId'
     | '/admin/plugins'
   id:
@@ -199,8 +223,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sources'
     | '/_authenticated/configure/$fableId'
     | '/_authenticated/executions/$jobId'
+    | '/_authenticated/schedules/$scheduleId'
     | '/_authenticated/admin/'
     | '/_authenticated/executions/'
+    | '/_authenticated/schedules/'
     | '/_authenticated/admin/plugins/$pluginId'
     | '/_authenticated/admin/plugins/'
   fileRoutesById: FileRoutesById
@@ -262,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/schedules/': {
+      id: '/_authenticated/schedules/'
+      path: '/schedules'
+      fullPath: '/schedules/'
+      preLoaderRoute: typeof AuthenticatedSchedulesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/executions/': {
       id: '/_authenticated/executions/'
       path: '/executions'
@@ -275,6 +308,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/schedules/$scheduleId': {
+      id: '/_authenticated/schedules/$scheduleId'
+      path: '/schedules/$scheduleId'
+      fullPath: '/schedules/$scheduleId'
+      preLoaderRoute: typeof AuthenticatedSchedulesScheduleIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/executions/$jobId': {
       id: '/_authenticated/executions/$jobId'
@@ -373,7 +413,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPresetsRoute: typeof AuthenticatedPresetsRoute
   AuthenticatedExecutionsJobIdRoute: typeof AuthenticatedExecutionsJobIdRoute
+  AuthenticatedSchedulesScheduleIdRoute: typeof AuthenticatedSchedulesScheduleIdRoute
   AuthenticatedExecutionsIndexRoute: typeof AuthenticatedExecutionsIndexRoute
+  AuthenticatedSchedulesIndexRoute: typeof AuthenticatedSchedulesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -382,7 +424,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPresetsRoute: AuthenticatedPresetsRoute,
   AuthenticatedExecutionsJobIdRoute: AuthenticatedExecutionsJobIdRoute,
+  AuthenticatedSchedulesScheduleIdRoute: AuthenticatedSchedulesScheduleIdRoute,
   AuthenticatedExecutionsIndexRoute: AuthenticatedExecutionsIndexRoute,
+  AuthenticatedSchedulesIndexRoute: AuthenticatedSchedulesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

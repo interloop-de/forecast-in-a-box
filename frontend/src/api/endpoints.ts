@@ -175,6 +175,27 @@ export const API_ENDPOINTS = {
   },
 
   /**
+   * Schedule management endpoints
+   */
+  schedule: {
+    /** GET - List all schedules */
+    list: `${API_PREFIX}/schedule/`,
+    /** PUT - Create a new schedule */
+    create: `${API_PREFIX}/schedule/create`,
+    /** GET/POST - Get or update a schedule by ID */
+    byId: (scheduleId: string) => `${API_PREFIX}/schedule/${scheduleId}`,
+    /** GET - Get runs for a schedule */
+    runs: (scheduleId: string) => `${API_PREFIX}/schedule/${scheduleId}/runs`,
+    /** GET - Get next run time for a schedule */
+    nextRun: (scheduleId: string) =>
+      `${API_PREFIX}/schedule/${scheduleId}/next_run`,
+    /** POST - Re-run a specific schedule run */
+    rerun: (runId: string) => `${API_PREFIX}/schedule/run/${runId}`,
+    /** POST - Restart the scheduler thread */
+    restart: `${API_PREFIX}/schedule/restart`,
+  },
+
+  /**
    * Source Registry management endpoints. Currently only used in mocks
    */
   registries: {
@@ -253,5 +274,15 @@ export const API_PATTERNS = {
     byId: `${API_PREFIX}/registries/:registryId`,
     /** Pattern: /api/v1/registries/:registryId/sync */
     sync: `${API_PREFIX}/registries/:registryId/sync`,
+  },
+  schedule: {
+    /** Pattern: /api/v1/schedule/:scheduleId */
+    byId: `${API_PREFIX}/schedule/:scheduleId`,
+    /** Pattern: /api/v1/schedule/:scheduleId/runs */
+    runs: `${API_PREFIX}/schedule/:scheduleId/runs`,
+    /** Pattern: /api/v1/schedule/:scheduleId/next_run */
+    nextRun: `${API_PREFIX}/schedule/:scheduleId/next_run`,
+    /** Pattern: /api/v1/schedule/run/:scheduleRunId */
+    rerun: `${API_PREFIX}/schedule/run/:scheduleRunId`,
   },
 } as const

@@ -24,6 +24,7 @@ import type dashboardEN from '@/locales/en/dashboard.json'
 import type pluginsEN from '@/locales/en/plugins.json'
 import type sourcesEN from '@/locales/en/sources.json'
 import type executionsEN from '@/locales/en/executions.json'
+import type schedulesEN from '@/locales/en/schedules.json'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -39,6 +40,7 @@ declare module 'i18next' {
       plugins: typeof pluginsEN
       sources: typeof sourcesEN
       executions: typeof executionsEN
+      schedules: typeof schedulesEN
     }
   }
 }

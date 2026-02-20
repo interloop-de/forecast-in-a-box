@@ -27,6 +27,7 @@ import dashboardEN from '@/locales/en/dashboard.json'
 import pluginsEN from '@/locales/en/plugins.json'
 import sourcesEN from '@/locales/en/sources.json'
 import executionsEN from '@/locales/en/executions.json'
+import schedulesEN from '@/locales/en/schedules.json'
 
 // Translation resources organized by namespace
 const resources = {
@@ -41,6 +42,7 @@ const resources = {
     plugins: pluginsEN,
     sources: sourcesEN,
     executions: executionsEN,
+    schedules: schedulesEN,
   },
 }
 
@@ -65,6 +67,7 @@ i18n
       'plugins',
       'sources',
       'executions',
+      'schedules',
     ],
 
     // Interpolation options

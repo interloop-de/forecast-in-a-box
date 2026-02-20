@@ -217,6 +217,7 @@ export function WelcomeCard({ variant, shadow, className }: WelcomeCardProps) {
         <QuickActionButton
           icon={<Clock className="h-4 w-4" />}
           label={t('welcome.actions.scheduledForecasts')}
+          to="/schedules"
         />
       </div>
     </Card>

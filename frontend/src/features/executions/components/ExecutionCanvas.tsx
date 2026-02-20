@@ -52,7 +52,7 @@ export function useShowConfig() {
 interface ExecutionCanvasProps {
   fable: FableBuilderV1
   catalogue: BlockFactoryCatalogue
-  status: JobStatus
+  status?: JobStatus
 }
 
 const nodeTypes: Record<string, typeof ExecutionNode> = {
