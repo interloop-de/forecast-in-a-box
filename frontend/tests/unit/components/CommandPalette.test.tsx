@@ -18,6 +18,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { HotkeysProvider } from '@tanstack/react-hotkeys'
 import { renderWithRouter } from '@tests/utils/render'
 import { CommandPalette } from '@/components/CommandPalette'
 import { useCommandStore } from '@/stores/commandStore'
@@ -37,7 +38,11 @@ describe('CommandPalette', () => {
   })
 
   it('renders nothing visible when store isOpen is false', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     // The dialog should not show command content when closed
     await expect
@@ -46,7 +51,11 @@ describe('CommandPalette', () => {
   })
 
   it('shows command groups when opened via store', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     // Open the palette
     useCommandStore.getState().setOpen(true)
@@ -62,7 +71,11 @@ describe('CommandPalette', () => {
   })
 
   it('shows navigation commands', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     useCommandStore.getState().setOpen(true)
 
@@ -82,7 +95,11 @@ describe('CommandPalette', () => {
   })
 
   it('shows getting started commands', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     useCommandStore.getState().setOpen(true)
 
@@ -92,7 +109,11 @@ describe('CommandPalette', () => {
   })
 
   it('shows "No results found" for non-matching search', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     useCommandStore.getState().setOpen(true)
 
@@ -104,7 +125,11 @@ describe('CommandPalette', () => {
   })
 
   it('opens palette on Cmd+K keyboard shortcut', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     // Palette should be closed initially
     expect(useCommandStore.getState().isOpen).toBe(false)
@@ -124,7 +149,11 @@ describe('CommandPalette', () => {
   })
 
   it('opens palette on Ctrl+K keyboard shortcut', async () => {
-    await renderWithRouter(<CommandPalette />)
+    await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     // Simulate Ctrl+K
     document.dispatchEvent(
@@ -135,7 +164,11 @@ describe('CommandPalette', () => {
   })
 
   it('toggles palette closed on repeated Cmd+K', async () => {
-    const screen = await renderWithRouter(<CommandPalette />)
+    const screen = await renderWithRouter(
+      <HotkeysProvider>
+        <CommandPalette />
+      </HotkeysProvider>,
+    )
 
     // Open
     document.dispatchEvent(
