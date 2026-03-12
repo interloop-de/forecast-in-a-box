@@ -44,9 +44,7 @@ export function ScheduleListPage() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const queryEnabled =
-    enabledFilter === 'all'
-      ? undefined
-      : enabledFilter === 'enabled'
+    enabledFilter === 'all' ? undefined : enabledFilter === 'enabled'
 
   const { data, isLoading, isError, error } = useSchedules(
     page,
@@ -106,7 +104,9 @@ export function ScheduleListPage() {
   if (searchQuery) {
     const query = searchQuery.toLowerCase()
     scheduleIds = scheduleIds.filter((scheduleId) => {
-      const meta = schedulesMeta[scheduleId] as (typeof schedulesMeta)[string] | undefined
+      const meta = schedulesMeta[scheduleId] as
+        | (typeof schedulesMeta)[string]
+        | undefined
       return (
         scheduleId.toLowerCase().includes(query) ||
         meta?.name.toLowerCase().includes(query) ||
@@ -122,10 +122,7 @@ export function ScheduleListPage() {
         layoutMode === 'boxed' ? 'max-w-7xl' : 'max-w-none',
       )}
     >
-      <PageHeader
-        title={t('page.title')}
-        description={t('page.description')}
-      />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
 
       <Card
         className="overflow-hidden"

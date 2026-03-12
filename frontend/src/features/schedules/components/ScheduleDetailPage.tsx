@@ -63,8 +63,9 @@ export function ScheduleDetailPage() {
   const rerunMutation = useRerunScheduleRun()
   const { data: catalogue } = useBlockCatalogue()
 
-  const metadata = useScheduleMetadataStore((s) => s.schedules[scheduleId] as
-    ScheduleMetadata | undefined)
+  const metadata = useScheduleMetadataStore(
+    (s) => s.schedules[scheduleId] as ScheduleMetadata | undefined,
+  )
 
   if (isLoading) {
     return (
@@ -182,9 +183,7 @@ export function ScheduleDetailPage() {
       {/* Info cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Card className="p-4">
-          <P className="text-sm text-muted-foreground">
-            {t('detail.status')}
-          </P>
+          <P className="text-sm text-muted-foreground">{t('detail.status')}</P>
           <P className="font-medium">
             {schedule.enabled ? t('detail.enabled') : t('detail.disabled')}
           </P>
@@ -200,9 +199,7 @@ export function ScheduleDetailPage() {
           </P>
         </Card>
         <Card className="p-4">
-          <P className="text-sm text-muted-foreground">
-            {t('detail.nextRun')}
-          </P>
+          <P className="text-sm text-muted-foreground">{t('detail.nextRun')}</P>
           <P className="font-medium">{nextRun || '-'}</P>
         </Card>
         {schedule.created_by && (
@@ -229,10 +226,7 @@ export function ScheduleDetailPage() {
 
       {/* Configuration overview */}
       {metadata?.fableSnapshot && catalogue && (
-        <ExecutionCanvas
-          fable={metadata.fableSnapshot}
-          catalogue={catalogue}
-        />
+        <ExecutionCanvas fable={metadata.fableSnapshot} catalogue={catalogue} />
       )}
 
       {/* Runs table */}

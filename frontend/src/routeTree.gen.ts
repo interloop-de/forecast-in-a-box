@@ -22,10 +22,12 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSchedulesScheduleIdRouteImport } from './routes/_authenticated/schedules.$scheduleId'
 import { Route as AuthenticatedExecutionsJobIdRouteImport } from './routes/_authenticated/executions.$jobId'
 import { Route as AuthenticatedConfigureFableIdRouteImport } from './routes/_authenticated/configure.$fableId'
-import { Route as AuthenticatedAdminSourcesRouteImport } from './routes/_authenticated/admin/sources'
 import { Route as AuthenticatedAdminPluginsRouteImport } from './routes/_authenticated/admin/plugins'
+import { Route as AuthenticatedAdminArtifactsRouteImport } from './routes/_authenticated/admin/artifacts'
 import { Route as AuthenticatedAdminPluginsIndexRouteImport } from './routes/_authenticated/admin/plugins.index'
+import { Route as AuthenticatedAdminArtifactsIndexRouteImport } from './routes/_authenticated/admin/artifacts.index'
 import { Route as AuthenticatedAdminPluginsPluginIdRouteImport } from './routes/_authenticated/admin/plugins.$pluginId'
+import { Route as AuthenticatedAdminArtifactsArtifactIdRouteImport } from './routes/_authenticated/admin/artifacts.$artifactId'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -96,16 +98,16 @@ const AuthenticatedConfigureFableIdRoute =
     path: '/$fableId',
     getParentRoute: () => AuthenticatedConfigureRoute,
   } as any)
-const AuthenticatedAdminSourcesRoute =
-  AuthenticatedAdminSourcesRouteImport.update({
-    id: '/sources',
-    path: '/sources',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminPluginsRoute =
   AuthenticatedAdminPluginsRouteImport.update({
     id: '/plugins',
     path: '/plugins',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminArtifactsRoute =
+  AuthenticatedAdminArtifactsRouteImport.update({
+    id: '/artifacts',
+    path: '/artifacts',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminPluginsIndexRoute =
@@ -114,11 +116,23 @@ const AuthenticatedAdminPluginsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminPluginsRoute,
   } as any)
+const AuthenticatedAdminArtifactsIndexRoute =
+  AuthenticatedAdminArtifactsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminArtifactsRoute,
+  } as any)
 const AuthenticatedAdminPluginsPluginIdRoute =
   AuthenticatedAdminPluginsPluginIdRouteImport.update({
     id: '/$pluginId',
     path: '/$pluginId',
     getParentRoute: () => AuthenticatedAdminPluginsRoute,
+  } as any)
+const AuthenticatedAdminArtifactsArtifactIdRoute =
+  AuthenticatedAdminArtifactsArtifactIdRouteImport.update({
+    id: '/$artifactId',
+    path: '/$artifactId',
+    getParentRoute: () => AuthenticatedAdminArtifactsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -128,15 +142,17 @@ export interface FileRoutesByFullPath {
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/presets': typeof AuthenticatedPresetsRoute
+  '/admin/artifacts': typeof AuthenticatedAdminArtifactsRouteWithChildren
   '/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
-  '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/executions/': typeof AuthenticatedExecutionsIndexRoute
   '/schedules/': typeof AuthenticatedSchedulesIndexRoute
+  '/admin/artifacts/$artifactId': typeof AuthenticatedAdminArtifactsArtifactIdRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/admin/artifacts/': typeof AuthenticatedAdminArtifactsIndexRoute
   '/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -145,14 +161,15 @@ export interface FileRoutesByTo {
   '/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/presets': typeof AuthenticatedPresetsRoute
-  '/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/executions': typeof AuthenticatedExecutionsIndexRoute
   '/schedules': typeof AuthenticatedSchedulesIndexRoute
+  '/admin/artifacts/$artifactId': typeof AuthenticatedAdminArtifactsArtifactIdRoute
   '/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/admin/artifacts': typeof AuthenticatedAdminArtifactsIndexRoute
   '/admin/plugins': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRoutesById {
@@ -164,15 +181,17 @@ export interface FileRoutesById {
   '/_authenticated/configure': typeof AuthenticatedConfigureRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/presets': typeof AuthenticatedPresetsRoute
+  '/_authenticated/admin/artifacts': typeof AuthenticatedAdminArtifactsRouteWithChildren
   '/_authenticated/admin/plugins': typeof AuthenticatedAdminPluginsRouteWithChildren
-  '/_authenticated/admin/sources': typeof AuthenticatedAdminSourcesRoute
   '/_authenticated/configure/$fableId': typeof AuthenticatedConfigureFableIdRoute
   '/_authenticated/executions/$jobId': typeof AuthenticatedExecutionsJobIdRoute
   '/_authenticated/schedules/$scheduleId': typeof AuthenticatedSchedulesScheduleIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/executions/': typeof AuthenticatedExecutionsIndexRoute
   '/_authenticated/schedules/': typeof AuthenticatedSchedulesIndexRoute
+  '/_authenticated/admin/artifacts/$artifactId': typeof AuthenticatedAdminArtifactsArtifactIdRoute
   '/_authenticated/admin/plugins/$pluginId': typeof AuthenticatedAdminPluginsPluginIdRoute
+  '/_authenticated/admin/artifacts/': typeof AuthenticatedAdminArtifactsIndexRoute
   '/_authenticated/admin/plugins/': typeof AuthenticatedAdminPluginsIndexRoute
 }
 export interface FileRouteTypes {
@@ -184,15 +203,17 @@ export interface FileRouteTypes {
     | '/configure'
     | '/dashboard'
     | '/presets'
+    | '/admin/artifacts'
     | '/admin/plugins'
-    | '/admin/sources'
     | '/configure/$fableId'
     | '/executions/$jobId'
     | '/schedules/$scheduleId'
     | '/admin/'
     | '/executions/'
     | '/schedules/'
+    | '/admin/artifacts/$artifactId'
     | '/admin/plugins/$pluginId'
+    | '/admin/artifacts/'
     | '/admin/plugins/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -201,14 +222,15 @@ export interface FileRouteTypes {
     | '/configure'
     | '/dashboard'
     | '/presets'
-    | '/admin/sources'
     | '/configure/$fableId'
     | '/executions/$jobId'
     | '/schedules/$scheduleId'
     | '/admin'
     | '/executions'
     | '/schedules'
+    | '/admin/artifacts/$artifactId'
     | '/admin/plugins/$pluginId'
+    | '/admin/artifacts'
     | '/admin/plugins'
   id:
     | '__root__'
@@ -219,15 +241,17 @@ export interface FileRouteTypes {
     | '/_authenticated/configure'
     | '/_authenticated/dashboard'
     | '/_authenticated/presets'
+    | '/_authenticated/admin/artifacts'
     | '/_authenticated/admin/plugins'
-    | '/_authenticated/admin/sources'
     | '/_authenticated/configure/$fableId'
     | '/_authenticated/executions/$jobId'
     | '/_authenticated/schedules/$scheduleId'
     | '/_authenticated/admin/'
     | '/_authenticated/executions/'
     | '/_authenticated/schedules/'
+    | '/_authenticated/admin/artifacts/$artifactId'
     | '/_authenticated/admin/plugins/$pluginId'
+    | '/_authenticated/admin/artifacts/'
     | '/_authenticated/admin/plugins/'
   fileRoutesById: FileRoutesById
 }
@@ -330,18 +354,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfigureFableIdRouteImport
       parentRoute: typeof AuthenticatedConfigureRoute
     }
-    '/_authenticated/admin/sources': {
-      id: '/_authenticated/admin/sources'
-      path: '/sources'
-      fullPath: '/admin/sources'
-      preLoaderRoute: typeof AuthenticatedAdminSourcesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/plugins': {
       id: '/_authenticated/admin/plugins'
       path: '/plugins'
       fullPath: '/admin/plugins'
       preLoaderRoute: typeof AuthenticatedAdminPluginsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/artifacts': {
+      id: '/_authenticated/admin/artifacts'
+      path: '/artifacts'
+      fullPath: '/admin/artifacts'
+      preLoaderRoute: typeof AuthenticatedAdminArtifactsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/plugins/': {
@@ -351,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPluginsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminPluginsRoute
     }
+    '/_authenticated/admin/artifacts/': {
+      id: '/_authenticated/admin/artifacts/'
+      path: '/'
+      fullPath: '/admin/artifacts/'
+      preLoaderRoute: typeof AuthenticatedAdminArtifactsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminArtifactsRoute
+    }
     '/_authenticated/admin/plugins/$pluginId': {
       id: '/_authenticated/admin/plugins/$pluginId'
       path: '/$pluginId'
@@ -358,8 +389,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPluginsPluginIdRouteImport
       parentRoute: typeof AuthenticatedAdminPluginsRoute
     }
+    '/_authenticated/admin/artifacts/$artifactId': {
+      id: '/_authenticated/admin/artifacts/$artifactId'
+      path: '/$artifactId'
+      fullPath: '/admin/artifacts/$artifactId'
+      preLoaderRoute: typeof AuthenticatedAdminArtifactsArtifactIdRouteImport
+      parentRoute: typeof AuthenticatedAdminArtifactsRoute
+    }
   }
 }
+
+interface AuthenticatedAdminArtifactsRouteChildren {
+  AuthenticatedAdminArtifactsArtifactIdRoute: typeof AuthenticatedAdminArtifactsArtifactIdRoute
+  AuthenticatedAdminArtifactsIndexRoute: typeof AuthenticatedAdminArtifactsIndexRoute
+}
+
+const AuthenticatedAdminArtifactsRouteChildren: AuthenticatedAdminArtifactsRouteChildren =
+  {
+    AuthenticatedAdminArtifactsArtifactIdRoute:
+      AuthenticatedAdminArtifactsArtifactIdRoute,
+    AuthenticatedAdminArtifactsIndexRoute:
+      AuthenticatedAdminArtifactsIndexRoute,
+  }
+
+const AuthenticatedAdminArtifactsRouteWithChildren =
+  AuthenticatedAdminArtifactsRoute._addFileChildren(
+    AuthenticatedAdminArtifactsRouteChildren,
+  )
 
 interface AuthenticatedAdminPluginsRouteChildren {
   AuthenticatedAdminPluginsPluginIdRoute: typeof AuthenticatedAdminPluginsPluginIdRoute
@@ -379,14 +435,15 @@ const AuthenticatedAdminPluginsRouteWithChildren =
   )
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminArtifactsRoute: typeof AuthenticatedAdminArtifactsRouteWithChildren
   AuthenticatedAdminPluginsRoute: typeof AuthenticatedAdminPluginsRouteWithChildren
-  AuthenticatedAdminSourcesRoute: typeof AuthenticatedAdminSourcesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminArtifactsRoute:
+    AuthenticatedAdminArtifactsRouteWithChildren,
   AuthenticatedAdminPluginsRoute: AuthenticatedAdminPluginsRouteWithChildren,
-  AuthenticatedAdminSourcesRoute: AuthenticatedAdminSourcesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

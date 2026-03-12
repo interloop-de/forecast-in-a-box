@@ -29,7 +29,7 @@ interface DiscoveredField {
 }
 
 interface DynamicFieldsSelectorProps {
-  compiledExecSpec: Record<string, unknown>
+  compiledExecSpec: object
   fable: FableBuilderV1
   value: Record<string, unknown>
   onChange: (expr: Record<string, unknown>) => void
@@ -67,9 +67,7 @@ export function DynamicFieldsSelector({
 
   // Check which fields are currently toggled on
   const activeEntries = flattenDynExpr(value)
-  const activePaths = new Set(
-    activeEntries.map((e) => e.path.join('.')),
-  )
+  const activePaths = new Set(activeEntries.map((e) => e.path.join('.')))
 
   function isFieldActive(field: DiscoveredField): boolean {
     return field.paths.some((p) => activePaths.has(p.join('.')))
@@ -79,8 +77,7 @@ export function DynamicFieldsSelector({
     if (isFieldActive(field)) {
       // Remove these paths from the dynamic expr
       const remaining = activeEntries.filter(
-        (e) =>
-          !field.paths.some((p) => p.join('.') === e.path.join('.')),
+        (e) => !field.paths.some((p) => p.join('.') === e.path.join('.')),
       )
       onChange(
         buildNestedDynExpr(
@@ -90,10 +87,7 @@ export function DynamicFieldsSelector({
       )
     } else {
       // Add these paths
-      const allPaths = [
-        ...activeEntries.map((e) => e.path),
-        ...field.paths,
-      ]
+      const allPaths = [...activeEntries.map((e) => e.path), ...field.paths]
       onChange(buildNestedDynExpr(allPaths, EXECUTION_TIME_EXPR))
     }
   }

@@ -55,6 +55,14 @@ export const STORAGE_KEYS = {
   },
 
   /**
+   * Artifact-related storage keys (direct localStorage)
+   */
+  artifacts: {
+    /** Composite IDs of downloads in progress, so polling can resume after refresh */
+    pendingDownloads: 'fiab.artifacts.pending-downloads',
+  },
+
+  /**
    * Zustand store persistence keys
    */
   stores: {

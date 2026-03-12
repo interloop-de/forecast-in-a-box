@@ -44,7 +44,7 @@ export const API_PREFIX = `/api/${API_VERSION}`
  * apiClient.get(API_ENDPOINTS.status)
  *
  * // Dynamic endpoint
- * apiClient.get(API_ENDPOINTS.sources.byId(sourceId))
+ * apiClient.get(API_ENDPOINTS.job.statusById(jobId))
  * ```
  */
 export const API_ENDPOINTS = {
@@ -116,23 +116,17 @@ export const API_ENDPOINTS = {
   },
 
   /**
-   * Sources management endpoints. Currently only used in mocks
+   * Artifacts (ML models) management endpoints
    */
-  sources: {
-    /** GET - List all sources and registries */
-    list: `${API_PREFIX}/sources`,
-    /** GET - Get source by ID */
-    byId: (sourceId: string) => `${API_PREFIX}/sources/${sourceId}`,
-    /** POST - Download a source (for model type) */
-    download: (sourceId: string) =>
-      `${API_PREFIX}/sources/${sourceId}/download`,
-    /** PUT - Enable a source */
-    enable: (sourceId: string) => `${API_PREFIX}/sources/${sourceId}/enable`,
-    /** PUT - Disable a source */
-    disable: (sourceId: string) => `${API_PREFIX}/sources/${sourceId}/disable`,
-    /** PUT - Configure a source */
-    configure: (sourceId: string) =>
-      `${API_PREFIX}/sources/${sourceId}/configure`,
+  artifacts: {
+    /** GET - List all models */
+    listModels: `${API_PREFIX}/artifacts/list_models`,
+    /** POST - Get model details (body: CompositeArtifactId) */
+    modelDetails: `${API_PREFIX}/artifacts/model_details`,
+    /** POST - Download a model (body: CompositeArtifactId) */
+    downloadModel: `${API_PREFIX}/artifacts/download_model`,
+    /** POST - Delete a model (body: CompositeArtifactId) */
+    deleteModel: `${API_PREFIX}/artifacts/delete_model`,
   },
 
   /**
@@ -194,22 +188,6 @@ export const API_ENDPOINTS = {
     /** POST - Restart the scheduler thread */
     restart: `${API_PREFIX}/schedule/restart`,
   },
-
-  /**
-   * Source Registry management endpoints. Currently only used in mocks
-   */
-  registries: {
-    /** GET - List all registries */
-    list: `${API_PREFIX}/registries`,
-    /** POST - Add a new registry */
-    add: `${API_PREFIX}/registries`,
-    /** GET - Get registry by ID */
-    byId: (registryId: string) => `${API_PREFIX}/registries/${registryId}`,
-    /** DELETE - Remove a registry */
-    remove: (registryId: string) => `${API_PREFIX}/registries/${registryId}`,
-    /** POST - Sync a registry */
-    sync: (registryId: string) => `${API_PREFIX}/registries/${registryId}/sync`,
-  },
 } as const
 
 /**
@@ -222,13 +200,22 @@ export const API_ENDPOINTS = {
  * ```typescript
  * import { API_PATTERNS } from '@/api/endpoints'
  *
- * http.get(API_PATTERNS.sources.byId, async ({ params }) => {
- *   const { sourceId } = params
+ * http.get(API_PATTERNS.job.statusById, async ({ params }) => {
+ *   const { jobId } = params
  *   // ...
  * })
  * ```
  */
 export const API_PATTERNS = {
+  /**
+   * Artifacts patterns - all use static paths (IDs in request body)
+   */
+  artifacts: {
+    listModels: `${API_PREFIX}/artifacts/list_models`,
+    modelDetails: `${API_PREFIX}/artifacts/model_details`,
+    downloadModel: `${API_PREFIX}/artifacts/download_model`,
+    deleteModel: `${API_PREFIX}/artifacts/delete_model`,
+  },
   /**
    * Plugin patterns - all use static paths now (no path params)
    * Plugin ID is sent in request body, not URL.
@@ -256,24 +243,6 @@ export const API_PATTERNS = {
     restart: `${API_PREFIX}/job/:executionId/restart`,
     /** Pattern: /api/v1/job/delete (execution_id as query param) */
     delete: `${API_PREFIX}/job/delete`,
-  },
-  sources: {
-    /** Pattern: /api/v1/sources/:sourceId */
-    byId: `${API_PREFIX}/sources/:sourceId`,
-    /** Pattern: /api/v1/sources/:sourceId/download */
-    download: `${API_PREFIX}/sources/:sourceId/download`,
-    /** Pattern: /api/v1/sources/:sourceId/enable */
-    enable: `${API_PREFIX}/sources/:sourceId/enable`,
-    /** Pattern: /api/v1/sources/:sourceId/disable */
-    disable: `${API_PREFIX}/sources/:sourceId/disable`,
-    /** Pattern: /api/v1/sources/:sourceId/configure */
-    configure: `${API_PREFIX}/sources/:sourceId/configure`,
-  },
-  registries: {
-    /** Pattern: /api/v1/registries/:registryId */
-    byId: `${API_PREFIX}/registries/:registryId`,
-    /** Pattern: /api/v1/registries/:registryId/sync */
-    sync: `${API_PREFIX}/registries/:registryId/sync`,
   },
   schedule: {
     /** Pattern: /api/v1/schedule/:scheduleId */

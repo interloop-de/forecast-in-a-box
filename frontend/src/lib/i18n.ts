@@ -25,7 +25,7 @@ import errorsEN from '@/locales/en/errors.json'
 import validationEN from '@/locales/en/validation.json'
 import dashboardEN from '@/locales/en/dashboard.json'
 import pluginsEN from '@/locales/en/plugins.json'
-import sourcesEN from '@/locales/en/sources.json'
+import artifactsEN from '@/locales/en/artifacts.json'
 import executionsEN from '@/locales/en/executions.json'
 import schedulesEN from '@/locales/en/schedules.json'
 
@@ -40,7 +40,7 @@ const resources = {
     validation: validationEN,
     dashboard: dashboardEN,
     plugins: pluginsEN,
-    sources: sourcesEN,
+    artifacts: artifactsEN,
     executions: executionsEN,
     schedules: schedulesEN,
   },
@@ -65,7 +65,7 @@ i18n
       'validation',
       'dashboard',
       'plugins',
-      'sources',
+      'artifacts',
       'executions',
       'schedules',
     ],

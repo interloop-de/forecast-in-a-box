@@ -150,9 +150,7 @@ export function CronExpressionInput({
           )}
           {frequency === 'hourly' && (
             <>
-              <Label className="text-sm text-muted-foreground">
-                at minute
-              </Label>
+              <Label className="text-sm text-muted-foreground">at minute</Label>
               <Input
                 type="number"
                 min={0}

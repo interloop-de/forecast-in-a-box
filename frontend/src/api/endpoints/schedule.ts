@@ -67,14 +67,10 @@ export async function getScheduleRuns(
   return apiClient.get(API_ENDPOINTS.schedule.runs(scheduleId), { params })
 }
 
-export async function getScheduleNextRun(
-  scheduleId: string,
-): Promise<string> {
+export async function getScheduleNextRun(scheduleId: string): Promise<string> {
   return apiClient.get(API_ENDPOINTS.schedule.nextRun(scheduleId))
 }
 
-export async function rerunScheduleRun(
-  runId: string,
-): Promise<unknown> {
+export async function rerunScheduleRun(runId: string): Promise<unknown> {
   return apiClient.post(API_ENDPOINTS.schedule.rerun(runId))
 }

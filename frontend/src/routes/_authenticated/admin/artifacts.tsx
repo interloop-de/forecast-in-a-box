@@ -9,21 +9,17 @@
  */
 
 /**
- * SourcesPageHeader Component
+ * Artifacts Layout Route
  *
- * Header section with title and subtitle
+ * Layout wrapper for all artifact-related routes (list and detail).
  */
 
-import { useTranslation } from 'react-i18next'
-import { H1, P } from '@/components/base/typography'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 
-export function SourcesPageHeader() {
-  const { t } = useTranslation('sources')
+export const Route = createFileRoute('/_authenticated/admin/artifacts')({
+  component: ArtifactsLayout,
+})
 
-  return (
-    <div className="flex flex-col gap-2">
-      <H1>{t('title')}</H1>
-      <P className="text-base text-muted-foreground">{t('subtitle')}</P>
-    </div>
-  )
+function ArtifactsLayout() {
+  return <Outlet />
 }

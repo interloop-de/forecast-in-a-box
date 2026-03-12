@@ -22,9 +22,11 @@ import type {
   ScheduleSpecification,
   ScheduleUpdate,
 } from '@/api/types/schedule.types'
-import type { EnvironmentSpecification } from '@/api/types/job.types'
+import type {
+  EnvironmentSpecification,
+  ExecutionSpecification,
+} from '@/api/types/job.types'
 import type { ScheduleMetadata } from '@/features/schedules/stores/useScheduleMetadataStore'
-import { createDefaultEnvironment } from '@/api/types/job.types'
 import {
   createSchedule,
   getSchedule,
@@ -99,7 +101,11 @@ export function useScheduleNextRun(scheduleId: string | undefined) {
 export function useUpdateSchedule() {
   const queryClient = useQueryClient()
 
-  return useMutation<unknown, Error, { scheduleId: string; update: ScheduleUpdate }>({
+  return useMutation<
+    unknown,
+    Error,
+    { scheduleId: string; update: ScheduleUpdate }
+  >({
     mutationFn: ({ scheduleId, update }) => updateSchedule(scheduleId, update),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: scheduleKeys.all })
@@ -129,7 +135,7 @@ interface CreateScheduleParams {
   maxAcceptableDelayHours: number
   dynamicExpr: Record<string, string>
   environment?: EnvironmentSpecification
-  compiledSpec?: Record<string, unknown>
+  compiledSpec?: ExecutionSpecification
 }
 
 export function useCreateSchedule() {
@@ -145,16 +151,12 @@ export function useCreateSchedule() {
       dynamicExpr,
       compiledSpec,
     }) => {
-      const cascadeJob = compiledSpec ?? await compileFable(fable)
+      const execSpec = compiledSpec ?? (await compileFable(fable))
 
       const spec: ScheduleSpecification = {
         exec_spec: {
-          job: cascadeJob as {
-            job_type: 'raw_cascade_job'
-            job_instance: unknown
-          },
-          environment: environment ?? createDefaultEnvironment(),
-          shared: false,
+          ...execSpec,
+          environment: environment ?? execSpec.environment,
         },
         dynamic_expr: dynamicExpr,
         cron_expr: cronExpr,

@@ -55,7 +55,8 @@ export function ScheduleListItem({
     scheduleId.length > 12 ? `${scheduleId.slice(0, 12)}...` : scheduleId
 
   const displayName =
-    metadata?.name || `${t('detail.untitledSchedule')} ${scheduleId.slice(0, 8)}`
+    metadata?.name ||
+    `${t('detail.untitledSchedule')} ${scheduleId.slice(0, 8)}`
 
   const cronDescription = schedule.cron_expr
     ? cronToHumanReadable(schedule.cron_expr)
