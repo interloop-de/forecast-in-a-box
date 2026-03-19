@@ -18,6 +18,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { userEvent } from 'vitest/browser'
 import { HotkeysProvider } from '@tanstack/react-hotkeys'
 import { renderWithRouter } from '@tests/utils/render'
 import { CommandPalette } from '@/components/CommandPalette'
@@ -134,15 +135,8 @@ describe('CommandPalette', () => {
     // Palette should be closed initially
     expect(useCommandStore.getState().isOpen).toBe(false)
 
-    // Simulate Cmd+K
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'k', metaKey: true }),
-    )
-
-    // Store should now be open (poll to allow useEffect to register)
-    await expect
-      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
-      .toBe(true)
+    // Simulate Cmd+K via userEvent (real browser keyboard events)
+    await userEvent.keyboard('{Meta>}k{/Meta}')
 
     // Content should be visible
     await expect
@@ -151,20 +145,18 @@ describe('CommandPalette', () => {
   })
 
   it('opens palette on Ctrl+K keyboard shortcut', async () => {
-    await renderWithRouter(
+    const screen = await renderWithRouter(
       <HotkeysProvider>
         <CommandPalette />
       </HotkeysProvider>,
     )
 
     // Simulate Ctrl+K
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }),
-    )
+    await userEvent.keyboard('{Control>}k{/Control}')
 
     await expect
-      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
-      .toBe(true)
+      .element(screen.getByPlaceholder('Type a command or search...'))
+      .toBeVisible()
   })
 
   it('toggles palette closed on repeated Cmd+K', async () => {
@@ -175,25 +167,18 @@ describe('CommandPalette', () => {
     )
 
     // Open
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'k', metaKey: true }),
-    )
-    await expect
-      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
-      .toBe(true)
+    await userEvent.keyboard('{Meta>}k{/Meta}')
 
-    // Wait for React to re-render so the effect re-registers with new isOpen
+    // Wait for palette to be visible
     await expect
       .element(screen.getByPlaceholder('Type a command or search...'))
       .toBeVisible()
 
     // Close
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'k', metaKey: true }),
-    )
+    await userEvent.keyboard('{Meta>}k{/Meta}')
 
     await expect
-      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
-      .toBe(false)
+      .element(screen.getByPlaceholder('Type a command or search...'))
+      .not.toBeInTheDocument()
   })
 })
