@@ -172,19 +172,20 @@ export const API_ENDPOINTS = {
    * Schedule management endpoints
    */
   schedule: {
-    /** GET - List all schedules */
-    list: `${API_PREFIX}/schedule/`,
+    /** GET - List all schedules (query: page, page_size, enabled) */
+    list: `${API_PREFIX}/schedule/list`,
     /** PUT - Create a new schedule */
     create: `${API_PREFIX}/schedule/create`,
-    /** GET/POST - Get or update a schedule by ID */
-    byId: (scheduleId: string) => `${API_PREFIX}/schedule/${scheduleId}`,
-    /** GET - Get runs for a schedule */
-    runs: (scheduleId: string) => `${API_PREFIX}/schedule/${scheduleId}/runs`,
-    /** GET - Get next run time for a schedule */
-    nextRun: (scheduleId: string) =>
-      `${API_PREFIX}/schedule/${scheduleId}/next_run`,
-    /** POST - Re-run a specific schedule run */
-    rerun: (runId: string) => `${API_PREFIX}/schedule/run/${runId}`,
+    /** GET - Get a schedule (query: experiment_id) */
+    get: `${API_PREFIX}/schedule/get`,
+    /** POST - Update a schedule (query: experiment_id) */
+    update: `${API_PREFIX}/schedule/update`,
+    /** POST - Delete a schedule (query: experiment_id) */
+    delete: `${API_PREFIX}/schedule/delete`,
+    /** GET - Get next run time (query: experiment_id) */
+    nextRun: `${API_PREFIX}/schedule/next_run`,
+    /** GET - Get runs for a schedule (query: experiment_id, page, page_size, status) */
+    runs: `${API_PREFIX}/schedule/runs`,
     /** POST - Restart the scheduler thread */
     restart: `${API_PREFIX}/schedule/restart`,
   },
@@ -243,15 +244,5 @@ export const API_PATTERNS = {
     restart: `${API_PREFIX}/job/:executionId/restart`,
     /** Pattern: /api/v1/job/delete (execution_id as query param) */
     delete: `${API_PREFIX}/job/delete`,
-  },
-  schedule: {
-    /** Pattern: /api/v1/schedule/:scheduleId */
-    byId: `${API_PREFIX}/schedule/:scheduleId`,
-    /** Pattern: /api/v1/schedule/:scheduleId/runs */
-    runs: `${API_PREFIX}/schedule/:scheduleId/runs`,
-    /** Pattern: /api/v1/schedule/:scheduleId/next_run */
-    nextRun: `${API_PREFIX}/schedule/:scheduleId/next_run`,
-    /** Pattern: /api/v1/schedule/run/:scheduleRunId */
-    rerun: `${API_PREFIX}/schedule/run/:scheduleRunId`,
   },
 } as const

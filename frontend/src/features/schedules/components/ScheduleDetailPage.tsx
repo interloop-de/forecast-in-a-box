@@ -16,27 +16,18 @@
 
 import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  RefreshCw,
-} from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import type { ScheduleMetadata } from '@/features/schedules/stores/useScheduleMetadataStore'
-import { useBlockCatalogue } from '@/api/hooks/useFable'
+import { useBlockCatalogue, useFable } from '@/api/hooks/useFable'
 import {
-  useRerunScheduleRun,
   useSchedule,
   useScheduleNextRun,
   useScheduleRuns,
   useUpdateSchedule,
 } from '@/api/hooks/useSchedules'
 import { cronToHumanReadable } from '@/features/schedules/utils/cron'
-import { useScheduleMetadataStore } from '@/features/schedules/stores/useScheduleMetadataStore'
 import { ExecutionCanvas } from '@/features/executions/components/ExecutionCanvas'
 import { LoadingSpinner } from '@/components/common'
 import { H2, P } from '@/components/base/typography'
@@ -60,12 +51,8 @@ export function ScheduleDetailPage() {
   const { data: nextRun } = useScheduleNextRun(scheduleId)
   const { data: runsData } = useScheduleRuns(scheduleId, runsPage, PAGE_SIZE)
   const updateSchedule = useUpdateSchedule()
-  const rerunMutation = useRerunScheduleRun()
   const { data: catalogue } = useBlockCatalogue()
-
-  const metadata = useScheduleMetadataStore(
-    (s) => s.schedules[scheduleId] as ScheduleMetadata | undefined,
-  )
+  const { data: fableBuilder } = useFable(schedule?.job_definition_id)
 
   if (isLoading) {
     return (
@@ -96,7 +83,7 @@ export function ScheduleDetailPage() {
   }
 
   const displayName =
-    metadata?.name ||
+    schedule.display_name ||
     `${t('detail.untitledSchedule')} ${scheduleId.slice(0, 8)}`
 
   const cronDescription = schedule.cron_expr
@@ -107,7 +94,7 @@ export function ScheduleDetailPage() {
     const newEnabled = !schedule!.enabled
     try {
       await updateSchedule.mutateAsync({
-        scheduleId,
+        experimentId: scheduleId,
         update: { enabled: newEnabled },
       })
       toast.success(
@@ -118,33 +105,13 @@ export function ScheduleDetailPage() {
     }
   }
 
-  async function handleRerun(runId: string) {
-    try {
-      await rerunMutation.mutateAsync(runId)
-      toast.success(t('actions.rerunSuccess'))
-    } catch {
-      // Error handled by mutation
-    }
-  }
-
-  const runs = runsData?.runs ?? {}
-  const runIds = Object.keys(runs).sort((a, b) => {
-    const aTime = runs[a].scheduled_at
-    const bTime = runs[b].scheduled_at
-    return bTime.localeCompare(aTime)
-  })
+  const runs = runsData?.runs ?? []
+  const sortedRuns = [...runs].sort((a, b) =>
+    b.scheduled_at.localeCompare(a.scheduled_at),
+  )
   const totalRunPages = runsData?.total_pages ?? 1
 
-  let parsedDynamicExpr: Record<string, unknown> | null = null
-  try {
-    parsedDynamicExpr = schedule.dynamic_expr
-      ? JSON.parse(schedule.dynamic_expr)
-      : null
-  } catch {
-    // Ignore parse errors
-  }
-  const hasDynamicExpr =
-    parsedDynamicExpr && Object.keys(parsedDynamicExpr).length > 0
+  const hasDynamicExpr = Object.keys(schedule.dynamic_expr).length > 0
 
   return (
     <div
@@ -219,14 +186,14 @@ export function ScheduleDetailPage() {
             {t('detail.dynamicExpressions')}
           </P>
           <pre className="rounded bg-muted p-3 text-sm">
-            {JSON.stringify(parsedDynamicExpr, null, 2)}
+            {JSON.stringify(schedule.dynamic_expr, null, 2)}
           </pre>
         </Card>
       )}
 
       {/* Configuration overview */}
-      {metadata?.fableSnapshot && catalogue && (
-        <ExecutionCanvas fable={metadata.fableSnapshot} catalogue={catalogue} />
+      {fableBuilder && catalogue && (
+        <ExecutionCanvas fable={fableBuilder} catalogue={catalogue} />
       )}
 
       {/* Runs table */}
@@ -236,71 +203,53 @@ export function ScheduleDetailPage() {
         </div>
 
         <div className="divide-y divide-border">
-          {runIds.length > 0 ? (
-            runIds.map((runId) => {
-              const run = runs[runId]
-              return (
-                <div
-                  key={runId}
-                  className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">
-                      {new Date(run.scheduled_at).toLocaleString()}
-                    </span>
-                    <Badge variant="outline" className="text-sm">
-                      {t(`trigger.${run.trigger}`)}
+          {sortedRuns.length > 0 ? (
+            sortedRuns.map((run) => (
+              <div
+                key={run.execution_id}
+                className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    {new Date(run.scheduled_at).toLocaleString()}
+                  </span>
+                  <Badge variant="outline" className="text-sm">
+                    {t(`trigger.${run.trigger}`)}
+                  </Badge>
+                  {run.status && (
+                    <Badge
+                      variant={
+                        run.status === 'completed'
+                          ? 'default'
+                          : run.status === 'failed'
+                            ? 'destructive'
+                            : 'outline'
+                      }
+                      className="text-sm"
+                    >
+                      {run.status}
                     </Badge>
-                    {run.status && (
-                      <Badge
-                        variant={
-                          run.status === 'completed'
-                            ? 'default'
-                            : run.status === 'errored' ||
-                                run.status === 'invalid'
-                              ? 'destructive'
-                              : 'outline'
-                        }
-                        className="text-sm"
-                      >
-                        {run.status}
-                      </Badge>
-                    )}
-                    {run.attempt_cnt > 1 && (
-                      <span className="text-sm text-muted-foreground">
-                        {t('detail.attempts')}: {run.attempt_cnt}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {run.job_id && (
-                      <Link
-                        to="/executions/$jobId"
-                        params={{ jobId: run.job_id }}
-                        className="font-mono text-sm text-primary hover:underline"
-                      >
-                        {run.job_id.slice(0, 12)}...
-                      </Link>
-                    )}
-                    {run.status &&
-                      (run.status === 'errored' ||
-                        run.status === 'invalid' ||
-                        run.status === 'timeout') && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRerun(run.schedule_run_id)}
-                          disabled={rerunMutation.isPending}
-                        >
-                          <RefreshCw className="mr-1 h-3.5 w-3.5" />
-                          {t('detail.rerun')}
-                        </Button>
-                      )}
-                  </div>
+                  )}
+                  {run.attempt_count > 1 && (
+                    <span className="text-sm text-muted-foreground">
+                      {t('detail.attempts')}: {run.attempt_count}
+                    </span>
+                  )}
                 </div>
-              )
-            })
+                <div className="flex items-center gap-3">
+                  {run.execution_id && (
+                    <Link
+                      to="/executions/$jobId"
+                      params={{ jobId: run.execution_id }}
+                      className="font-mono text-sm text-primary hover:underline"
+                    >
+                      {run.execution_id.slice(0, 12)}...
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))
           ) : (
             <div className="p-12 text-center text-muted-foreground">
               {t('detail.noRuns')}

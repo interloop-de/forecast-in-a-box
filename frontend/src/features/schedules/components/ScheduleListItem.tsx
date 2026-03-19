@@ -19,8 +19,7 @@ import { Clock, MoreVertical, Pause, Play } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import type { GetScheduleResponse } from '@/api/types/schedule.types'
-import type { ScheduleMetadata } from '@/features/schedules/stores/useScheduleMetadataStore'
+import type { ScheduleDefinitionResponse } from '@/api/types/schedule.types'
 import { useUpdateSchedule } from '@/api/hooks/useSchedules'
 import { cronToHumanReadable } from '@/features/schedules/utils/cron'
 import { Button } from '@/components/ui/button'
@@ -35,14 +34,12 @@ import { cn } from '@/lib/utils'
 
 interface ScheduleListItemProps {
   scheduleId: string
-  schedule: GetScheduleResponse
-  metadata: ScheduleMetadata | undefined
+  schedule: ScheduleDefinitionResponse
 }
 
 export function ScheduleListItem({
   scheduleId,
   schedule,
-  metadata,
 }: ScheduleListItemProps) {
   const { t } = useTranslation('schedules')
   const updateSchedule = useUpdateSchedule()
@@ -55,7 +52,7 @@ export function ScheduleListItem({
     scheduleId.length > 12 ? `${scheduleId.slice(0, 12)}...` : scheduleId
 
   const displayName =
-    metadata?.name ||
+    schedule.display_name ||
     `${t('detail.untitledSchedule')} ${scheduleId.slice(0, 8)}`
 
   const cronDescription = schedule.cron_expr
@@ -66,7 +63,7 @@ export function ScheduleListItem({
     const newEnabled = !schedule.enabled
     try {
       await updateSchedule.mutateAsync({
-        scheduleId,
+        experimentId: scheduleId,
         update: { enabled: newEnabled },
       })
       toast.success(
@@ -109,9 +106,9 @@ export function ScheduleListItem({
               {schedule.enabled ? t('detail.enabled') : t('detail.disabled')}
             </span>
           </div>
-          {metadata?.description && (
+          {schedule.display_description && (
             <P className="mb-1 line-clamp-1 text-muted-foreground">
-              {metadata.description}
+              {schedule.display_description}
             </P>
           )}
           <div className="mb-2 text-sm text-muted-foreground">
@@ -122,7 +119,7 @@ export function ScheduleListItem({
             <span className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-sm text-muted-foreground">
               #{truncatedId}
             </span>
-            {metadata?.tags.map((tag) => (
+            {schedule.tags?.map((tag) => (
               <span
                 key={tag}
                 className="rounded border border-border bg-card px-2 py-0.5 text-sm text-muted-foreground"

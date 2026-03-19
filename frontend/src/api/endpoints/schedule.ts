@@ -14,9 +14,9 @@
 
 import type {
   CreateScheduleResponse,
-  GetMultipleSchedulesResponse,
-  GetScheduleResponse,
-  GetScheduleRunsResponse,
+  ScheduleDefinitionResponse,
+  ScheduleListResponse,
+  ScheduleRunsResponse,
   ScheduleSpecification,
   ScheduleUpdate,
 } from '@/api/types/schedule.types'
@@ -27,7 +27,7 @@ export async function getSchedules(
   page: number = 1,
   pageSize: number = 10,
   enabled?: boolean,
-): Promise<GetMultipleSchedulesResponse> {
+): Promise<ScheduleListResponse> {
   const params: Record<string, string | number> = { page, page_size: pageSize }
   if (enabled !== undefined) {
     params.enabled = String(enabled)
@@ -36,9 +36,11 @@ export async function getSchedules(
 }
 
 export async function getSchedule(
-  scheduleId: string,
-): Promise<GetScheduleResponse> {
-  return apiClient.get(API_ENDPOINTS.schedule.byId(scheduleId))
+  experimentId: string,
+): Promise<ScheduleDefinitionResponse> {
+  return apiClient.get(API_ENDPOINTS.schedule.get, {
+    params: { experiment_id: experimentId },
+  })
 }
 
 export async function createSchedule(
@@ -48,29 +50,41 @@ export async function createSchedule(
 }
 
 export async function updateSchedule(
-  scheduleId: string,
+  experimentId: string,
   update: ScheduleUpdate,
 ): Promise<unknown> {
-  return apiClient.post(API_ENDPOINTS.schedule.byId(scheduleId), update)
+  return apiClient.post(API_ENDPOINTS.schedule.update, update, {
+    params: { experiment_id: experimentId },
+  })
+}
+
+export async function deleteSchedule(experimentId: string): Promise<unknown> {
+  return apiClient.post(API_ENDPOINTS.schedule.delete, null, {
+    params: { experiment_id: experimentId },
+  })
 }
 
 export async function getScheduleRuns(
-  scheduleId: string,
+  experimentId: string,
   page: number = 1,
   pageSize: number = 10,
   status?: string,
-): Promise<GetScheduleRunsResponse> {
-  const params: Record<string, string | number> = { page, page_size: pageSize }
+): Promise<ScheduleRunsResponse> {
+  const params: Record<string, string | number> = {
+    experiment_id: experimentId,
+    page,
+    page_size: pageSize,
+  }
   if (status) {
     params.status = status
   }
-  return apiClient.get(API_ENDPOINTS.schedule.runs(scheduleId), { params })
+  return apiClient.get(API_ENDPOINTS.schedule.runs, { params })
 }
 
-export async function getScheduleNextRun(scheduleId: string): Promise<string> {
-  return apiClient.get(API_ENDPOINTS.schedule.nextRun(scheduleId))
-}
-
-export async function rerunScheduleRun(runId: string): Promise<unknown> {
-  return apiClient.post(API_ENDPOINTS.schedule.rerun(runId))
+export async function getScheduleNextRun(
+  experimentId: string,
+): Promise<string> {
+  return apiClient.get(API_ENDPOINTS.schedule.nextRun, {
+    params: { experiment_id: experimentId },
+  })
 }

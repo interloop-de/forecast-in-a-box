@@ -15,12 +15,10 @@
   },
   "status": {
     "submitted": "Submitted",
+    "preparing": "Preparing",
     "running": "Running",
     "completed": "Completed",
-    "errored": "Errored",
-    "invalid": "Invalid",
-    "timeout": "Timeout",
-    "unknown": "Unknown"
+    "failed": "Failed"
   },
   "tabs": {
     "outputs": "Outputs",
@@ -44,10 +42,13 @@
     "title": "Submit Forecast Job",
     "name": "Name",
     "namePlaceholder": "Enter a name for this job",
+    "namePlaceholderOptional": "Name this run to find it later (optional)",
     "description": "Description",
     "descriptionPlaceholder": "Optional notes about this execution",
+    "descriptionPlaceholderOptional": "Add notes about this run (optional)",
     "tags": "Tags",
     "tagsPlaceholder": "Add a tag",
+    "tagsPlaceholderOptional": "Tag this run for easy filtering (optional)",
     "advancedTitle": "Advanced: Execution Environment",
     "hosts": "Hosts",
     "hostsPlaceholder": "Default (auto)",
@@ -60,8 +61,8 @@
     "cancel": "Cancel",
     "submit": "Submit Job",
     "submitting": "Submitting...",
-    "modeRunNow": "Run Now",
-    "modeSchedule": "Schedule",
+    "modeRunNow": "Run Once",
+    "modeSchedule": "Run on Schedule",
     "createSchedule": "Create Schedule",
     "creatingSchedule": "Creating...",
     "cronExpression": "Schedule Frequency",
@@ -109,7 +110,7 @@
     "submitted": "Submitted",
     "running": "Running",
     "completed": "Completed",
-    "errored": "Errored",
+    "failed": "Failed",
     "searchPlaceholder": "Search executions..."
   },
   "list": {

@@ -24,7 +24,6 @@ import { H2, P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { useScheduleMetadataStore } from '@/features/schedules/stores/useScheduleMetadataStore'
 import { useUiStore } from '@/stores/uiStore'
 import { cn } from '@/lib/utils'
 
@@ -51,8 +50,6 @@ export function ScheduleListPage() {
     PAGE_SIZE,
     queryEnabled,
   )
-
-  const schedulesMeta = useScheduleMetadataStore((s) => s.schedules)
 
   if (isLoading) {
     return (
@@ -92,25 +89,20 @@ export function ScheduleListPage() {
     )
   }
 
-  const schedules = data?.schedules ?? {}
-  let scheduleIds = Object.keys(schedules).sort((a, b) => {
-    const aTime = schedules[a].created_at
-    const bTime = schedules[b].created_at
-    return bTime.localeCompare(aTime)
-  })
+  const schedules = data?.schedules ?? []
+  let filteredSchedules = [...schedules].sort((a, b) =>
+    b.created_at.localeCompare(a.created_at),
+  )
   const totalPages = data?.total_pages ?? 1
 
-  // Client-side search filter on name, scheduleId, and tags
+  // Client-side search filter on name, experimentId, and tags
   if (searchQuery) {
     const query = searchQuery.toLowerCase()
-    scheduleIds = scheduleIds.filter((scheduleId) => {
-      const meta = schedulesMeta[scheduleId] as
-        | (typeof schedulesMeta)[string]
-        | undefined
+    filteredSchedules = filteredSchedules.filter((schedule) => {
       return (
-        scheduleId.toLowerCase().includes(query) ||
-        meta?.name.toLowerCase().includes(query) ||
-        meta?.tags.some((tag) => tag.toLowerCase().includes(query))
+        schedule.experiment_id.toLowerCase().includes(query) ||
+        schedule.display_name?.toLowerCase().includes(query) ||
+        schedule.tags?.some((tag) => tag.toLowerCase().includes(query))
       )
     })
   }
@@ -169,13 +161,12 @@ export function ScheduleListPage() {
         </div>
 
         <div className="divide-y divide-border">
-          {scheduleIds.length > 0 ? (
-            scheduleIds.map((scheduleId) => (
+          {filteredSchedules.length > 0 ? (
+            filteredSchedules.map((schedule) => (
               <ScheduleListItem
-                key={scheduleId}
-                scheduleId={scheduleId}
-                schedule={schedules[scheduleId]}
-                metadata={schedulesMeta[scheduleId]}
+                key={schedule.experiment_id}
+                scheduleId={schedule.experiment_id}
+                schedule={schedule}
               />
             ))
           ) : (

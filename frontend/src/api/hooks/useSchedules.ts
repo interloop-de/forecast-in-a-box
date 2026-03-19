@@ -16,39 +16,44 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { FableBuilderV1 } from '@/api/types/fable.types'
 import type {
   CreateScheduleResponse,
-  GetMultipleSchedulesResponse,
-  GetScheduleResponse,
-  GetScheduleRunsResponse,
-  ScheduleSpecification,
+  ScheduleDefinitionResponse,
+  ScheduleListResponse,
+  ScheduleRunsResponse,
   ScheduleUpdate,
 } from '@/api/types/schedule.types'
-import type {
-  EnvironmentSpecification,
-  ExecutionSpecification,
-} from '@/api/types/job.types'
-import type { ScheduleMetadata } from '@/features/schedules/stores/useScheduleMetadataStore'
 import {
   createSchedule,
+  deleteSchedule,
   getSchedule,
   getScheduleNextRun,
   getScheduleRuns,
   getSchedules,
-  rerunScheduleRun,
   updateSchedule,
 } from '@/api/endpoints/schedule'
-import { compileFable } from '@/api/endpoints/fable'
-import { useScheduleMetadataStore } from '@/features/schedules/stores/useScheduleMetadataStore'
+import { upsertFable } from '@/api/endpoints/fable'
 
 export const scheduleKeys = {
   all: ['schedules'] as const,
   list: (page: number, pageSize: number, enabled?: boolean) =>
     [...scheduleKeys.all, 'list', page, pageSize, enabled] as const,
-  detail: (scheduleId: string) =>
-    [...scheduleKeys.all, 'detail', scheduleId] as const,
-  runs: (scheduleId: string, page: number, pageSize: number, status?: string) =>
-    [...scheduleKeys.all, 'runs', scheduleId, page, pageSize, status] as const,
-  nextRun: (scheduleId: string) =>
-    [...scheduleKeys.all, 'nextRun', scheduleId] as const,
+  detail: (experimentId: string) =>
+    [...scheduleKeys.all, 'detail', experimentId] as const,
+  runs: (
+    experimentId: string,
+    page: number,
+    pageSize: number,
+    status?: string,
+  ) =>
+    [
+      ...scheduleKeys.all,
+      'runs',
+      experimentId,
+      page,
+      pageSize,
+      status,
+    ] as const,
+  nextRun: (experimentId: string) =>
+    [...scheduleKeys.all, 'nextRun', experimentId] as const,
 }
 
 export function useSchedules(
@@ -56,7 +61,7 @@ export function useSchedules(
   pageSize: number = 10,
   enabled?: boolean,
 ) {
-  return useQuery<GetMultipleSchedulesResponse>({
+  return useQuery<ScheduleListResponse>({
     queryKey: scheduleKeys.list(page, pageSize, enabled),
     queryFn: () => getSchedules(page, pageSize, enabled),
     refetchInterval: 30000,
@@ -64,35 +69,35 @@ export function useSchedules(
   })
 }
 
-export function useSchedule(scheduleId: string | undefined) {
-  return useQuery<GetScheduleResponse>({
-    queryKey: scheduleKeys.detail(scheduleId ?? ''),
-    queryFn: () => getSchedule(scheduleId!),
-    enabled: !!scheduleId,
+export function useSchedule(experimentId: string | undefined) {
+  return useQuery<ScheduleDefinitionResponse>({
+    queryKey: scheduleKeys.detail(experimentId ?? ''),
+    queryFn: () => getSchedule(experimentId!),
+    enabled: !!experimentId,
     refetchOnWindowFocus: false,
   })
 }
 
 export function useScheduleRuns(
-  scheduleId: string | undefined,
+  experimentId: string | undefined,
   page: number = 1,
   pageSize: number = 10,
   status?: string,
 ) {
-  return useQuery<GetScheduleRunsResponse>({
-    queryKey: scheduleKeys.runs(scheduleId ?? '', page, pageSize, status),
-    queryFn: () => getScheduleRuns(scheduleId!, page, pageSize, status),
-    enabled: !!scheduleId,
+  return useQuery<ScheduleRunsResponse>({
+    queryKey: scheduleKeys.runs(experimentId ?? '', page, pageSize, status),
+    queryFn: () => getScheduleRuns(experimentId!, page, pageSize, status),
+    enabled: !!experimentId,
     refetchInterval: 30000,
     refetchOnWindowFocus: false,
   })
 }
 
-export function useScheduleNextRun(scheduleId: string | undefined) {
+export function useScheduleNextRun(experimentId: string | undefined) {
   return useQuery<string>({
-    queryKey: scheduleKeys.nextRun(scheduleId ?? ''),
-    queryFn: () => getScheduleNextRun(scheduleId!),
-    enabled: !!scheduleId,
+    queryKey: scheduleKeys.nextRun(experimentId ?? ''),
+    queryFn: () => getScheduleNextRun(experimentId!),
+    enabled: !!experimentId,
     refetchInterval: 60000,
     refetchOnWindowFocus: false,
   })
@@ -104,20 +109,21 @@ export function useUpdateSchedule() {
   return useMutation<
     unknown,
     Error,
-    { scheduleId: string; update: ScheduleUpdate }
+    { experimentId: string; update: ScheduleUpdate }
   >({
-    mutationFn: ({ scheduleId, update }) => updateSchedule(scheduleId, update),
+    mutationFn: ({ experimentId, update }) =>
+      updateSchedule(experimentId, update),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: scheduleKeys.all })
     },
   })
 }
 
-export function useRerunScheduleRun() {
+export function useDeleteSchedule() {
   const queryClient = useQueryClient()
 
   return useMutation<unknown, Error, string>({
-    mutationFn: rerunScheduleRun,
+    mutationFn: deleteSchedule,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: scheduleKeys.all })
     },
@@ -130,53 +136,46 @@ interface CreateScheduleParams {
   description: string
   tags: Array<string>
   fableId: string | null
-  fableName: string
   cronExpr: string
   maxAcceptableDelayHours: number
-  dynamicExpr: Record<string, string>
-  environment?: EnvironmentSpecification
-  compiledSpec?: ExecutionSpecification
+  dynamicExpr: Record<string, unknown>
 }
 
 export function useCreateSchedule() {
   const queryClient = useQueryClient()
-  const addSchedule = useScheduleMetadataStore((s) => s.addSchedule)
 
   return useMutation<CreateScheduleResponse, Error, CreateScheduleParams>({
     mutationFn: async ({
       fable,
-      environment,
+      name,
+      description,
+      tags,
+      fableId,
       cronExpr,
       maxAcceptableDelayHours,
       dynamicExpr,
-      compiledSpec,
     }) => {
-      const execSpec = compiledSpec ?? (await compileFable(fable))
+      // Upsert the fable to get a persisted id/version
+      const { id, version } = await upsertFable({
+        builder: fable,
+        display_name: name,
+        display_description: description,
+        tags,
+        parent_id: fableId ?? undefined,
+      })
 
-      const spec: ScheduleSpecification = {
-        exec_spec: {
-          ...execSpec,
-          environment: environment ?? execSpec.environment,
-        },
-        dynamic_expr: dynamicExpr,
+      return createSchedule({
+        job_definition_id: id,
+        job_definition_version: version,
         cron_expr: cronExpr,
+        dynamic_expr: dynamicExpr,
         max_acceptable_delay_hours: maxAcceptableDelayHours,
-      }
-
-      return createSchedule(spec)
+        display_name: name,
+        display_description: description,
+        tags,
+      })
     },
-    onSuccess: (response, params) => {
-      const metadata: ScheduleMetadata = {
-        name: params.name,
-        description: params.description,
-        tags: params.tags,
-        fableId: params.fableId,
-        fableName: params.fableName,
-        fableSnapshot: params.fable,
-        cronExpr: params.cronExpr,
-        createdAt: new Date().toISOString(),
-      }
-      addSchedule(response.schedule_id, metadata)
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: scheduleKeys.all })
     },
   })
