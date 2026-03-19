@@ -139,8 +139,10 @@ describe('CommandPalette', () => {
       new KeyboardEvent('keydown', { key: 'k', metaKey: true }),
     )
 
-    // Store should now be open
-    expect(useCommandStore.getState().isOpen).toBe(true)
+    // Store should now be open (poll to allow useEffect to register)
+    await expect
+      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
+      .toBe(true)
 
     // Content should be visible
     await expect
@@ -160,7 +162,9 @@ describe('CommandPalette', () => {
       new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }),
     )
 
-    expect(useCommandStore.getState().isOpen).toBe(true)
+    await expect
+      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
+      .toBe(true)
   })
 
   it('toggles palette closed on repeated Cmd+K', async () => {
@@ -174,7 +178,9 @@ describe('CommandPalette', () => {
     document.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'k', metaKey: true }),
     )
-    expect(useCommandStore.getState().isOpen).toBe(true)
+    await expect
+      .poll(() => useCommandStore.getState().isOpen, { timeout: 1000 })
+      .toBe(true)
 
     // Wait for React to re-render so the effect re-registers with new isOpen
     await expect
