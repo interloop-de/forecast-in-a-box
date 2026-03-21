@@ -24,6 +24,19 @@ import { createLogger } from '@/lib/logger'
 const log = createLogger('AuthAPI')
 
 /**
+ * Validate that an authorization URL is safe to redirect to.
+ * Rejects non-HTTPS URLs and javascript: protocol to prevent phishing and XSS.
+ */
+function isValidAuthorizationUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
  * Response from the OIDC authorize endpoint
  */
 interface OIDCAuthorizeResponse {
@@ -86,6 +99,10 @@ export async function getAuthorizationUrl(
 
     if (!data.authorization_url) {
       throw new Error('No authorization_url in response')
+    }
+
+    if (!isValidAuthorizationUrl(data.authorization_url)) {
+      throw new Error('Authorization URL must use HTTPS protocol')
     }
 
     return data.authorization_url
