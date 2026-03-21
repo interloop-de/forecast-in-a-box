@@ -34,10 +34,31 @@ export interface CronPreset {
 }
 
 /**
+ * Convert server hour:minute to the client's local equivalent using the offset.
+ * offsetMs = (server time parsed as local) - (actual epoch), so:
+ * local = server-parsed - offset
+ */
+export function serverHourMinuteToLocal(
+  hour: number,
+  minute: number,
+  offsetMs: number,
+): { hour: number; minute: number } {
+  const ref = new Date()
+  ref.setHours(hour, minute, 0, 0)
+  const local = new Date(ref.getTime() - offsetMs)
+  return { hour: local.getHours(), minute: local.getMinutes() }
+}
+
+/**
  * Convert a cron expression to a human-readable string.
  * Handles common patterns; falls back to raw expression for complex ones.
+ *
+ * When offsetMs is provided, appends the local-time equivalent.
  */
-export function cronToHumanReadable(cronExpr: string): string {
+export function cronToHumanReadable(
+  cronExpr: string,
+  offsetMs?: number | null,
+): string {
   const parsed = parseCronForUI(cronExpr)
   if (!parsed) return cronExpr
 
@@ -46,10 +67,30 @@ export function cronToHumanReadable(cronExpr: string): string {
       return parsed.minute === 0
         ? 'Every hour'
         : `Every hour at minute ${String(parsed.minute).padStart(2, '0')}`
-    case 'daily':
-      return `Every day at ${formatTime(parsed.hour, parsed.minute)} UTC`
-    case 'weekly':
-      return `Every ${DAY_NAMES[parsed.dayOfWeek]} at ${formatTime(parsed.hour, parsed.minute)} UTC`
+    case 'daily': {
+      const base = `Every day at ${formatTime(parsed.hour, parsed.minute)} (server time)`
+      if (offsetMs != null) {
+        const local = serverHourMinuteToLocal(
+          parsed.hour,
+          parsed.minute,
+          offsetMs,
+        )
+        return `${base} · ${formatTime(local.hour, local.minute)} local`
+      }
+      return base
+    }
+    case 'weekly': {
+      const base = `Every ${DAY_NAMES[parsed.dayOfWeek]} at ${formatTime(parsed.hour, parsed.minute)} (server time)`
+      if (offsetMs != null) {
+        const local = serverHourMinuteToLocal(
+          parsed.hour,
+          parsed.minute,
+          offsetMs,
+        )
+        return `${base} · ${formatTime(local.hour, local.minute)} local`
+      }
+      return base
+    }
     default:
       return cronExpr
   }

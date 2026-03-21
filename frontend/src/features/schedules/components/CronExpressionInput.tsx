@@ -15,7 +15,9 @@ import {
   cronToHumanReadable,
   frequencyToCron,
   parseCronForUI,
+  serverHourMinuteToLocal,
 } from '@/features/schedules/utils/cron'
+import { useServerTime } from '@/api/hooks/useSchedules'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { P } from '@/components/base/typography'
@@ -48,6 +50,7 @@ export function CronExpressionInput({
   onChange,
 }: CronExpressionInputProps) {
   const { t } = useTranslation('executions')
+  const { offsetMs } = useServerTime()
   const parsed = parseCronForUI(value)
 
   const [frequency, setFrequency] = useState<CronFrequency>(
@@ -57,6 +60,11 @@ export function CronExpressionInput({
   const [minute, setMinute] = useState(parsed?.minute ?? 0)
   const [dayOfWeek, setDayOfWeek] = useState(parsed?.dayOfWeek ?? 1)
   const [showRaw, setShowRaw] = useState(false)
+
+  const localEquivalent =
+    offsetMs != null && frequency !== 'hourly' && frequency !== 'custom'
+      ? serverHourMinuteToLocal(hour, minute, offsetMs)
+      : null
 
   function handleFrequencyChange(newFrequency: CronFrequency) {
     setFrequency(newFrequency)
@@ -145,7 +153,17 @@ export function CronExpressionInput({
                 onChange={(e) => handleMinuteChange(Number(e.target.value))}
                 className="w-20"
               />
-              <span className="text-sm text-muted-foreground">UTC</span>
+              <span className="text-sm text-muted-foreground">
+                {t('submit.serverTime')}
+                {localEquivalent && (
+                  <>
+                    {' '}
+                    {t('submit.localEquivalent', {
+                      time: `${String(localEquivalent.hour).padStart(2, '0')}:${String(localEquivalent.minute).padStart(2, '0')}`,
+                    })}
+                  </>
+                )}
+              </span>
             </>
           )}
           {frequency === 'hourly' && (
@@ -188,7 +206,7 @@ export function CronExpressionInput({
 
       {/* Human-readable preview */}
       <P className="text-sm text-muted-foreground">
-        {cronToHumanReadable(value)}
+        {cronToHumanReadable(value, offsetMs)}
       </P>
     </div>
   )

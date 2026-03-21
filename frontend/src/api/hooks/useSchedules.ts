@@ -12,6 +12,7 @@
  * Schedule API Hooks
  */
 
+import { useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { FableBuilderV1 } from '@/api/types/fable.types'
 import type {
@@ -25,6 +26,7 @@ import {
   createSchedule,
   deleteSchedule,
   getSchedule,
+  getScheduleCurrentTime,
   getScheduleNextRun,
   getScheduleRuns,
   getSchedules,
@@ -54,6 +56,7 @@ export const scheduleKeys = {
     ] as const,
   nextRun: (experimentId: string) =>
     [...scheduleKeys.all, 'nextRun', experimentId] as const,
+  serverTime: [...['schedules'], 'serverTime'] as const,
 }
 
 export function useSchedules(
@@ -128,6 +131,57 @@ export function useDeleteSchedule() {
       queryClient.invalidateQueries({ queryKey: scheduleKeys.all })
     },
   })
+}
+
+/**
+ * Fetches the scheduler's current time and computes the offset from the client clock.
+ *
+ * The offset lets us translate naive datetime strings returned by the server
+ * (which are in the server's local timezone) into correct client-local Dates.
+ *
+ * Formula: correctEpoch = new Date(serverTimeStr).getTime() - offsetMs
+ */
+export function useServerTime() {
+  const { data: offsetMs } = useQuery<number>({
+    queryKey: scheduleKeys.serverTime,
+    queryFn: async () => {
+      const serverTimeStr = await getScheduleCurrentTime()
+      const serverParsed = new Date(serverTimeStr).getTime()
+      const clientNow = Date.now()
+      return serverParsed - clientNow
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+
+  const serverTimeToLocal = useCallback(
+    (serverTimeStr: string): Date => {
+      const parsed = new Date(serverTimeStr).getTime()
+      if (offsetMs == null) return new Date(parsed)
+      return new Date(parsed - offsetMs)
+    },
+    [offsetMs],
+  )
+
+  const serverHourMinuteToLocal = useCallback(
+    (hour: number, minute: number): { hour: number; minute: number } => {
+      if (offsetMs == null) return { hour, minute }
+      // Build a reference date with the given server hour/minute
+      const ref = new Date()
+      ref.setHours(hour, minute, 0, 0)
+      // ref is now interpreted as client-local; adjust by offset to get true local time
+      const local = new Date(ref.getTime() - offsetMs)
+      return { hour: local.getHours(), minute: local.getMinutes() }
+    },
+    [offsetMs],
+  )
+
+  return {
+    offsetMs: offsetMs ?? null,
+    isLoaded: offsetMs != null,
+    serverTimeToLocal,
+    serverHourMinuteToLocal,
+  }
 }
 
 interface CreateScheduleParams {

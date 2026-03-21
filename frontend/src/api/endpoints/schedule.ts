@@ -88,3 +88,7 @@ export async function getScheduleNextRun(
     params: { experiment_id: experimentId },
   })
 }
+
+export async function getScheduleCurrentTime(): Promise<string> {
+  return apiClient.get(API_ENDPOINTS.schedule.currentTime)
+}
