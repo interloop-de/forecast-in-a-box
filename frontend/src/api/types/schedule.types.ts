@@ -70,17 +70,15 @@ export interface CreateScheduleResponse {
   experiment_id: string
 }
 
-export type ScheduleRunTrigger = 'cron' | 'rerun' | 'cron_skipped' | 'event'
-
 /** GET /schedule/runs - individual run */
 export interface ScheduleRunResponse {
   execution_id: string
   attempt_count: number
   experiment_id: string
   status: JobStatus | null
-  trigger: ScheduleRunTrigger
-  scheduled_at: string
   created_at: string
+  updated_at: string
+  experiment_context: string | null
 }
 
 /** GET /schedule/runs - paginated response */

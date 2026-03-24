@@ -61,6 +61,19 @@ import { cn } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 
+/** Extract the ISO scheduled_at value from experiment_context (e.g. "scheduled_at=2026-03-24T12:00:00"). */
+function parseScheduledAt(context: string | null): string | null {
+  if (!context) return null
+  const prefix = 'scheduled_at='
+  if (context.startsWith(prefix)) return context.slice(prefix.length)
+  return null
+}
+
+/** Derive trigger label from attempt_count: first attempt is cron, subsequent are reruns. */
+function deriveTrigger(attemptCount: number): 'cron' | 'rerun' {
+  return attemptCount === 1 ? 'cron' : 'rerun'
+}
+
 type RunStatusFilter = 'all' | 'submitted' | 'running' | 'completed' | 'failed'
 
 const RUN_STATUS_FILTERS: Array<RunStatusFilter> = [
@@ -165,7 +178,9 @@ export function ScheduleDetailPage() {
 
   const runs = runsData?.runs ?? []
   let sortedRuns = [...runs].sort((a, b) =>
-    b.scheduled_at.localeCompare(a.scheduled_at),
+    (parseScheduledAt(b.experiment_context) ?? b.created_at).localeCompare(
+      parseScheduledAt(a.experiment_context) ?? a.created_at,
+    ),
   )
   const totalRunPages = runsData?.total_pages ?? 1
 
@@ -180,7 +195,7 @@ export function ScheduleDetailPage() {
     sortedRuns = sortedRuns.filter(
       (run) =>
         run.execution_id.toLowerCase().includes(query) ||
-        run.trigger.toLowerCase().includes(query),
+        deriveTrigger(run.attempt_count).includes(query),
     )
   }
 
@@ -361,13 +376,13 @@ export function ScheduleDetailPage() {
                       )}
                       <span className="font-medium">
                         {serverTimeToLocal(
-                          run.scheduled_at,
+                          parseScheduledAt(run.experiment_context) ?? run.created_at,
                         ).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <Badge variant="outline" className="text-sm">
-                        {t(`trigger.${run.trigger}`)}
+                        {t(`trigger.${deriveTrigger(run.attempt_count)}`)}
                       </Badge>
                       {run.status && (
                         <Badge
