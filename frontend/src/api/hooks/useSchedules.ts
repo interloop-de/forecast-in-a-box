@@ -68,7 +68,6 @@ export function useSchedules(
     queryKey: scheduleKeys.list(page, pageSize, enabled),
     queryFn: () => getSchedules(page, pageSize, enabled),
     refetchInterval: 30000,
-    refetchOnWindowFocus: false,
   })
 }
 
@@ -77,7 +76,6 @@ export function useSchedule(experimentId: string | undefined) {
     queryKey: scheduleKeys.detail(experimentId ?? ''),
     queryFn: () => getSchedule(experimentId!),
     enabled: !!experimentId,
-    refetchOnWindowFocus: false,
   })
 }
 
@@ -92,7 +90,6 @@ export function useScheduleRuns(
     queryFn: () => getScheduleRuns(experimentId!, page, pageSize, status),
     enabled: !!experimentId,
     refetchInterval: 30000,
-    refetchOnWindowFocus: false,
   })
 }
 
@@ -102,7 +99,6 @@ export function useScheduleNextRun(experimentId: string | undefined) {
     queryFn: () => getScheduleNextRun(experimentId!),
     enabled: !!experimentId,
     refetchInterval: 60000,
-    refetchOnWindowFocus: false,
   })
 }
 
