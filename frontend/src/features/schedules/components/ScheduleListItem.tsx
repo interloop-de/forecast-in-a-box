@@ -138,11 +138,9 @@ export function ScheduleListItem({
             variant="outline"
             size="sm"
             className="gap-1.5"
+            nativeButton={false}
             render={
-              <Link
-                to="/schedules/$scheduleId"
-                params={{ scheduleId }}
-              />
+              <Link to="/schedules/$scheduleId" params={{ scheduleId }} />
             }
           >
             <Eye className="h-4 w-4" />

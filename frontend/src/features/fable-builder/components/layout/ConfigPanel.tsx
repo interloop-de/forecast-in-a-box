@@ -263,7 +263,7 @@ function InputConnectionField({
         {inputName}
       </Label>
       <Select
-        value={currentSourceId || undefined}
+        value={currentSourceId || null}
         onValueChange={(value) => onInputChange(inputName, value ?? '')}
       >
         <SelectTrigger id={`input-${inputName}`} className="h-9 w-full">

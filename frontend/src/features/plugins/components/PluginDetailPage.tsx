@@ -145,6 +145,7 @@ export function PluginDetailPage({ plugin, catalogue }: PluginDetailPageProps) {
         variant="outline"
         size="sm"
         className="gap-1.5"
+        nativeButton={false}
         render={<Link to="/admin/plugins" />}
       >
         <ArrowLeft className="h-4 w-4" />

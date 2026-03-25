@@ -213,7 +213,7 @@ describe('Plugin Detail Page', () => {
       )
 
       await expect
-        .element(screen.getByRole('link', { name: /Back to Plugins/i }))
+        .element(screen.getByRole('button', { name: /Back to Plugins/i }))
         .toBeVisible()
     })
   })

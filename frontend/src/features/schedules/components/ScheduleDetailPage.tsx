@@ -93,8 +93,7 @@ export function ScheduleDetailPage() {
   const dashboardVariant = useUiStore((state) => state.dashboardVariant)
   const panelShadow = useUiStore((state) => state.panelShadow)
   const [runsPage, setRunsPage] = useState(1)
-  const [runStatusFilter, setRunStatusFilter] =
-    useState<RunStatusFilter>('all')
+  const [runStatusFilter, setRunStatusFilter] = useState<RunStatusFilter>('all')
   const [runSearchQuery, setRunSearchQuery] = useState('')
   const [editScheduleOpen, setEditScheduleOpen] = useState(false)
   const [editCronExpr, setEditCronExpr] = useState('')
@@ -223,9 +222,7 @@ export function ScheduleDetailPage() {
         <H2 className="text-xl font-semibold">{displayName}</H2>
         {cronDescription && (
           <div className="flex items-center gap-2">
-            <P className="text-sm text-muted-foreground">
-              {cronDescription}
-            </P>
+            <P className="text-sm text-muted-foreground">{cronDescription}</P>
             <Button
               variant="ghost"
               size="icon"
@@ -245,13 +242,9 @@ export function ScheduleDetailPage() {
           icon={
             <Switch
               checked={schedule.enabled}
-              onCheckedChange={(checked) =>
-                handleToggleEnabled(checked)
-              }
+              onCheckedChange={(checked) => handleToggleEnabled(checked)}
               aria-label={
-                schedule.enabled
-                  ? t('actions.disable')
-                  : t('actions.enable')
+                schedule.enabled ? t('actions.disable') : t('actions.enable')
               }
             />
           }
@@ -376,7 +369,8 @@ export function ScheduleDetailPage() {
                       )}
                       <span className="font-medium">
                         {serverTimeToLocal(
-                          parseScheduledAt(run.experiment_context) ?? run.created_at,
+                          parseScheduledAt(run.experiment_context) ??
+                            run.created_at,
                         ).toLocaleString()}
                       </span>
                     </div>

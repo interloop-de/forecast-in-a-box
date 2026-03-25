@@ -230,7 +230,7 @@ export const InlineBlockNode = memo(function InlineBlockNode({
                     {inputName}
                   </Label>
                   <Select
-                    value={currentSourceId || undefined}
+                    value={currentSourceId || null}
                     onValueChange={(value) =>
                       handleInputChange(inputName, value ?? '')
                     }

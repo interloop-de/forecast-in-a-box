@@ -275,7 +275,7 @@ export function BlockInstanceCard({
                             {inputName}
                           </Label>
                           <Select
-                            value={connectedTo || undefined}
+                            value={connectedTo || null}
                             onValueChange={(value) => {
                               if (value) {
                                 connectBlocks(instanceId, inputName, value)

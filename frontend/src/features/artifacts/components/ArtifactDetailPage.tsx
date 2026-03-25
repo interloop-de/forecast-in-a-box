@@ -67,6 +67,7 @@ export function ArtifactDetailPage({
         variant="outline"
         size="sm"
         className="gap-1.5"
+        nativeButton={false}
         render={<Link to="/admin/artifacts" />}
       >
         <ArrowLeft className="h-4 w-4" />
@@ -104,6 +105,7 @@ export function ArtifactDetailPage({
             <Button
               variant="outline"
               size="sm"
+              nativeButton={false}
               render={
                 <a
                   href={detail.url}

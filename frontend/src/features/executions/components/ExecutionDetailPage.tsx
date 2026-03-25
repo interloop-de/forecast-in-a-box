@@ -107,7 +107,11 @@ export function ExecutionDetailPage() {
             ? t('errors.jobNotFoundDescription')
             : statusQuery.error.message}
         </P>
-        <Button variant="outline" render={<Link to="/executions" />}>
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link to="/executions" />}
+        >
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           {t('errors.backToExecutions')}
         </Button>
@@ -131,6 +135,7 @@ export function ExecutionDetailPage() {
         variant="outline"
         size="sm"
         className="gap-1.5"
+        nativeButton={false}
         render={<Link to="/executions" />}
       >
         <ArrowLeft className="h-4 w-4" />

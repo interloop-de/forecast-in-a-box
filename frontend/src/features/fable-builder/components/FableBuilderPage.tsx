@@ -246,6 +246,7 @@ function EditStep({
             <Button
               variant="outline"
               className="mt-4"
+              nativeButton={false}
               render={<Link to="/admin/plugins" />}
             >
               Manage Plugins
