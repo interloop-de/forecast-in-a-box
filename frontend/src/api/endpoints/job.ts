@@ -136,7 +136,7 @@ export async function restartJob(
 }
 
 export async function deleteJob(executionId: string): Promise<void> {
-  return apiClient.delete(
-    `${API_ENDPOINTS.job.delete}?execution_id=${executionId}`,
-  )
+  return apiClient.delete(API_ENDPOINTS.job.delete, {
+    params: { execution_id: executionId },
+  })
 }

@@ -84,7 +84,7 @@ async function request<T>(
 
   // Add X-Anonymous-ID header if anonymous ID exists in localStorage
   const anonymousId = localStorage.getItem(STORAGE_KEYS.auth.anonymousId)
-  if (anonymousId) {
+  if (anonymousId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(anonymousId)) {
     requestHeaders['X-Anonymous-ID'] = anonymousId
   }
 

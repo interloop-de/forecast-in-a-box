@@ -50,6 +50,8 @@ interface OIDCAuthorizeResponse {
  */
 export async function checkSession(): Promise<boolean> {
   const backendUrl = getBackendBaseUrl()
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 5000)
 
   try {
     const response = await fetch(`${backendUrl}${API_ENDPOINTS.users.me}`, {
@@ -57,12 +59,15 @@ export async function checkSession(): Promise<boolean> {
       headers: {
         Accept: 'application/json',
       },
+      signal: controller.signal,
     })
 
     return response.ok
   } catch (error) {
     log.error('Session check failed:', error)
     return false
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 
