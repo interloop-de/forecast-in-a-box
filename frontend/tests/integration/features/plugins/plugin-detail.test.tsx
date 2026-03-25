@@ -15,7 +15,6 @@
  * - Plugin header (name, author, version, status badge)
  * - Block factory cards with source-only button behavior
  * - Tooltip on disabled non-source buttons
- * - Use All Blocks button
  * - Back to Plugins button
  */
 
@@ -190,18 +189,6 @@ describe('Plugin Detail Page', () => {
         .element(
           screen.getByText('Configurations must start with a source block'),
         )
-        .toBeVisible()
-    })
-  })
-
-  describe('Use All Blocks Button', () => {
-    it('renders Use All Blocks button with correct count', async () => {
-      const screen = await renderWithRouter(
-        <PluginDetailPage plugin={mockPlugin} catalogue={mockCatalogue} />,
-      )
-
-      await expect
-        .element(screen.getByRole('button', { name: /Use All Blocks \(4\)/i }))
         .toBeVisible()
     })
   })
