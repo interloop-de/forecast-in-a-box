@@ -270,7 +270,16 @@ export function ScheduleDetailPage() {
           icon={<Calendar className="h-4 w-4" />}
           value={
             <span className="text-lg font-semibold">
-              {nextRun ? serverTimeToLocal(nextRun).toLocaleString() : '-'}
+              {nextRun
+                ? serverTimeToLocal(nextRun).toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short',
+                  })
+                : '-'}
             </span>
           }
         />
@@ -367,7 +376,9 @@ export function ScheduleDetailPage() {
                         {serverTimeToLocal(
                           parseScheduledAt(run.experiment_context) ??
                             run.created_at,
-                        ).toLocaleString()}
+                        ).toLocaleString(undefined, {
+                          timeZoneName: 'short',
+                        })}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">

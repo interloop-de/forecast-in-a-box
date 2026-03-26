@@ -137,14 +137,29 @@ export function useDeleteSchedule() {
  *
  * Formula: correctEpoch = new Date(serverTimeStr).getTime() - offsetMs
  */
+/**
+ * Parse a naive datetime string from the backend.
+ *
+ * The backend's current_scheduling_time() uses datetime.now() which returns
+ * a naive datetime in the server's local timezone (no timezone suffix).
+ * We parse it consistently with new Date() — the offset calculation and
+ * conversion both use the same parsing, so any timezone difference cancels out.
+ */
+function parseServerTime(dateStr: string): number {
+  return new Date(dateStr.trim()).getTime()
+}
+
 export function useServerTime() {
   const { data: offsetMs } = useQuery<number>({
     queryKey: scheduleKeys.serverTime,
     queryFn: async () => {
       const serverTimeStr = await getScheduleCurrentTime()
-      const serverParsed = new Date(serverTimeStr).getTime()
+      const serverParsed = parseServerTime(serverTimeStr)
       const clientNow = Date.now()
-      return serverParsed - clientNow
+      const rawOffset = serverParsed - clientNow
+      // Round to nearest minute — cron has minute precision, and network
+      // latency introduces sub-minute jitter that corrupts exact cron times
+      return Math.round(rawOffset / 60_000) * 60_000
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -152,7 +167,7 @@ export function useServerTime() {
 
   const serverTimeToLocal = useCallback(
     (serverTimeStr: string): Date => {
-      const parsed = new Date(serverTimeStr).getTime()
+      const parsed = parseServerTime(serverTimeStr)
       if (offsetMs == null) return new Date(parsed)
       return new Date(parsed - offsetMs)
     },
