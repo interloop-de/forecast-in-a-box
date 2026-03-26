@@ -271,7 +271,9 @@ export function ScheduleDetailPage() {
           value={
             <span className="text-lg font-semibold">
               {nextRun
-                ? serverTimeToLocal(nextRun).toLocaleString(undefined, {
+                ? serverTimeToLocal(nextRun, {
+                    roundMinute: true,
+                  }).toLocaleString(undefined, {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
@@ -376,6 +378,7 @@ export function ScheduleDetailPage() {
                         {serverTimeToLocal(
                           parseScheduledAt(run.experiment_context) ??
                             run.created_at,
+                          { roundMinute: true },
                         ).toLocaleString(undefined, {
                           timeZoneName: 'short',
                         })}

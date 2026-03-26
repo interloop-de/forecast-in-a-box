@@ -166,10 +166,13 @@ export function useServerTime() {
   })
 
   const serverTimeToLocal = useCallback(
-    (serverTimeStr: string): Date => {
+    (serverTimeStr: string, { roundMinute = false } = {}): Date => {
       const parsed = parseServerTime(serverTimeStr)
-      if (offsetMs == null) return new Date(parsed)
-      return new Date(parsed - offsetMs)
+      let epoch = offsetMs == null ? parsed : parsed - offsetMs
+      if (roundMinute) {
+        epoch = Math.round(epoch / 60_000) * 60_000
+      }
+      return new Date(epoch)
     },
     [offsetMs],
   )
