@@ -24,7 +24,7 @@ import { renderWithRouter } from '@tests/utils/render'
 import type { AuthContextValue } from '@/features/auth/AuthContext'
 import { AuthContext } from '@/features/auth/AuthContext'
 import { Header } from '@/components/layout/Header'
-import { PublicLayout } from '@/components/layout'
+import { PublicLayout } from '@/components/layout/PublicLayout'
 
 // Mutable flag to toggle between desktop and mobile per test
 let isDesktop = true

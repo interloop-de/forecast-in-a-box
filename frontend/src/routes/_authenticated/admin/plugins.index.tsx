@@ -19,7 +19,10 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
-import type { CapabilityFilter, StatusFilter } from '@/features/plugins'
+import type {
+  CapabilityFilter,
+  StatusFilter,
+} from '@/features/plugins/components/PluginsFilters'
 import { useBlockCatalogue } from '@/api/hooks/useFable'
 import {
   useDisablePlugin,
@@ -35,13 +38,11 @@ import { encodePluginId } from '@/api/types/plugins.types'
 import { H3 } from '@/components/base/typography'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import {
-  PluginsFilters,
-  PluginsList,
-  PluginsPageHeader,
-  UninstalledPluginsSection,
-  UpdatesAvailableSection,
-} from '@/features/plugins'
+import { PluginsFilters } from '@/features/plugins/components/PluginsFilters'
+import { PluginsList } from '@/features/plugins/components/PluginsList'
+import { PluginsPageHeader } from '@/features/plugins/components/PluginsPageHeader'
+import { UninstalledPluginsSection } from '@/features/plugins/components/UninstalledPluginsSection'
+import { UpdatesAvailableSection } from '@/features/plugins/components/UpdatesAvailableSection'
 import { cn } from '@/lib/utils'
 import { useUiStore } from '@/stores/uiStore'
 import { getPluginStatusError } from '@/types/status.types'

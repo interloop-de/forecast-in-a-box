@@ -22,7 +22,10 @@ import { toast } from 'sonner'
 import type { ScheduleDefinitionResponse } from '@/api/types/schedule.types'
 import { useServerTime, useUpdateSchedule } from '@/api/hooks/useSchedules'
 import { cronToHumanReadable } from '@/features/schedules/utils/cron'
-import { STATUS_BADGE_VARIANTS, StatusBadge } from '@/components/common/StatusBadge'
+import {
+  STATUS_BADGE_VARIANTS,
+  StatusBadge,
+} from '@/components/common/StatusBadge'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -110,8 +113,14 @@ export function ScheduleListItem({
             <StatusBadge
               variant={
                 schedule.enabled
-                  ? { label: t('detail.enabled'), ...STATUS_BADGE_VARIANTS.active }
-                  : { label: t('detail.disabled'), ...STATUS_BADGE_VARIANTS.disabled }
+                  ? {
+                      label: t('detail.enabled'),
+                      ...STATUS_BADGE_VARIANTS.active,
+                    }
+                  : {
+                      label: t('detail.disabled'),
+                      ...STATUS_BADGE_VARIANTS.disabled,
+                    }
               }
             />
           </div>

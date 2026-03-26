@@ -22,7 +22,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mockCatalogue } from '@tests/../mocks/data/fable.data'
 import { renderWithRouter } from '@tests/utils/render'
 import type { PluginInfo } from '@/api/types/plugins.types'
-import { PluginDetailPage } from '@/features/plugins'
+import { PluginDetailPage } from '@/features/plugins/components/PluginDetailPage'
 
 // Mock useMedia to simulate desktop layout
 vi.mock('@/hooks/useMedia', () => ({

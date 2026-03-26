@@ -31,7 +31,7 @@ import {
 } from '@/features/fable-builder/stores/fableBuilderStore'
 import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
-import { FieldRenderer } from '@/components/base/fields'
+import { FieldRenderer } from '@/components/base/fields/FieldRenderer'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   ContextMenu,

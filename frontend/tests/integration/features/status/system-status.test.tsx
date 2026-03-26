@@ -33,7 +33,7 @@ import {
 import type { AuthContextValue } from '@/features/auth/AuthContext'
 import { AuthContext } from '@/features/auth/AuthContext'
 import { API_ENDPOINTS } from '@/api/endpoints'
-import { WelcomeCard } from '@/features/dashboard'
+import { WelcomeCard } from '@/features/dashboard/components/WelcomeCard'
 import { Footer } from '@/components/layout/Footer'
 import { StatusDetailsPopover } from '@/components/common/StatusDetailsPopover'
 import { useStatusStore } from '@/features/status/stores/statusStore'

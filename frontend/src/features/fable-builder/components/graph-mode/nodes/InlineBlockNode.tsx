@@ -38,7 +38,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { FieldRenderer } from '@/components/base/fields'
+import { FieldRenderer } from '@/components/base/fields/FieldRenderer'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {

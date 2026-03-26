@@ -23,7 +23,10 @@
 import { useTranslation } from 'react-i18next'
 import type { PluginStatus } from '@/api/types/plugins.types'
 import type { StatusBadgeVariant } from '@/components/common/StatusBadge'
-import { STATUS_BADGE_VARIANTS, StatusBadge } from '@/components/common/StatusBadge'
+import {
+  STATUS_BADGE_VARIANTS,
+  StatusBadge,
+} from '@/components/common/StatusBadge'
 
 interface PluginStatusBadgeProps {
   status: PluginStatus
@@ -41,8 +44,14 @@ export function PluginStatusBadge({
 
   const statusConfig: Record<PluginStatus, StatusBadgeVariant> = {
     loaded: { label: t('status.loaded'), ...STATUS_BADGE_VARIANTS.active },
-    disabled: { label: t('status.disabled'), ...STATUS_BADGE_VARIANTS.disabled },
-    available: { label: t('status.available'), ...STATUS_BADGE_VARIANTS.available },
+    disabled: {
+      label: t('status.disabled'),
+      ...STATUS_BADGE_VARIANTS.disabled,
+    },
+    available: {
+      label: t('status.available'),
+      ...STATUS_BADGE_VARIANTS.available,
+    },
     errored: { label: t('status.errored'), ...STATUS_BADGE_VARIANTS.error },
   }
 
