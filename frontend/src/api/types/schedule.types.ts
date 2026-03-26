@@ -94,6 +94,7 @@ export interface ScheduleSpecification {
   cron_expr: string
   dynamic_expr: Record<string, unknown>
   max_acceptable_delay_hours: number
+  first_run_override?: string
   display_name?: string
   display_description?: string
   tags?: Array<string>
@@ -105,6 +106,7 @@ export interface ScheduleUpdate {
   cron_expr?: string
   dynamic_expr?: Record<string, unknown>
   max_acceptable_delay_hours?: number
+  first_run_override?: string
   display_name?: string
   display_description?: string
   tags?: Array<string>

@@ -22,6 +22,7 @@ import { toast } from 'sonner'
 import type { ScheduleDefinitionResponse } from '@/api/types/schedule.types'
 import { useServerTime, useUpdateSchedule } from '@/api/hooks/useSchedules'
 import { cronToHumanReadable } from '@/features/schedules/utils/cron'
+import { STATUS_BADGE_VARIANTS, StatusBadge } from '@/components/common/StatusBadge'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -78,13 +79,18 @@ export function ScheduleListItem({
   }
 
   return (
-    <div className="p-6 transition-colors hover:bg-muted/50">
+    <div
+      className={cn(
+        'p-6 transition-colors hover:bg-muted/50',
+        !schedule.enabled && 'opacity-60',
+      )}
+    >
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         <div className="mt-1 shrink-0 sm:mt-0">
           <Clock
             className={cn(
               'h-5 w-5',
-              schedule.enabled ? 'text-emerald-500' : 'text-gray-400',
+              schedule.enabled ? 'text-emerald-500' : 'text-muted-foreground',
             )}
           />
         </div>
@@ -94,20 +100,20 @@ export function ScheduleListItem({
             <Link
               to="/schedules/$scheduleId"
               params={{ scheduleId }}
-              className="text-sm font-medium hover:underline"
+              className={cn(
+                'text-sm font-medium hover:underline',
+                !schedule.enabled && 'text-muted-foreground',
+              )}
             >
               {displayName}
             </Link>
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 text-sm',
+            <StatusBadge
+              variant={
                 schedule.enabled
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-              )}
-            >
-              {schedule.enabled ? t('detail.enabled') : t('detail.disabled')}
-            </span>
+                  ? { label: t('detail.enabled'), ...STATUS_BADGE_VARIANTS.active }
+                  : { label: t('detail.disabled'), ...STATUS_BADGE_VARIANTS.disabled }
+              }
+            />
           </div>
           {schedule.display_description && (
             <P className="mb-1 line-clamp-1 text-muted-foreground">
