@@ -104,9 +104,7 @@ export const Header = () => {
               </div>
             )}
             {!isLarge && isMobileMenuOpen && (
-              <nav
-                className="w-full [--color-muted:--alpha(var(--color-foreground)/5%)]"
-              >
+              <nav className="w-full [--color-muted:--alpha(var(--color-foreground)/5%)]">
                 {mobileLinks.map((link) => {
                   if (link.name && link.to) {
                     return (

@@ -106,7 +106,7 @@ describe('Responsive Layout', () => {
 
       // The inline desktop menu items should not be rendered
       // (mobile nav only appears after toggling the hamburger menu)
-      const nav = screen.container.querySelector('nav[role="navigation"]')
+      const nav = screen.container.querySelector('nav')
       expect(nav).toBeNull()
     })
 
@@ -133,7 +133,7 @@ describe('Responsive Layout', () => {
       await menuButton.click()
 
       // After opening, the mobile navigation should appear
-      const nav = screen.container.querySelector('nav[role="navigation"]')
+      const nav = screen.container.querySelector('nav')
       expect(nav).toBeTruthy()
     })
 
