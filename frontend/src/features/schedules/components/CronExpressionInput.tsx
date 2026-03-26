@@ -55,23 +55,20 @@ export function CronExpressionInput({
   const { offsetMs } = useServerTime()
   const parsed = parseCronForUI(value)
 
-  // Convert server-time cron values to local time for display
-  const initialLocal =
-    parsed && offsetMs != null
-      ? serverHourMinuteToLocal(parsed.hour, parsed.minute, offsetMs)
-      : null
-
   const [frequency, setFrequency] = useState<CronFrequency>(
     parsed?.frequency ?? 'custom',
   )
-  const [localHour, setLocalHour] = useState(
-    initialLocal?.hour ?? parsed?.hour ?? 6,
-  )
-  const [localMinute, setLocalMinute] = useState(
-    initialLocal?.minute ?? parsed?.minute ?? 0,
-  )
   const [dayOfWeek, setDayOfWeek] = useState(parsed?.dayOfWeek ?? 1)
   const [showRaw, setShowRaw] = useState(false)
+
+  // Derive displayed hour/minute from the cron expression (server time) + offset
+  // This recomputes whenever the cron value or offset changes — no stale state
+  const serverHour = parsed?.hour ?? 6
+  const serverMinute = parsed?.minute ?? 0
+  const localTime =
+    offsetMs != null
+      ? serverHourMinuteToLocal(serverHour, serverMinute, offsetMs)
+      : { hour: serverHour, minute: serverMinute }
 
   /** Convert local hour/minute to server time and emit the cron expression */
   function emitCron(
@@ -91,22 +88,20 @@ export function CronExpressionInput({
 
   function handleFrequencyChange(newFrequency: CronFrequency) {
     setFrequency(newFrequency)
-    emitCron(newFrequency, localHour, localMinute, dayOfWeek)
+    emitCron(newFrequency, localTime.hour, localTime.minute, dayOfWeek)
   }
 
   function handleHourChange(newHour: number) {
-    setLocalHour(newHour)
-    emitCron(frequency, newHour, localMinute, dayOfWeek)
+    emitCron(frequency, newHour, localTime.minute, dayOfWeek)
   }
 
   function handleMinuteChange(newMinute: number) {
-    setLocalMinute(newMinute)
-    emitCron(frequency, localHour, newMinute, dayOfWeek)
+    emitCron(frequency, localTime.hour, newMinute, dayOfWeek)
   }
 
   function handleDayChange(newDay: number) {
     setDayOfWeek(newDay)
-    emitCron(frequency, localHour, localMinute, newDay)
+    emitCron(frequency, localTime.hour, localTime.minute, newDay)
   }
 
   return (
@@ -155,7 +150,7 @@ export function CronExpressionInput({
                 type="number"
                 min={0}
                 max={23}
-                value={localHour}
+                value={localTime.hour}
                 onChange={(e) => handleHourChange(Number(e.target.value))}
                 className="w-20"
               />
@@ -164,7 +159,7 @@ export function CronExpressionInput({
                 type="number"
                 min={0}
                 max={59}
-                value={localMinute}
+                value={localTime.minute}
                 onChange={(e) => handleMinuteChange(Number(e.target.value))}
                 className="w-20"
               />
@@ -180,7 +175,7 @@ export function CronExpressionInput({
                 type="number"
                 min={0}
                 max={59}
-                value={localMinute}
+                value={localTime.minute}
                 onChange={(e) => handleMinuteChange(Number(e.target.value))}
                 className="w-20"
               />
