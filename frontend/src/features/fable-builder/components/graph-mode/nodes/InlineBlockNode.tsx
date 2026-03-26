@@ -123,7 +123,10 @@ export const InlineBlockNode = memo(function InlineBlockNode({
   return (
     <div
       ref={containerRef}
+      role="button"
+      tabIndex={0}
       onClick={() => selectBlock(id)}
+      onKeyDown={(e) => e.key === 'Enter' && selectBlock(id)}
       className={cn(
         'relative w-[380px] rounded-2xl border bg-card shadow-sm',
         'cursor-pointer transition-all duration-300 hover:shadow-lg',
@@ -221,6 +224,7 @@ export const InlineBlockNode = memo(function InlineBlockNode({
                 <div
                   key={inputName}
                   className="nodrag space-y-1"
+                  role="presentation"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Label

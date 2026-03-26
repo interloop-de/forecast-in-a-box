@@ -144,7 +144,10 @@ export const BlockNode = memo(function BlockNode({
   return (
     <div
       ref={containerRef}
+      role="button"
+      tabIndex={0}
       onClick={handleClick}
+      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
       className={cn(
         'relative w-70 rounded-2xl border bg-card shadow-sm',
         'cursor-pointer transition-all duration-300 hover:shadow-lg',

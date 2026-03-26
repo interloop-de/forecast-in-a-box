@@ -50,7 +50,10 @@ export function GettingStartedCard({
 }: GettingStartedCardProps) {
   const card = (
     <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
       onClick={disabled ? undefined : onClick}
+      onKeyDown={(e) => !disabled && e.key === 'Enter' && onClick?.()}
       className={cn(
         'relative flex h-full flex-col rounded-lg border p-5 transition-colors',
         'bg-card',
