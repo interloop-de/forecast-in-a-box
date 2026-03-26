@@ -153,15 +153,16 @@ export function FableBuilderPage({
     }
   }, [fableId, existingFable, fableRetrieveData, preset, encodedState])
 
-  // Sync derived validation state to store during render (avoids extra re-render from useEffect)
-  const computedIsValidating = isValidating || isRevalidating
-  if (computedIsValidating !== useFableBuilderStore.getState().isValidating) {
-    setIsValidating(computedIsValidating)
-  }
-  if (validationResult) {
-    const state = toValidationState(validationResult)
-    setValidationState(state)
-  }
+  // Sync React Query validation state → Zustand store for sibling components
+  useEffect(() => {
+    setIsValidating(isValidating || isRevalidating)
+  }, [isValidating, isRevalidating, setIsValidating])
+
+  useEffect(() => {
+    if (validationResult) {
+      setValidationState(toValidationState(validationResult))
+    }
+  }, [validationResult, setValidationState])
 
   if (catalogueLoading || (fableId && fableLoading)) {
     return (
