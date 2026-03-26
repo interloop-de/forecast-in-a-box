@@ -241,7 +241,7 @@ export function BlockInstanceCard({
                   <P className="mb-1 font-medium">Configuration Issues</P>
                   <ul className="list-disc space-y-0.5 pl-4 text-sm">
                     {errors.map((error, index) => (
-                      <li key={index}>{error}</li>
+                      <li key={`${error}-${index}`}>{error}</li>
                     ))}
                   </ul>
                 </div>

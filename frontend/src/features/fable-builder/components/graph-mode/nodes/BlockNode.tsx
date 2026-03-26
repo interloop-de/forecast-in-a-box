@@ -168,7 +168,7 @@ export const BlockNode = memo(function BlockNode({
               <P className="font-medium text-destructive">Validation Errors</P>
               <ul className="list-disc space-y-0.5 pl-4 text-sm">
                 {errors.map((error, index) => (
-                  <li key={index}>{error}</li>
+                  <li key={`${error}-${index}`}>{error}</li>
                 ))}
               </ul>
             </div>

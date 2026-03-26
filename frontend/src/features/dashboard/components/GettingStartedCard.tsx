@@ -86,9 +86,9 @@ export function GettingStartedCard({
       </P>
 
       <div className="mt-auto flex flex-wrap gap-2">
-        {tags.map((tag, index) => (
+        {tags.map((tag) => (
           <span
-            key={index}
+            key={tag}
             className={cn(
               'rounded px-2 py-1 text-sm text-muted-foreground',
               isRecommended
