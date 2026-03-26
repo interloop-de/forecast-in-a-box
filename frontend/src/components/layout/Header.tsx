@@ -105,7 +105,6 @@ export const Header = () => {
             )}
             {!isLarge && isMobileMenuOpen && (
               <nav
-                role="navigation"
                 className="w-full [--color-muted:--alpha(var(--color-foreground)/5%)]"
               >
                 {mobileLinks.map((link) => {
