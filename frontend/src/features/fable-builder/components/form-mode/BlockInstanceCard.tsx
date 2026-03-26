@@ -91,6 +91,7 @@ export function BlockInstanceCard({
 }: BlockInstanceCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const fable = useFableBuilderStore((state) => state.fable)
   const updateBlockConfig = useFableBuilderStore(
@@ -134,8 +135,6 @@ export function BlockInstanceCard({
   const IconComponent = getBlockKindIcon(factory.kind)
   const hasErrors = blockValidation?.hasErrors ?? false
   const errors = blockValidation?.errors ?? []
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   return (
     <ContextMenu>

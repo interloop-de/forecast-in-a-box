@@ -153,16 +153,15 @@ export function FableBuilderPage({
     }
   }, [fableId, existingFable, fableRetrieveData, preset, encodedState])
 
-  useEffect(() => {
-    setIsValidating(isValidating || isRevalidating)
-  }, [isValidating, isRevalidating, setIsValidating])
-
-  useEffect(() => {
-    if (validationResult) {
-      const state = toValidationState(validationResult)
-      setValidationState(state)
-    }
-  }, [validationResult, setValidationState])
+  // Sync derived validation state to store during render (avoids extra re-render from useEffect)
+  const computedIsValidating = isValidating || isRevalidating
+  if (computedIsValidating !== useFableBuilderStore.getState().isValidating) {
+    setIsValidating(computedIsValidating)
+  }
+  if (validationResult) {
+    const state = toValidationState(validationResult)
+    setValidationState(state)
+  }
 
   if (catalogueLoading || (fableId && fableLoading)) {
     return (

@@ -16,6 +16,7 @@
 
 import { useMemo, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { PluginCompositeId, PluginInfo } from '@/api/types/plugins.types'
 import type { CapabilityFilter, StatusFilter } from '@/features/plugins'
@@ -29,9 +30,11 @@ import {
   useUninstallPlugin,
   useUpdatePlugin,
 } from '@/api/hooks/usePlugins'
+import { useStatus } from '@/api/hooks/useStatus'
 import { encodePluginId } from '@/api/types/plugins.types'
 import { H3 } from '@/components/base/typography'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   PluginsFilters,
   PluginsList,
@@ -41,6 +44,7 @@ import {
 } from '@/features/plugins'
 import { cn } from '@/lib/utils'
 import { useUiStore } from '@/stores/uiStore'
+import { getPluginStatusError } from '@/types/status.types'
 
 export const Route = createFileRoute('/_authenticated/admin/plugins/')({
   component: PluginsPage,
@@ -59,6 +63,12 @@ function PluginsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [capabilityFilter, setCapabilityFilter] =
     useState<CapabilityFilter>('all')
+
+  // Check plugin system status for errors
+  const { status: systemStatus } = useStatus()
+  const pluginStatusError = systemStatus
+    ? getPluginStatusError(systemStatus.plugins)
+    : null
 
   // Fetch catalogue to derive capabilities
   const { data: catalogue } = useBlockCatalogue()
@@ -200,6 +210,15 @@ function PluginsPage() {
         onCheckUpdates={handleRefresh}
         isCheckingUpdates={refreshPlugins.isPending}
       />
+
+      {/* Plugin System Error Banner */}
+      {pluginStatusError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t('status.error')}</AlertTitle>
+          <AlertDescription>{pluginStatusError}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Search & Filters */}
       <PluginsFilters

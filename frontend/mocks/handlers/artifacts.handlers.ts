@@ -45,15 +45,13 @@ const mockModels: Array<MlModelDetail> = [
       'ECMWF Artificial Intelligence Forecasting System (AIFS) single model for medium-range weather prediction.',
     url: 'https://www.ecmwf.int/en/forecasts/documentation-and-support',
     pip_package_constraints: ['torch>=2.0.0', 'numpy>=1.24.0'],
-    output_characteristics: {
-      variables: ['temperature', 'wind_speed', 'pressure'],
-      resolution: '0.25 degrees',
-      lead_time: '10 days',
-    },
-    input_characteristics: {
-      variables: ['temperature', 'wind_speed', 'pressure', 'humidity'],
-      resolution: '0.25 degrees',
-    },
+    output_characteristics: ['temperature', 'wind_speed', 'pressure'],
+    input_characteristics: [
+      'temperature',
+      'wind_speed',
+      'pressure',
+      'humidity',
+    ],
   },
   {
     composite_id: {
@@ -67,17 +65,15 @@ const mockModels: Array<MlModelDetail> = [
     is_available: false,
     display_description:
       'ECMWF AIFS ensemble model for probabilistic weather forecasting with multiple ensemble members.',
-    url: null,
+    url: 'https://www.ecmwf.int/en/forecasts/documentation-and-support',
     pip_package_constraints: ['torch>=2.0.0', 'numpy>=1.24.0'],
-    output_characteristics: {
-      variables: ['temperature', 'wind_speed', 'pressure'],
-      resolution: '0.25 degrees',
-      ensemble_members: 50,
-    },
-    input_characteristics: {
-      variables: ['temperature', 'wind_speed', 'pressure', 'humidity'],
-      resolution: '0.25 degrees',
-    },
+    output_characteristics: ['temperature', 'wind_speed', 'pressure'],
+    input_characteristics: [
+      'temperature',
+      'wind_speed',
+      'pressure',
+      'humidity',
+    ],
   },
   {
     composite_id: {
@@ -93,15 +89,8 @@ const mockModels: Array<MlModelDetail> = [
       'Pangu-Weather model for global weather forecasting using 3D Earth-specific transformer architecture.',
     url: 'https://github.com/198808xc/Pangu-Weather',
     pip_package_constraints: ['onnxruntime>=1.14.0'],
-    output_characteristics: {
-      variables: ['geopotential', 'temperature', 'humidity', 'wind'],
-      resolution: '0.25 degrees',
-      lead_time: '7 days',
-    },
-    input_characteristics: {
-      variables: ['geopotential', 'temperature', 'humidity', 'wind'],
-      resolution: '0.25 degrees',
-    },
+    output_characteristics: ['geopotential', 'temperature', 'humidity', 'wind'],
+    input_characteristics: ['geopotential', 'temperature', 'humidity', 'wind'],
   },
   {
     composite_id: {
@@ -117,15 +106,8 @@ const mockModels: Array<MlModelDetail> = [
       'GraphCast: Learning skillful medium-range global weather forecasting using graph neural networks.',
     url: 'https://github.com/google-deepmind/graphcast',
     pip_package_constraints: ['jax>=0.4.0', 'jraph>=0.0.6'],
-    output_characteristics: {
-      variables: ['temperature', 'wind', 'pressure', 'humidity'],
-      resolution: '0.25 degrees',
-      lead_time: '10 days',
-    },
-    input_characteristics: {
-      variables: ['temperature', 'wind', 'pressure', 'humidity'],
-      resolution: '0.25 degrees',
-    },
+    output_characteristics: ['temperature', 'wind', 'pressure', 'humidity'],
+    input_characteristics: ['temperature', 'wind', 'pressure', 'humidity'],
   },
 ]
 

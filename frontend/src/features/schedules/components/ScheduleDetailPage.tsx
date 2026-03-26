@@ -158,7 +158,7 @@ export function ScheduleDetailPage() {
   }
 
   function handleOpenEditSchedule() {
-    setEditCronExpr(schedule!.cron_expr ?? '0 6 * * *')
+    setEditCronExpr(schedule!.cron_expr)
     setEditScheduleOpen(true)
   }
 
@@ -362,11 +362,7 @@ export function ScheduleDetailPage() {
                 <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                   <div className="grow">
                     <div className="mb-1 flex items-center gap-2">
-                      {run.status ? (
-                        <JobStatusIcon status={run.status} />
-                      ) : (
-                        <Clock className="h-5 w-5 text-muted-foreground" />
-                      )}
+                      <JobStatusIcon status={run.status} />
                       <span className="font-medium">
                         {serverTimeToLocal(
                           parseScheduledAt(run.experiment_context) ??
@@ -378,20 +374,18 @@ export function ScheduleDetailPage() {
                       <Badge variant="outline" className="text-sm">
                         {t(`trigger.${deriveTrigger(run.attempt_count)}`)}
                       </Badge>
-                      {run.status && (
-                        <Badge
-                          variant={
-                            run.status === 'completed'
-                              ? 'default'
-                              : run.status === 'failed'
-                                ? 'destructive'
-                                : 'outline'
-                          }
-                          className="text-sm"
-                        >
-                          {run.status}
-                        </Badge>
-                      )}
+                      <Badge
+                        variant={
+                          run.status === 'completed'
+                            ? 'default'
+                            : run.status === 'failed'
+                              ? 'destructive'
+                              : 'outline'
+                        }
+                        className="text-sm"
+                      >
+                        {run.status}
+                      </Badge>
                       {run.attempt_count > 1 && (
                         <span className="text-sm text-muted-foreground">
                           {t('detail.attempts')}: {run.attempt_count}
