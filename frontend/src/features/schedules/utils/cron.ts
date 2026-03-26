@@ -171,6 +171,25 @@ function formatTime(hour: number, minute: number): string {
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
 
+/**
+ * Format a Date as a locale string with the UTC-offset timezone label.
+ * e.g. "26/03/2026, 14:20 UTC+7" instead of browser's "GMT+7"
+ */
+export function formatLocalDateTime(
+  date: Date,
+  opts?: { includeSeconds?: boolean },
+): string {
+  const formatted = date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    ...(opts?.includeSeconds ? { second: '2-digit' } : {}),
+  })
+  return `${formatted} ${getLocalTimezone()}`
+}
+
 /** Get the short timezone name for the client in UTC offset format (e.g. "UTC+7", "UTC-5") */
 export function getLocalTimezone(): string {
   const offsetMin = new Date().getTimezoneOffset()

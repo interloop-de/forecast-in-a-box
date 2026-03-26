@@ -37,7 +37,10 @@ import {
   useServerTime,
   useUpdateSchedule,
 } from '@/api/hooks/useSchedules'
-import { cronToHumanReadable } from '@/features/schedules/utils/cron'
+import {
+  cronToHumanReadable,
+  formatLocalDateTime,
+} from '@/features/schedules/utils/cron'
 import { CronExpressionInput } from '@/features/schedules/components/CronExpressionInput'
 import { ExecutionCanvas } from '@/features/executions/components/ExecutionCanvas'
 import { JobStatusIcon } from '@/features/executions/components/JobStatusIcon'
@@ -271,16 +274,9 @@ export function ScheduleDetailPage() {
           value={
             <span className="text-lg font-semibold">
               {nextRun
-                ? serverTimeToLocal(nextRun, {
-                    roundMinute: true,
-                  }).toLocaleString(undefined, {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    timeZoneName: 'short',
-                  })
+                ? formatLocalDateTime(
+                    serverTimeToLocal(nextRun, { roundMinute: true }),
+                  )
                 : '-'}
             </span>
           }
@@ -375,13 +371,13 @@ export function ScheduleDetailPage() {
                     <div className="mb-1 flex items-center gap-2">
                       <JobStatusIcon status={run.status} />
                       <span className="font-medium">
-                        {serverTimeToLocal(
-                          parseScheduledAt(run.experiment_context) ??
-                            run.created_at,
-                          { roundMinute: true },
-                        ).toLocaleString(undefined, {
-                          timeZoneName: 'short',
-                        })}
+                        {formatLocalDateTime(
+                          serverTimeToLocal(
+                            parseScheduledAt(run.experiment_context) ??
+                              run.created_at,
+                            { roundMinute: true },
+                          ),
+                        )}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
