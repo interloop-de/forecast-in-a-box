@@ -26,6 +26,7 @@ import {
 } from '@/api/endpoints/fable'
 import { getFactory } from '@/api/types/fable.types'
 import { ApiClientError } from '@/api/client'
+import { QUERY_CONSTANTS } from '@/utils/constants'
 
 export const fableKeys = {
   all: ['fable'] as const,
@@ -44,9 +45,9 @@ export function useBlockCatalogue(language?: string) {
     retry: (failureCount, error) => {
       // Retry more on 503 (plugins temporarily unavailable after install/update)
       if (error instanceof ApiClientError && error.status === 503) {
-        return failureCount < 5
+        return failureCount < QUERY_CONSTANTS.RETRY.AGGRESSIVE
       }
-      return failureCount < 3
+      return failureCount < QUERY_CONSTANTS.RETRY.DEFAULT
     },
     retryDelay: (attemptIndex, error) => {
       // Use fixed 1s delay for 503 since we just need to wait for plugins to load
@@ -71,7 +72,7 @@ export function useFable(fableId: string | null | undefined) {
     retry: (failureCount, error) => {
       if (error instanceof ApiClientError && error.status && error.status < 500)
         return false
-      return failureCount < 2
+      return failureCount < QUERY_CONSTANTS.RETRY.MINIMAL
     },
   })
 }
@@ -86,7 +87,7 @@ export function useFableRetrieve(fableId: string | null | undefined) {
     retry: (failureCount, error) => {
       if (error instanceof ApiClientError && error.status && error.status < 500)
         return false
-      return failureCount < 2
+      return failureCount < QUERY_CONSTANTS.RETRY.MINIMAL
     },
   })
 }
