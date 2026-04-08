@@ -225,7 +225,7 @@ interface CreateScheduleParams {
   fableId: string | null
   cronExpr: string
   maxAcceptableDelayHours: number
-  dynamicExpr: Record<string, unknown>
+  dynamicExpr: Record<string, string>
 }
 
 export function useCreateSchedule() {
