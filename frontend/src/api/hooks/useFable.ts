@@ -50,6 +50,7 @@ export const fableKeys = {
   validation: (fable: FableBuilderV1) =>
     [...fableKeys.all, 'validation', JSON.stringify(fable)] as const,
   glyphs: () => [...fableKeys.all, 'glyphs'] as const,
+  globalGlyphsBase: () => [...fableKeys.all, 'globalGlyphs'] as const,
   globalGlyphs: (page?: number, pageSize?: number) =>
     [...fableKeys.all, 'globalGlyphs', page, pageSize] as const,
   globalGlyph: (id: string) => [...fableKeys.all, 'globalGlyph', id] as const,
@@ -274,7 +275,7 @@ export function useCreateGlobalGlyph() {
     mutationFn: createGlobalGlyph,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: fableKeys.globalGlyphs(),
+        queryKey: fableKeys.globalGlyphsBase(),
       })
     },
   })
