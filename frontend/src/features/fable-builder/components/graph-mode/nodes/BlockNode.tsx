@@ -66,7 +66,7 @@ const OUTPUT_POSITIONS: Record<'TB' | 'LR', Position> = {
   LR: Position.Right,
 }
 
-export const BlockNode = memo(function BlockNode({
+export const BlockNode = memo(function ({
   id,
   data,
   selected,
