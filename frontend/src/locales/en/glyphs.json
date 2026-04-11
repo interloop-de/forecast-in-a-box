@@ -63,5 +63,11 @@
   },
   "autocomplete": {
     "filter": "Filter glyphs..."
+  },
+  "field": {
+    "switchToGlyph": "Use a glyph expression",
+    "switchToConcrete": "Use the value picker",
+    "cannotSwitchBack": "Clear the glyph expression to switch back",
+    "glyphPlaceholder": "e.g. $\\{glyphName}"
   }
 }

@@ -20,7 +20,9 @@ import { useAllGlyphs } from '@/features/fable-builder/hooks/useAllGlyphs'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 
 const EMPTY_GLYPHS: Record<string, string> = {}
-const GlyphContext = createContext<Array<GlyphInfo>>([])
+
+/** Exported for test use — wrap with `<TestGlyphProvider>` to inject test glyphs */
+export const GlyphContext = createContext<Array<GlyphInfo>>([])
 
 export function GlyphProvider({ children }: { children: ReactNode }) {
   const localGlyphs =
