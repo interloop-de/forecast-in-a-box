@@ -15,6 +15,7 @@ import { AlertCircle, Trash2 } from 'lucide-react'
 import type { Node, NodeProps } from '@xyflow/react'
 import type { FableNodeData } from '@/features/fable-builder/utils/fable-to-graph'
 import type { BlockFactory, BlockInstance } from '@/api/types/fable.types'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AddNodeButton } from '@/features/fable-builder/components/graph-mode/AddNodeButton'
 import { useNodeDimensions } from '@/features/fable-builder/hooks/useNodeDimensions'
 import {
@@ -40,6 +41,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { FieldRenderer } from '@/components/base/fields/FieldRenderer'
 import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
+import { FieldErrorsContext } from '@/features/fable-builder/context/FieldErrorsContext'
+import { mapBlockErrorsToFields } from '@/features/fable-builder/utils/map-block-errors-to-fields'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -50,11 +53,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export type FableNode = Node<FableNodeData>
@@ -121,6 +119,11 @@ export const InlineBlockNode = memo(function ({
   const configOptions = Object.entries(factory.configuration_options)
   const inputs = factory.inputs
 
+  const mappedErrors = useMemo(
+    () => mapBlockErrorsToFields(errors, instance.configuration_values),
+    [errors, instance.configuration_values],
+  )
+
   return (
     <div
       ref={containerRef}
@@ -138,24 +141,6 @@ export const InlineBlockNode = memo(function ({
           'shadow-[0_0_0_2px_rgba(220,38,38,1),0_15px_35px_-5px_rgba(220,38,38,0.15)]',
       )}
     >
-      {hasErrors && (
-        <Tooltip>
-          <TooltipTrigger className="absolute -top-2 -right-2 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground">
-            <AlertCircle className="h-3 w-3" />
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-75">
-            <div className="space-y-1">
-              <P className="font-medium text-destructive">Validation Errors</P>
-              <ul className="list-disc space-y-0.5 pl-4 text-sm">
-                {errors.map((error, index) => (
-                  <li key={`${error}-${index}`}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      )}
-
       <div
         className={cn(
           'h-1.5 w-full rounded-t-2xl opacity-80',
@@ -277,31 +262,46 @@ export const InlineBlockNode = memo(function ({
           <ResolvedConfigContext.Provider
             value={validationState?.resolvedConfigurationOptions[id] ?? null}
           >
-            <div className="space-y-3">
-              {inputs.length > 0 && <Separator />}
-              <div className="text-sm font-medium text-muted-foreground">
-                Configuration
-              </div>
-              {configOptions.map(([key, option]) => (
-                <div
-                  key={key}
-                  className="nodrag space-y-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <FieldRenderer
-                    id={`config-${id}-${key}`}
-                    configKey={key}
-                    valueType={option.value_type}
-                    value={instance.configuration_values[key] || ''}
-                    onChange={(value) => updateBlockConfig(id, key, value)}
-                    label={option.title || key}
-                    description={option.description}
-                    inputClassName="h-8 text-sm"
-                  />
+            <FieldErrorsContext.Provider value={mappedErrors.byConfigKey}>
+              <div className="space-y-3">
+                {inputs.length > 0 && <Separator />}
+                <div className="text-sm font-medium text-muted-foreground">
+                  Configuration
                 </div>
-              ))}
-            </div>
+                {configOptions.map(([key, option]) => (
+                  <div
+                    key={key}
+                    className="nodrag space-y-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FieldRenderer
+                      id={`config-${id}-${key}`}
+                      configKey={key}
+                      valueType={option.value_type}
+                      value={instance.configuration_values[key] || ''}
+                      onChange={(value) => updateBlockConfig(id, key, value)}
+                      label={option.title || key}
+                      description={option.description}
+                      inputClassName="h-8 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </FieldErrorsContext.Provider>
           </ResolvedConfigContext.Provider>
+        )}
+
+        {hasErrors && (
+          <Alert
+            variant="destructive"
+            className="nodrag mt-3 gap-1 px-2 py-1.5 text-xs"
+          >
+            <AlertCircle className="h-3 w-3" />
+            <AlertDescription className="line-clamp-2 text-xs">
+              {errors[0]}
+              {errors.length > 1 && ` (+${errors.length - 1} more)`}
+            </AlertDescription>
+          </Alert>
         )}
       </div>
 

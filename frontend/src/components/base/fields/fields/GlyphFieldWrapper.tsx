@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useGlyphContext } from '@/features/fable-builder/context/GlyphContext'
 import { useResolvedConfig } from '@/features/fable-builder/context/ResolvedConfigContext'
+import { useFieldErrors } from '@/features/fable-builder/context/FieldErrorsContext'
 import { containsGlyphs } from '@/features/fable-builder/utils/glyph-display'
 import { cn } from '@/lib/utils'
 
@@ -91,9 +92,33 @@ export function GlyphFieldWrapper({
     }
   }, [value, mode])
 
+  // All hooks must be called before any conditional early return to satisfy
+  // Rules of Hooks — hasGlyphs / allowGlyphMode can toggle at runtime
+  // (glyphs load async), so the hook count must stay constant across renders.
+  const resolvedConfig = useResolvedConfig()
+  const fieldErrors = useFieldErrors()?.[configKey] ?? null
+  const hasFieldError = fieldErrors !== null && fieldErrors.length > 0
+  const errorMessage = hasFieldError
+    ? fieldErrors.length > 1
+      ? `${fieldErrors[0]} (+${fieldErrors.length - 1} more)`
+      : fieldErrors[0]
+    : null
+
   // If no glyphs available or glyph mode is disallowed for this field type,
-  // render children directly with no InputGroup / toggle chrome.
+  // render children directly with no InputGroup / toggle chrome. Field-level
+  // error styling still applies: wrap in a ring container when errored.
+  // Error text is absolutely positioned so it doesn't push sibling fields.
   if (!hasGlyphs || !allowGlyphMode) {
+    if (hasFieldError) {
+      return (
+        <div className="relative">
+          <div className="rounded-md ring-1 ring-destructive">{children}</div>
+          <p className="pointer-events-none absolute top-full left-0 mt-0.5 truncate text-xs text-destructive">
+            {errorMessage}
+          </p>
+        </div>
+      )
+    }
     return <>{children}</>
   }
 
@@ -119,18 +144,22 @@ export function GlyphFieldWrapper({
 
   // Resolved preview — backend is the sole source of truth. If the backend
   // hasn't returned a resolved value for this config key (validation in-flight,
-  // block in error state, etc.) we simply don't render a preview.
-  const resolvedConfig = useResolvedConfig()
+  // block in error state, etc.) we simply don't render a preview. Also
+  // suppressed when a field-level error is active — the error takes priority
+  // for the below-field slot.
   const resolvedPreview =
-    mode === 'glyph' && valueHasGlyphs
+    mode === 'glyph' && valueHasGlyphs && !hasFieldError
       ? (resolvedConfig?.[configKey] ?? null)
       : null
 
   return (
-    <div>
+    <div className="relative">
       <InputGroup
         data-disabled={disabled || undefined}
-        className={cn(mode === 'glyph' && 'border-primary/30')}
+        className={cn(
+          mode === 'glyph' && 'border-primary/30',
+          hasFieldError && 'border-destructive',
+        )}
       >
         {mode === 'glyph' ? (
           <GlyphTextInput
@@ -176,6 +205,12 @@ export function GlyphFieldWrapper({
           <div className="h-5 w-px bg-border" />
         </InputGroupAddon>
       </InputGroup>
+
+      {errorMessage && (
+        <p className="pointer-events-none absolute top-full left-0 mt-0.5 truncate text-xs text-destructive">
+          {errorMessage}
+        </p>
+      )}
 
       {resolvedPreview && resolvedPreview !== value && (
         <Tooltip>

@@ -47,11 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { parseGlyphSegments } from '@/features/fable-builder/utils/glyph-display'
 import { cn } from '@/lib/utils'
 
@@ -159,24 +155,6 @@ export const BlockNode = memo(function ({
           'shadow-[0_0_0_2px_rgba(220,38,38,1),0_15px_35px_-5px_rgba(220,38,38,0.15)]',
       )}
     >
-      {hasErrors && (
-        <Tooltip>
-          <TooltipTrigger className="absolute -top-2 -right-2 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground">
-            <AlertCircle className="h-3 w-3" />
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-75">
-            <div className="space-y-1">
-              <P className="font-medium text-destructive">Validation Errors</P>
-              <ul className="list-disc space-y-0.5 pl-4 text-sm">
-                {errors.map((error, index) => (
-                  <li key={`${error}-${index}`}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      )}
-
       <div
         className={cn(
           'h-1.5 w-full rounded-t-2xl opacity-80',
@@ -329,6 +307,19 @@ export const BlockNode = memo(function ({
               </span>
             )}
           </div>
+        )}
+
+        {hasErrors && (
+          <Alert
+            variant="destructive"
+            className="nodrag mt-3 gap-1 px-2 py-1.5 text-xs"
+          >
+            <AlertCircle className="h-3 w-3" />
+            <AlertDescription className="line-clamp-2 text-xs">
+              {errors[0]}
+              {errors.length > 1 && ` (+${errors.length - 1} more)`}
+            </AlertDescription>
+          </Alert>
         )}
       </div>
 

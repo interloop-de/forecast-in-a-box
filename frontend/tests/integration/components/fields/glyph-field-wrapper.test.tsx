@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select'
 import { GlyphContext } from '@/features/fable-builder/context/GlyphContext'
 import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
+import { FieldErrorsContext } from '@/features/fable-builder/context/FieldErrorsContext'
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -65,15 +66,19 @@ function WithGlyphs({
   children,
   glyphs = TEST_GLYPHS,
   resolvedConfig = null,
+  fieldErrors = null,
 }: {
   children: React.ReactNode
   glyphs?: Array<GlyphInfo>
   resolvedConfig?: Record<string, string> | null
+  fieldErrors?: Record<string, Array<string>> | null
 }) {
   return (
     <GlyphContext.Provider value={glyphs}>
       <ResolvedConfigContext.Provider value={resolvedConfig}>
-        {children}
+        <FieldErrorsContext.Provider value={fieldErrors}>
+          {children}
+        </FieldErrorsContext.Provider>
       </ResolvedConfigContext.Provider>
     </GlyphContext.Provider>
   )
@@ -82,10 +87,14 @@ function WithGlyphs({
 function ControlledStringField(props: {
   initialValue?: string
   resolvedConfig?: Record<string, string> | null
+  fieldErrors?: Record<string, Array<string>> | null
 }) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
-    <WithGlyphs resolvedConfig={props.resolvedConfig ?? null}>
+    <WithGlyphs
+      resolvedConfig={props.resolvedConfig ?? null}
+      fieldErrors={props.fieldErrors ?? null}
+    >
       <GlyphFieldWrapper
         id="test-field"
         configKey="value"
@@ -149,10 +158,13 @@ function ControlledNumberField(props: { initialValue?: string }) {
   )
 }
 
-function ControlledEnumField(props: { initialValue?: string }) {
+function ControlledEnumField(props: {
+  initialValue?: string
+  fieldErrors?: Record<string, Array<string>> | null
+}) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
-    <WithGlyphs>
+    <WithGlyphs fieldErrors={props.fieldErrors ?? null}>
       <GlyphFieldWrapper
         id="test-field"
         configKey="value"
@@ -397,6 +409,57 @@ describe('GlyphFieldWrapper Integration', () => {
       await expect
         .element(screen.getByTestId('current-value'))
         .toHaveTextContent('${forecastDate}')
+    })
+  })
+
+  describe('Field-level validation errors', () => {
+    it('renders inline error message for the field when FieldErrorsContext has entries', async () => {
+      const screen = await renderWithProviders(
+        <ControlledStringField
+          initialValue="${runtd}"
+          fieldErrors={{ value: ['Unknown glyph: ${runtd}'] }}
+        />,
+      )
+      await expect
+        .element(screen.getByText('Unknown glyph: ${runtd}'))
+        .toBeVisible()
+    })
+
+    it('does not render an error when FieldErrorsContext is null', async () => {
+      const screen = await renderWithProviders(
+        <ControlledStringField initialValue="${runtd}" />,
+      )
+      await expect
+        .element(screen.getByText(/Unknown glyph/))
+        .not.toBeInTheDocument()
+    })
+
+    it('collapses multiple errors into "(+N more)" suffix', async () => {
+      const screen = await renderWithProviders(
+        <ControlledStringField
+          initialValue="${runtd}-${ghost}"
+          fieldErrors={{
+            value: ['Unknown glyph: ${runtd}', 'Unknown glyph: ${ghost}'],
+          }}
+        />,
+      )
+      await expect
+        .element(screen.getByText('Unknown glyph: ${runtd} (+1 more)'))
+        .toBeVisible()
+    })
+
+    it('renders inline error on enum fields too (allowGlyphMode=false path)', async () => {
+      const screen = await renderWithProviders(
+        <ControlledEnumField
+          initialValue="opt1"
+          fieldErrors={{ value: ['Missing required value'] }}
+        />,
+      )
+      await expect
+        .element(screen.getByText('Missing required value'))
+        .toBeVisible()
+      // Combobox still rendered (no glyph toggle)
+      await expect.element(screen.getByRole('combobox')).toBeVisible()
     })
   })
 })
