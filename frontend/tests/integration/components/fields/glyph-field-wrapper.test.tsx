@@ -158,13 +158,10 @@ function ControlledEnumField(props: { initialValue?: string }) {
         configKey="value"
         value={value}
         onChange={setValue}
+        allowGlyphMode={false}
       >
         <Select value={value || null} onValueChange={(v) => setValue(v ?? '')}>
-          <SelectTrigger
-            id="test-field"
-            data-slot="input-group-control"
-            className="flex-1 border-0 shadow-none ring-0 focus-visible:ring-0"
-          >
+          <SelectTrigger id="test-field">
             <SelectValue placeholder="Select..." />
           </SelectTrigger>
           <SelectContent>
@@ -233,11 +230,13 @@ describe('GlyphFieldWrapper Integration', () => {
         .toBeVisible()
     })
 
-    it('shows toggle on enum fields', async () => {
+    it('hides toggle on enum fields (allowGlyphMode=false)', async () => {
       const screen = await renderWithProviders(<ControlledEnumField />)
+      // Enum dropdowns opt out of glyph mode — no toggle, combobox only
+      await expect.element(screen.getByRole('combobox')).toBeVisible()
       await expect
         .element(screen.getByRole('button', { name: /glyph/i }))
-        .toBeVisible()
+        .not.toBeInTheDocument()
     })
   })
 
@@ -356,28 +355,6 @@ describe('GlyphFieldWrapper Integration', () => {
     })
   })
 
-  describe('Blur-exit from glyph mode', () => {
-    it('returns to concrete mode when toggling on enum field', async () => {
-      const screen = await renderWithProviders(
-        <ControlledEnumField initialValue="opt1" />,
-      )
-
-      // Start in concrete mode — combobox visible
-      await expect.element(screen.getByRole('combobox')).toBeVisible()
-
-      // Toggle to glyph mode
-      await screen.getByTestId('glyph-toggle').click()
-      await expect.element(screen.getByRole('textbox')).toBeVisible()
-
-      // Close autocomplete then toggle back
-      await userEvent.keyboard('{Escape}')
-      await screen.getByTestId('glyph-toggle').click()
-
-      // Combobox should be back
-      await expect.element(screen.getByRole('combobox')).toBeVisible()
-    })
-  })
-
   describe('Prevents switching back with glyph value', () => {
     it('disables toggle when value contains a glyph', async () => {
       const screen = await renderWithProviders(
@@ -388,7 +365,10 @@ describe('GlyphFieldWrapper Integration', () => {
     })
   })
 
-  describe('All field types support glyph entry', () => {
+  describe('Text-like field types support glyph entry', () => {
+    // Enum fields are excluded by design: their values are constrained by
+    // the backend, so free-form glyph expressions are not meaningful.
+
     it('string field', async () => {
       const screen = await renderWithProviders(<ControlledStringField />)
       await screen.getByRole('button', { name: /glyph/i }).click()
@@ -407,16 +387,6 @@ describe('GlyphFieldWrapper Integration', () => {
       await expect
         .element(screen.getByTestId('current-value'))
         .toHaveTextContent('${runId}')
-    })
-
-    it('enum field', async () => {
-      const screen = await renderWithProviders(<ControlledEnumField />)
-      await screen.getByRole('button', { name: /glyph/i }).click()
-      const input = screen.getByRole('textbox')
-      await input.fill('${expver}')
-      await expect
-        .element(screen.getByTestId('current-value'))
-        .toHaveTextContent('${expver}')
     })
 
     it('date field', async () => {

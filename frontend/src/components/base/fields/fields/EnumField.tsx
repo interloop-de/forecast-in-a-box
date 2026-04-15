@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 export interface EnumFieldProps {
   id: string
@@ -47,17 +48,14 @@ export function EnumField({
       placeholder={placeholder}
       disabled={disabled}
       className={className}
+      allowGlyphMode={false}
     >
       <Select
         value={value || null}
         onValueChange={(newValue) => onChange(newValue ?? '')}
         disabled={disabled}
       >
-        <SelectTrigger
-          id={id}
-          data-slot="input-group-control"
-          className="flex-1 border-0 shadow-none ring-0 focus-visible:ring-0"
-        >
+        <SelectTrigger id={id} className={cn('w-full', className)}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

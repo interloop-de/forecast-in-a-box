@@ -51,6 +51,13 @@ export interface GlyphFieldWrapperProps {
   placeholder?: string
   disabled?: boolean
   className?: string
+  /**
+   * When false, glyph mode is unavailable and the wrapper renders children
+   * directly with no toggle or InputGroup chrome. Used for field types
+   * where free-form glyph expressions don't make sense (e.g. enum dropdowns,
+   * whose values are constrained to a backend-declared set).
+   */
+  allowGlyphMode?: boolean
   /** The specialized widget (must use InputGroupInput or data-slot="input-group-control") */
   children: React.ReactNode
 }
@@ -65,6 +72,7 @@ export function GlyphFieldWrapper({
   placeholder,
   disabled,
   className,
+  allowGlyphMode = true,
   children,
 }: GlyphFieldWrapperProps) {
   const { t } = useTranslation('glyphs')
@@ -83,8 +91,9 @@ export function GlyphFieldWrapper({
     }
   }, [value, mode])
 
-  // If no glyphs available, always render concrete mode without the wrapper
-  if (!hasGlyphs) {
+  // If no glyphs available or glyph mode is disallowed for this field type,
+  // render children directly with no InputGroup / toggle chrome.
+  if (!hasGlyphs || !allowGlyphMode) {
     return <>{children}</>
   }
 
