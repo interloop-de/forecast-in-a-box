@@ -118,6 +118,7 @@ describe('useFableBuilderStore', () => {
           globalErrors: [],
           blockStates: {},
           possibleSources: [],
+          resolvedConfigurationOptions: {},
         }),
       )
       act(() => useFableBuilderStore.getState().setFable(mockFable))
@@ -668,6 +669,7 @@ describe('useFableBuilderStore', () => {
         globalErrors: ['Missing required block'],
         blockStates: {},
         possibleSources: [],
+        resolvedConfigurationOptions: {},
       }
       act(() =>
         useFableBuilderStore.getState().setValidationState(validationState),
@@ -685,6 +687,7 @@ describe('useFableBuilderStore', () => {
           globalErrors: [],
           blockStates: {},
           possibleSources: [],
+          resolvedConfigurationOptions: {},
         }),
       )
       const after = Date.now()
@@ -775,6 +778,7 @@ describe('selector hooks', () => {
           globalErrors: [],
           blockStates: {},
           possibleSources: [],
+          resolvedConfigurationOptions: {},
         }),
       )
       const { result } = renderHook(() => useIsValid())
@@ -788,6 +792,7 @@ describe('selector hooks', () => {
           globalErrors: ['Error'],
           blockStates: {},
           possibleSources: [],
+          resolvedConfigurationOptions: {},
         }),
       )
       const { result } = renderHook(() => useIsValid())

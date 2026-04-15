@@ -39,6 +39,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { FieldRenderer } from '@/components/base/fields/FieldRenderer'
+import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -273,29 +274,34 @@ export const InlineBlockNode = memo(function ({
         )}
 
         {configOptions.length > 0 && (
-          <div className="space-y-3">
-            {inputs.length > 0 && <Separator />}
-            <div className="text-sm font-medium text-muted-foreground">
-              Configuration
-            </div>
-            {configOptions.map(([key, option]) => (
-              <div
-                key={key}
-                className="nodrag space-y-1"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FieldRenderer
-                  id={`config-${id}-${key}`}
-                  valueType={option.value_type}
-                  value={instance.configuration_values[key] || ''}
-                  onChange={(value) => updateBlockConfig(id, key, value)}
-                  label={option.title || key}
-                  description={option.description}
-                  inputClassName="h-8 text-sm"
-                />
+          <ResolvedConfigContext.Provider
+            value={validationState?.resolvedConfigurationOptions[id] ?? null}
+          >
+            <div className="space-y-3">
+              {inputs.length > 0 && <Separator />}
+              <div className="text-sm font-medium text-muted-foreground">
+                Configuration
               </div>
-            ))}
-          </div>
+              {configOptions.map(([key, option]) => (
+                <div
+                  key={key}
+                  className="nodrag space-y-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FieldRenderer
+                    id={`config-${id}-${key}`}
+                    configKey={key}
+                    valueType={option.value_type}
+                    value={instance.configuration_values[key] || ''}
+                    onChange={(value) => updateBlockConfig(id, key, value)}
+                    label={option.title || key}
+                    description={option.description}
+                    inputClassName="h-8 text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          </ResolvedConfigContext.Provider>
         )}
       </div>
 

@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { GlyphContext } from '@/features/fable-builder/context/GlyphContext'
+import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -63,20 +64,34 @@ const TEST_GLYPHS: Array<GlyphInfo> = [
 function WithGlyphs({
   children,
   glyphs = TEST_GLYPHS,
+  resolvedConfig = null,
 }: {
   children: React.ReactNode
   glyphs?: Array<GlyphInfo>
+  resolvedConfig?: Record<string, string> | null
 }) {
   return (
-    <GlyphContext.Provider value={glyphs}>{children}</GlyphContext.Provider>
+    <GlyphContext.Provider value={glyphs}>
+      <ResolvedConfigContext.Provider value={resolvedConfig}>
+        {children}
+      </ResolvedConfigContext.Provider>
+    </GlyphContext.Provider>
   )
 }
 
-function ControlledStringField(props: { initialValue?: string }) {
+function ControlledStringField(props: {
+  initialValue?: string
+  resolvedConfig?: Record<string, string> | null
+}) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
-    <WithGlyphs>
-      <GlyphFieldWrapper id="test-field" value={value} onChange={setValue}>
+    <WithGlyphs resolvedConfig={props.resolvedConfig ?? null}>
+      <GlyphFieldWrapper
+        id="test-field"
+        configKey="value"
+        value={value}
+        onChange={setValue}
+      >
         <InputGroupInput
           id="test-field"
           type="text"
@@ -93,7 +108,12 @@ function ControlledDateField(props: { initialValue?: string }) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
     <WithGlyphs>
-      <GlyphFieldWrapper id="test-field" value={value} onChange={setValue}>
+      <GlyphFieldWrapper
+        id="test-field"
+        configKey="value"
+        value={value}
+        onChange={setValue}
+      >
         <InputGroupInput
           id="test-field"
           type="date"
@@ -110,7 +130,12 @@ function ControlledNumberField(props: { initialValue?: string }) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
     <WithGlyphs>
-      <GlyphFieldWrapper id="test-field" value={value} onChange={setValue}>
+      <GlyphFieldWrapper
+        id="test-field"
+        configKey="value"
+        value={value}
+        onChange={setValue}
+      >
         <InputGroupInput
           id="test-field"
           type="number"
@@ -128,7 +153,12 @@ function ControlledEnumField(props: { initialValue?: string }) {
   const [value, setValue] = useState(props.initialValue ?? '')
   return (
     <WithGlyphs>
-      <GlyphFieldWrapper id="test-field" value={value} onChange={setValue}>
+      <GlyphFieldWrapper
+        id="test-field"
+        configKey="value"
+        value={value}
+        onChange={setValue}
+      >
         <Select value={value || null} onValueChange={(v) => setValue(v ?? '')}>
           <SelectTrigger
             id="test-field"
@@ -152,7 +182,12 @@ function NoGlyphsStringField() {
   const [value, setValue] = useState('')
   return (
     <WithGlyphs glyphs={[]}>
-      <GlyphFieldWrapper id="test-field" value={value} onChange={setValue}>
+      <GlyphFieldWrapper
+        id="test-field"
+        configKey="value"
+        value={value}
+        onChange={setValue}
+      >
         <InputGroupInput
           id="test-field"
           type="text"
@@ -260,17 +295,49 @@ describe('GlyphFieldWrapper Integration', () => {
   })
 
   describe('Resolved preview', () => {
-    it('shows "resolves to" preview for glyph values', async () => {
+    it('shows "resolves to" preview using server-resolved value', async () => {
       const screen = await renderWithProviders(
-        <ControlledStringField initialValue="${expver}" />,
+        <ControlledStringField
+          initialValue="${expver}"
+          resolvedConfig={{ value: 'server-0042' }}
+        />,
       )
       await expect.element(screen.getByText(/resolves to/i)).toBeVisible()
-      await expect.element(screen.getByText('0001')).toBeVisible()
+      // Must show the backend value, not the glyph's valueExample ('0001')
+      await expect.element(screen.getByText('server-0042')).toBeVisible()
+    })
+
+    it('hides preview when backend has not resolved the value yet', async () => {
+      // Glyph value present, but resolvedConfig is null (in-flight / error)
+      const screen = await renderWithProviders(
+        <ControlledStringField
+          initialValue="${expver}"
+          resolvedConfig={null}
+        />,
+      )
+      await expect
+        .element(screen.getByText(/resolves to/i))
+        .not.toBeInTheDocument()
+    })
+
+    it('hides preview when backend map lacks this configKey', async () => {
+      const screen = await renderWithProviders(
+        <ControlledStringField
+          initialValue="${expver}"
+          resolvedConfig={{ other_key: 'whatever' }}
+        />,
+      )
+      await expect
+        .element(screen.getByText(/resolves to/i))
+        .not.toBeInTheDocument()
     })
 
     it('does not show preview when value has no glyphs', async () => {
       const screen = await renderWithProviders(
-        <ControlledStringField initialValue="plain text" />,
+        <ControlledStringField
+          initialValue="plain text"
+          resolvedConfig={{ value: 'anything' }}
+        />,
       )
       await expect
         .element(screen.getByText(/resolves to/i))

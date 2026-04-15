@@ -38,14 +38,14 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useGlyphContext } from '@/features/fable-builder/context/GlyphContext'
-import {
-  containsGlyphs,
-  resolveGlyphValue,
-} from '@/features/fable-builder/utils/glyph-display'
+import { useResolvedConfig } from '@/features/fable-builder/context/ResolvedConfigContext'
+import { containsGlyphs } from '@/features/fable-builder/utils/glyph-display'
 import { cn } from '@/lib/utils'
 
 export interface GlyphFieldWrapperProps {
   id: string
+  /** Configuration key under which the backend publishes the resolved value */
+  configKey: string
   value: string
   onChange: (value: string) => void
   placeholder?: string
@@ -59,6 +59,7 @@ type FieldMode = 'concrete' | 'glyph'
 
 export function GlyphFieldWrapper({
   id,
+  configKey,
   value,
   onChange,
   placeholder,
@@ -107,13 +108,13 @@ export function GlyphFieldWrapper({
         ? t('field.cannotSwitchBack')
         : t('field.switchToConcrete')
 
-  // Resolved preview — rendered below the InputGroup
+  // Resolved preview — backend is the sole source of truth. If the backend
+  // hasn't returned a resolved value for this config key (validation in-flight,
+  // block in error state, etc.) we simply don't render a preview.
+  const resolvedConfig = useResolvedConfig()
   const resolvedPreview =
     mode === 'glyph' && valueHasGlyphs
-      ? resolveGlyphValue(
-          value,
-          Object.fromEntries(glyphs.map((g) => [g.name, g.valueExample])),
-        )
+      ? (resolvedConfig?.[configKey] ?? null)
       : null
 
   return (

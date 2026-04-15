@@ -32,6 +32,7 @@ import {
 import { P } from '@/components/base/typography'
 import { Button } from '@/components/ui/button'
 import { FieldRenderer } from '@/components/base/fields/FieldRenderer'
+import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   ContextMenu,
@@ -104,6 +105,10 @@ export function BlockInstanceCard({
   )
   const connectBlocks = useFableBuilderStore((state) => state.connectBlocks)
   const disconnectBlock = useFableBuilderStore((state) => state.disconnectBlock)
+  const resolvedConfigForBlock = useFableBuilderStore(
+    (state) =>
+      state.validationState?.resolvedConfigurationOptions[instanceId] ?? null,
+  )
   const blockValidation = useBlockValidation(instanceId)
 
   const instance = fable.blocks[instanceId]
@@ -313,23 +318,26 @@ export function BlockInstanceCard({
               )}
 
               {Object.keys(factory.configuration_options).length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(factory.configuration_options).map(
-                    ([key, option]) => (
-                      <FieldRenderer
-                        key={key}
-                        id={`${instanceId}-${key}`}
-                        valueType={option.value_type}
-                        value={instance.configuration_values[key] ?? ''}
-                        onChange={(value) =>
-                          updateBlockConfig(instanceId, key, value)
-                        }
-                        label={option.title}
-                        description={option.description}
-                      />
-                    ),
-                  )}
-                </div>
+                <ResolvedConfigContext.Provider value={resolvedConfigForBlock}>
+                  <div className="space-y-4">
+                    {Object.entries(factory.configuration_options).map(
+                      ([key, option]) => (
+                        <FieldRenderer
+                          key={key}
+                          id={`${instanceId}-${key}`}
+                          configKey={key}
+                          valueType={option.value_type}
+                          value={instance.configuration_values[key] ?? ''}
+                          onChange={(value) =>
+                            updateBlockConfig(instanceId, key, value)
+                          }
+                          label={option.title}
+                          description={option.description}
+                        />
+                      ),
+                    )}
+                  </div>
+                </ResolvedConfigContext.Provider>
               ) : (
                 <P className="py-2 text-center text-muted-foreground">
                   No configuration options

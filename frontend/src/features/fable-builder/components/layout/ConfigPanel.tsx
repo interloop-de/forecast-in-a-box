@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { GlyphReferencePanel } from '@/features/fable-builder/components/shared/GlyphReferencePanel'
+import { ResolvedConfigContext } from '@/features/fable-builder/context/ResolvedConfigContext'
 import { cn } from '@/lib/utils'
 
 interface ConfigPanelProps {
@@ -52,6 +53,13 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
   // Use individual selectors to avoid creating new objects on every render
   const selectedBlockId = useFableBuilderStore((state) => state.selectedBlockId)
   const fable = useFableBuilderStore((state) => state.fable)
+  const resolvedConfigForBlock = useFableBuilderStore((state) =>
+    state.selectedBlockId
+      ? (state.validationState?.resolvedConfigurationOptions[
+          state.selectedBlockId
+        ] ?? null)
+      : null,
+  )
   const selectBlock = useFableBuilderStore((state) => state.selectBlock)
   const updateBlockConfig = useFableBuilderStore(
     (state) => state.updateBlockConfig,
@@ -174,24 +182,27 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
         )}
 
         {configOptions.length > 0 && (
-          <div className="space-y-3">
-            <div className="text-sm font-medium">Configuration</div>
-            <div className="space-y-4">
-              {configOptions.map(([key, option]) => (
-                <FieldRenderer
-                  key={key}
-                  id={`config-${key}`}
-                  valueType={option.value_type}
-                  value={selectedBlock.configuration_values[key] || ''}
-                  onChange={(value) => handleConfigChange(key, value)}
-                  label={option.title || key}
-                  description={option.description}
-                  inputClassName="h-9"
-                />
-              ))}
+          <ResolvedConfigContext.Provider value={resolvedConfigForBlock}>
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Configuration</div>
+              <div className="space-y-4">
+                {configOptions.map(([key, option]) => (
+                  <FieldRenderer
+                    key={key}
+                    id={`config-${key}`}
+                    configKey={key}
+                    valueType={option.value_type}
+                    value={selectedBlock.configuration_values[key] || ''}
+                    onChange={(value) => handleConfigChange(key, value)}
+                    label={option.title || key}
+                    description={option.description}
+                    inputClassName="h-9"
+                  />
+                ))}
+              </div>
+              <GlyphReferencePanel />
             </div>
-            <GlyphReferencePanel />
-          </div>
+          </ResolvedConfigContext.Provider>
         )}
 
         {configOptions.length === 0 && inputs.length === 0 && (

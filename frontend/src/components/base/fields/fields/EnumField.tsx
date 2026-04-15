@@ -19,6 +19,7 @@ import {
 
 export interface EnumFieldProps {
   id: string
+  configKey: string
   value: string
   onChange: (value: string) => void
   options: Array<string>
@@ -29,6 +30,7 @@ export interface EnumFieldProps {
 
 export function EnumField({
   id,
+  configKey,
   value,
   onChange,
   options,
@@ -39,6 +41,7 @@ export function EnumField({
   return (
     <GlyphFieldWrapper
       id={id}
+      configKey={configKey}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
