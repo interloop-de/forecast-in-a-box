@@ -354,6 +354,7 @@ export const InlineBlockNode = memo(function ({
           sourceBlockId={id}
           possibleExpansions={possibleExpansions}
           catalogue={catalogue}
+          hasErrors={hasErrors}
         />
       )}
     </div>

@@ -377,6 +377,7 @@ export const BlockNode = memo(function ({
           <AddNodeButton
             sourceBlockId={id}
             possibleExpansions={possibleExpansions}
+            hasErrors={hasErrors}
             catalogue={catalogue}
           />
         </>
