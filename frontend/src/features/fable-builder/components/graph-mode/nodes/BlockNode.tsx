@@ -147,9 +147,15 @@ export const BlockNode = memo(function ({
       onKeyDown={(e) => e.key === 'Enter' && handleClick()}
       className={cn(
         'relative w-70 rounded-2xl border bg-card shadow-sm',
-        'cursor-pointer transition-all duration-300 hover:shadow-lg',
+        'cursor-pointer transition-all duration-200',
+        // Hover: subtle border hint (distinct from full selection)
+        !isSelected &&
+          !hasErrors &&
+          'hover:shadow-md hover:ring-1 hover:ring-primary/20',
+        // Selected: prominent blue ring + lifted scale
         isSelected &&
-          'shadow-[0_0_0_2px_rgba(18,69,222,1),0_15px_35px_-5px_rgba(18,69,222,0.15)]',
+          'scale-[1.02] shadow-[0_0_0_2.5px_rgba(18,69,222,1),0_20px_40px_-5px_rgba(18,69,222,0.2)]',
+        // Error (unselected): red ring
         hasErrors &&
           !isSelected &&
           'shadow-[0_0_0_2px_rgba(220,38,38,1),0_15px_35px_-5px_rgba(220,38,38,0.15)]',
