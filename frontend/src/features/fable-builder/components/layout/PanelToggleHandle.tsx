@@ -52,7 +52,7 @@ export function PanelToggleHandle({
             size="icon"
             onClick={onToggle}
             className={cn(
-              'absolute top-1/2 z-20 -translate-y-1/2',
+              'absolute top-1/2 z-30 -translate-y-1/2',
               'rounded-sm border border-border bg-muted/50 hover:bg-muted',
               'transition-all duration-150',
               // Size: larger when closed for better touch target
