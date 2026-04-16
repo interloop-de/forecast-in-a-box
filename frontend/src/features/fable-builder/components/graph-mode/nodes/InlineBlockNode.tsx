@@ -86,6 +86,13 @@ export const InlineBlockNode = memo(function ({
   const errors = blockValidation?.errors ?? []
   const possibleExpansions =
     validationState?.blockStates[id]?.possibleExpansions ?? []
+  const hasDownstream = useMemo(
+    () =>
+      Object.values(fable.blocks).some((block) =>
+        Object.values(block.input_ids).includes(id),
+      ),
+    [fable.blocks, id],
+  )
 
   const availableSources = useMemo(() => {
     const sources: Array<{
@@ -312,7 +319,6 @@ export const InlineBlockNode = memo(function ({
       </div>
 
       {inputs.map((inputName, index) => {
-        const isConnected = Boolean(instance.input_ids[inputName])
         const topPercent = ((index + 1) / (inputs.length + 1)) * 100
 
         return (
@@ -324,9 +330,7 @@ export const InlineBlockNode = memo(function ({
             title={inputName}
             className={cn(
               '-left-2.5! h-5! w-5! rounded-full! border-4! bg-card!',
-              isConnected
-                ? 'border-primary!'
-                : 'border-muted-foreground/30! hover:border-muted-foreground/50!',
+              'border-foreground/30!',
               'transition-all hover:scale-110',
             )}
             style={{
@@ -345,7 +349,7 @@ export const InlineBlockNode = memo(function ({
           title="Output"
           className={cn(
             '-right-2.5! h-5! w-5! rounded-full! border-4! bg-card!',
-            metadata.handleColor,
+            'border-foreground/30!',
             'transition-all hover:scale-110',
           )}
           style={{
@@ -361,6 +365,7 @@ export const InlineBlockNode = memo(function ({
           possibleExpansions={possibleExpansions}
           catalogue={catalogue}
           hasErrors={hasErrors}
+          hasDownstream={hasDownstream}
         />
       )}
     </div>

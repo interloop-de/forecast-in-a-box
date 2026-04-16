@@ -50,6 +50,7 @@ export function PanelToggleHandle({
           <Button
             variant="ghost"
             size="icon"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={onToggle}
             className={cn(
               'absolute top-1/2 z-30 -translate-y-1/2',

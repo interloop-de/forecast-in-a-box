@@ -39,6 +39,8 @@ interface AddNodeButtonProps {
   catalogue: BlockFactoryCatalogue
   /** When true, the button adopts the destructive color to signal errors on the parent node */
   hasErrors?: boolean
+  /** When true, this block already has a downstream connection — hide the button */
+  hasDownstream?: boolean
 }
 
 const POSITION_CLASSES: Record<string, string> = {
@@ -60,6 +62,7 @@ export const AddNodeButton = memo(function ({
   possibleExpansions,
   catalogue,
   hasErrors = false,
+  hasDownstream = false,
 }: AddNodeButtonProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -144,6 +147,12 @@ export const AddNodeButton = memo(function ({
     setSearch('')
   }
 
+  // Once a downstream block is connected, the output Handle is enough —
+  // the plus button is only for adding the first downstream block.
+  if (hasDownstream) {
+    return null
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -154,10 +163,10 @@ export const AddNodeButton = memo(function ({
             className={cn(
               POSITION_CLASSES[layoutDirection],
               'h-7 w-7 rounded-full',
-              'border-2 bg-background shadow-md',
+              'border-2 bg-background shadow-md hover:bg-background',
               hasErrors
-                ? 'border-destructive text-destructive hover:border-destructive hover:bg-destructive hover:text-destructive-foreground'
-                : 'hover:border-primary hover:bg-primary hover:text-primary-foreground',
+                ? 'border-destructive text-destructive hover:border-destructive/70'
+                : 'hover:border-primary hover:text-primary',
               'nodrag nopan transition-all duration-200',
             )}
             onClick={(e) => e.stopPropagation()}

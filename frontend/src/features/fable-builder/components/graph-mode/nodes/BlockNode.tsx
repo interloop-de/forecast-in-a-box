@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-import { memo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import {
   AlertCircle,
@@ -95,11 +95,20 @@ export const BlockNode = memo(function ({
   const outputPosition = OUTPUT_POSITIONS[layoutDirection]
   const isHorizontalLayout = layoutDirection === 'LR'
 
+  const fable = useFableBuilderStore((state) => state.fable)
+
   const isSelected = selected || selectedBlockId === id
   const hasErrors = blockValidation?.hasErrors ?? false
   const errors = blockValidation?.errors ?? []
   const possibleExpansions =
     validationState?.blockStates[id]?.possibleExpansions ?? []
+  const hasDownstream = useMemo(
+    () =>
+      Object.values(fable.blocks).some((block) =>
+        Object.values(block.input_ids).includes(id),
+      ),
+    [fable.blocks, id],
+  )
 
   function handleClick(): void {
     selectBlock(id)
@@ -330,7 +339,6 @@ export const BlockNode = memo(function ({
       </div>
 
       {factory.inputs.map((inputName, index) => {
-        const isConnected = Boolean(instance.input_ids[inputName])
         const percent = ((index + 1) / (factory.inputs.length + 1)) * 100
 
         return (
@@ -345,9 +353,7 @@ export const BlockNode = memo(function ({
               isHorizontalLayout ? '-left-2.5!' : '-top-2.5!',
               inputPosition === Position.Right && '-right-2.5! left-auto!',
               inputPosition === Position.Bottom && 'top-auto! -bottom-2.5!',
-              isConnected
-                ? 'border-primary!'
-                : 'border-muted-foreground/30! hover:border-muted-foreground/50!',
+              'border-foreground/30!',
               'transition-all hover:scale-110',
             )}
             style={
@@ -368,7 +374,7 @@ export const BlockNode = memo(function ({
             title="Output"
             className={cn(
               'h-5! w-5! rounded-full! border-4! bg-card!',
-              metadata.handleColor,
+              'border-foreground/30!',
               isHorizontalLayout ? '-right-2.5!' : '-bottom-2.5!',
               outputPosition === Position.Left && 'right-auto! -left-2.5!',
               outputPosition === Position.Top && '-top-2.5! bottom-auto!',
@@ -384,6 +390,7 @@ export const BlockNode = memo(function ({
             sourceBlockId={id}
             possibleExpansions={possibleExpansions}
             hasErrors={hasErrors}
+            hasDownstream={hasDownstream}
             catalogue={catalogue}
           />
         </>
