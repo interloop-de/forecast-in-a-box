@@ -31,7 +31,7 @@ export const ScheduleDefinitionResponseSchema = z.object({
   max_acceptable_delay_hours: z.number(),
   enabled: z.boolean(),
   created_at: z.string(),
-  created_by: z.string().nullable(),
+  created_by: z.string(),
   display_name: z.string().nullable(),
   display_description: z.string().nullable(),
   tags: z.array(z.string()).nullable(),

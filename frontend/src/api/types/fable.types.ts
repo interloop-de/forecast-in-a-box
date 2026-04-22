@@ -132,7 +132,7 @@ export const GlobalGlyphResponseSchema = z.object({
   key: z.string(),
   value: z.string(),
   public: z.boolean(),
-  created_by: z.string().nullable(),
+  created_by: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
 })
