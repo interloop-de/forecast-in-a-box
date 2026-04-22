@@ -35,7 +35,10 @@
     "value": "Value",
     "valuePlaceholder": "The value to interpolate",
     "public": "Public",
-    "publicHelp": "Public glyphs are visible to all users (admin only)"
+    "publicHelp": "Public glyphs are visible to all users (admin only)",
+    "overriddable": "Overriddable",
+    "overriddableHelp": "Allow users to shadow this glyph with their own value of the same name",
+    "overriddableTooltip": "Overriddable: a user can define a private glyph with the same name and it will win during resolution. Pinned (off): the public value always wins, even if a user defines their own."
   },
   "pagination": {
     "previous": "Previous",
