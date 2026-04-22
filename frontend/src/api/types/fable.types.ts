@@ -105,6 +105,8 @@ export const GlyphDetailSchema = z.object({
   name: z.string(),
   display_name: z.string(),
   valueExample: z.string(),
+  /** "intrinsic" for intrinsic glyphs; owner id (or passthrough sentinel "user") otherwise. */
+  created_by: z.string(),
 })
 
 export type GlyphDetail = z.infer<typeof GlyphDetailSchema>
