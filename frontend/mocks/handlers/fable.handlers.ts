@@ -55,7 +55,8 @@ interface MockGlobalGlyph {
   key: string
   value: string
   public: boolean
-  created_by: string | null
+  overriddable: boolean | null
+  created_by: string
   created_at: string
   updated_at: string
 }
@@ -68,22 +69,26 @@ const mockIntrinsicGlyphs = [
     name: 'runId',
     display_name: 'Run ID',
     valueExample: '550e8400-e29b-41d4-a716-446655440000',
+    created_by: 'intrinsic',
   },
   {
     name: 'submitDatetime',
     display_name:
       'Submit Datetime (fixed at first submission, preserved on restart)',
     valueExample: '2026-04-10 12:00:00',
+    created_by: 'intrinsic',
   },
   {
     name: 'startDatetime',
     display_name: 'Start Datetime (updated on every restart)',
     valueExample: '2026-04-10 12:00:00',
+    created_by: 'intrinsic',
   },
   {
     name: 'attemptCount',
     display_name: 'Attempt Count (incremented on every restart)',
     valueExample: '1',
+    created_by: 'intrinsic',
   },
 ]
 
@@ -288,6 +293,7 @@ export const fableHandlers = [
         name: g.key,
         display_name: g.key,
         valueExample: g.value,
+        created_by: g.created_by,
       })),
       total: mockGlobalGlyphs.length,
       page,
@@ -301,7 +307,10 @@ export const fableHandlers = [
       key: string
       value: string
       public?: boolean
+      overriddable?: boolean | null
     }
+    const isPublic = body.public ?? false
+    const overriddable = body.overriddable ?? null
 
     const intrinsicNames = new Set(mockIntrinsicGlyphs.map((g) => g.name))
     if (intrinsicNames.has(body.key)) {
@@ -312,12 +321,25 @@ export const fableHandlers = [
         { status: 422 },
       )
     }
+    if (isPublic && overriddable === null) {
+      return HttpResponse.json(
+        { detail: 'overriddable must be specified when public=True.' },
+        { status: 422 },
+      )
+    }
+    if (!isPublic && overriddable !== null) {
+      return HttpResponse.json(
+        { detail: 'overriddable must not be specified when public=False.' },
+        { status: 422 },
+      )
+    }
 
     const existing = mockGlobalGlyphs.find((g) => g.key === body.key)
     const now = new Date().toISOString()
     if (existing) {
       existing.value = body.value
-      existing.public = body.public ?? false
+      existing.public = isPublic
+      existing.overriddable = overriddable
       existing.updated_at = now
       return HttpResponse.json(existing)
     }
@@ -326,7 +348,8 @@ export const fableHandlers = [
       global_glyph_id: `glyph-${String(glyphIdCounter++).padStart(3, '0')}`,
       key: body.key,
       value: body.value,
-      public: body.public ?? false,
+      public: isPublic,
+      overriddable,
       created_by: 'mock-user-123',
       created_at: now,
       updated_at: now,
