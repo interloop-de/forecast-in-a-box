@@ -269,6 +269,55 @@ export const fableHandlers = [
     })
   }),
 
+  http.get(API_ENDPOINTS.fable.glyphsFunctions, async () => {
+    await delay(150)
+    return HttpResponse.json({
+      functions: [
+        {
+          name: 'add_days',
+          description: 'Add N days to a datetime: ${dt | add_days(7)}',
+          kind: 'filter',
+        },
+        {
+          name: 'sub_days',
+          description: 'Subtract N days from a datetime',
+          kind: 'filter',
+        },
+        {
+          name: 'add_hours',
+          description: 'Add N hours to a datetime',
+          kind: 'filter',
+        },
+        {
+          name: 'floor_day',
+          description: 'Truncate a datetime to the start of its day',
+          kind: 'filter',
+        },
+        {
+          name: 'floor_hour',
+          description: 'Truncate a datetime to the start of its hour',
+          kind: 'filter',
+        },
+        {
+          name: 'split',
+          description: 'Split a string by a separator: ${s | split(",")}',
+          kind: 'filter',
+        },
+        {
+          name: 'timedelta',
+          description:
+            'Construct a timedelta: ${dt + timedelta(days=1, hours=2)}',
+          kind: 'global',
+        },
+        {
+          name: 'datetime',
+          description: 'Construct a datetime literal',
+          kind: 'global',
+        },
+      ],
+    })
+  }),
+
   http.get(API_ENDPOINTS.fable.glyphsList, async ({ request }) => {
     await delay(200)
     const url = new URL(request.url)

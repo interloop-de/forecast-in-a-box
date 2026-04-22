@@ -149,6 +149,22 @@ export const GlobalGlyphResponseSchema = z.object({
 
 export type GlobalGlyphResponse = z.infer<typeof GlobalGlyphResponseSchema>
 
+/** Single entry from GET /blueprint/glyphs/functions — a Jinja filter or global. */
+export const GlyphFunctionDetailSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  kind: z.enum(['filter', 'global']),
+})
+
+export type GlyphFunctionDetail = z.infer<typeof GlyphFunctionDetailSchema>
+
+/** Response from GET /blueprint/glyphs/functions */
+export const GlyphFunctionsResponseSchema = z.object({
+  functions: z.array(GlyphFunctionDetailSchema),
+})
+
+export type GlyphFunctionsResponse = z.infer<typeof GlyphFunctionsResponseSchema>
+
 export const FableValidationExpansionSchema = z.object({
   global_errors: z.array(z.string()),
   block_errors: z.record(z.string(), z.array(z.string())),
