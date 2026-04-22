@@ -30,6 +30,7 @@ import {
   GlyphAutocomplete,
   type AutocompleteCandidate,
 } from '@/features/fable-builder/components/shared/GlyphAutocomplete'
+import { buildAutocompleteInsertion } from '@/features/fable-builder/utils/build-autocomplete-insertion'
 import {
   type GlyphContext,
   parseGlyphContext,
@@ -159,14 +160,16 @@ export function GlyphTextInput({
     (candidate: AutocompleteCandidate) => {
       if (!context) return
       const { replaceStart, replaceEnd } = context
-      // Replace the prefix (or the empty cursor span) with the candidate name.
-      // If the surrounding `${` was never closed by the user, append `}` so
-      // the expression doesn't dangle. Cursor lands right after the inserted
-      // content (after `}` if we appended one).
-      const after = value.slice(replaceEnd)
-      const needsClosingBrace = !after.includes('}')
-      const insertion = candidate.name + (needsClosingBrace ? '}' : '')
-      const newValue = value.slice(0, replaceStart) + insertion + after
+      const insertion = buildAutocompleteInsertion(
+        {
+          name: candidate.name,
+          source: candidate.source,
+          description: candidate.meta,
+        },
+        value.slice(replaceEnd),
+      )
+      const newValue =
+        value.slice(0, replaceStart) + insertion.text + value.slice(replaceEnd)
       onChange(newValue)
       setContext(null)
 
@@ -174,7 +177,7 @@ export function GlyphTextInput({
         const input = inputRef.current
         if (input) {
           input.focus()
-          const newCursor = replaceStart + insertion.length
+          const newCursor = replaceStart + insertion.cursorOffset
           input.setSelectionRange(newCursor, newCursor)
           setCursorPos(newCursor)
         }
