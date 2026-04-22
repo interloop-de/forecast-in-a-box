@@ -66,9 +66,12 @@ export function buildAutocompleteInsertion(
 
   // Variable, or a parameterless helper. Replace with the bare name and add
   // a closing `}` only if the surrounding substitution wasn't already closed.
+  // Cursor always lands right after the name (i.e. *before* the `}`) so the
+  // user can keep typing `| filter` to chain filters; pressing Right-arrow
+  // skips past the brace when they're done.
   const needsClosingBrace = !textAfterReplaceEnd.includes('}')
   return {
     text: candidate.name + (needsClosingBrace ? '}' : ''),
-    cursorOffset: candidate.name.length + (needsClosingBrace ? 1 : 0),
+    cursorOffset: candidate.name.length,
   }
 }

@@ -13,18 +13,19 @@ import { buildAutocompleteInsertion } from '@/features/fable-builder/utils/build
 
 describe('buildAutocompleteInsertion', () => {
   describe('variable picks (intrinsic / global / local)', () => {
-    it('inserts name and auto-closes `}` when substitution is not closed', () => {
+    it('inserts name, auto-closes `}`, and lands cursor BEFORE the brace for chaining', () => {
       const result = buildAutocompleteInsertion(
         { name: 'startDatetime', source: 'intrinsic' },
         '', // nothing after replaceEnd → no `}` yet
       )
       expect(result).toEqual({
         text: 'startDatetime}',
-        cursorOffset: 'startDatetime}'.length,
+        // Cursor between `e` and `}` so the user can immediately type ` | sub_days`.
+        cursorOffset: 'startDatetime'.length,
       })
     })
 
-    it('does not append `}` when one already follows', () => {
+    it('does not append `}` when one already follows; cursor still after name', () => {
       const result = buildAutocompleteInsertion(
         { name: 'myVar', source: 'global' },
         '} suffix',
@@ -41,6 +42,7 @@ describe('buildAutocompleteInsertion', () => {
         '',
       )
       expect(result.text).toBe('localKey}')
+      expect(result.cursorOffset).toBe('localKey'.length)
     })
   })
 
@@ -87,7 +89,7 @@ describe('buildAutocompleteInsertion', () => {
   })
 
   describe('helper picks without arguments', () => {
-    it('treats a no-arg filter like a variable (auto-close `}`, cursor after)', () => {
+    it('treats a no-arg filter like a variable (auto-close `}`, cursor before brace)', () => {
       const result = buildAutocompleteInsertion(
         {
           name: 'floor_day',
@@ -97,7 +99,8 @@ describe('buildAutocompleteInsertion', () => {
         '',
       )
       expect(result.text).toBe('floor_day}')
-      expect(result.cursorOffset).toBe('floor_day}'.length)
+      // Cursor between `y` and `}` so chaining a second filter is one keystroke.
+      expect(result.cursorOffset).toBe('floor_day'.length)
     })
 
     it('does not auto-close `}` when one already exists, even for a no-arg filter', () => {
