@@ -65,9 +65,9 @@ describe('canApplyFloorDay', () => {
 
   it('is false when the expression already pipes through floor_day', () => {
     expect(canApplyFloorDay('${submitDatetime | floor_day}')).toBe(false)
-    expect(canApplyFloorDay('${submitDatetime | floor_day | sub_days(2)}')).toBe(
-      false,
-    )
+    expect(
+      canApplyFloorDay('${submitDatetime | floor_day | sub_days(2)}'),
+    ).toBe(false)
   })
 
   it('is false when there is text around the expression', () => {

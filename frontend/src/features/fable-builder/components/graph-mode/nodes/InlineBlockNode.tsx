@@ -303,7 +303,6 @@ export const InlineBlockNode = memo(function ({
             </FieldErrorsContext.Provider>
           </ResolvedConfigContext.Provider>
         )}
-
       </div>
       {/* Float outside the card so node height stays stable; otherwise
           toggling errors re-measures the node and relayouts the graph. */}

@@ -166,8 +166,7 @@ export function GlyphFieldWrapper({
       ? (resolvedConfig?.[configKey] ?? null)
       : null
 
-  const showPreview =
-    resolvedPreview !== null && resolvedPreview !== value
+  const showPreview = resolvedPreview !== null && resolvedPreview !== value
 
   // Nudge when a date-typed field gets a datetime-resolving expression.
   const dateNudgeVisible =

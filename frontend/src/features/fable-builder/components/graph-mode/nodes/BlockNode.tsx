@@ -323,7 +323,6 @@ export const BlockNode = memo(function ({
             )}
           </div>
         )}
-
       </div>
       {/* Float outside the card so node height stays stable; otherwise
           toggling errors re-measures the node and relayouts the graph. */}

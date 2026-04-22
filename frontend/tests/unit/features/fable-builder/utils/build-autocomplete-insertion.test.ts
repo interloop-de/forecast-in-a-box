@@ -108,7 +108,8 @@ describe('buildAutocompleteInsertion', () => {
         {
           name: 'floor_hour',
           source: 'filter',
-          description: 'Truncate a datetime to the start of the hour: ${dt | floor_hour}',
+          description:
+            'Truncate a datetime to the start of the hour: ${dt | floor_hour}',
         },
         '} more',
       )

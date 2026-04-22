@@ -22,19 +22,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { GlyphContext } from '@/features/fable-builder/utils/glyph-expression-context'
+import type { AutocompleteCandidate } from '@/features/fable-builder/components/shared/GlyphAutocomplete'
 import { Input } from '@/components/ui/input'
 import { InputGroupInput } from '@/components/ui/input-group'
 import { useGlyphContext } from '@/features/fable-builder/context/GlyphContext'
 import { useGlyphFunctions } from '@/api/hooks/useFable'
-import {
-  GlyphAutocomplete,
-  type AutocompleteCandidate,
-} from '@/features/fable-builder/components/shared/GlyphAutocomplete'
+import { GlyphAutocomplete } from '@/features/fable-builder/components/shared/GlyphAutocomplete'
 import { buildAutocompleteInsertion } from '@/features/fable-builder/utils/build-autocomplete-insertion'
-import {
-  type GlyphContext,
-  parseGlyphContext,
-} from '@/features/fable-builder/utils/glyph-expression-context'
+import { parseGlyphContext } from '@/features/fable-builder/utils/glyph-expression-context'
 
 export interface GlyphTextInputProps {
   id: string
@@ -129,12 +125,14 @@ export function GlyphTextInput({
   const candidates = useMemo<Array<AutocompleteCandidate>>(() => {
     if (!context) return []
     if (context.kind === 'value') {
-      const fromVariables: Array<AutocompleteCandidate> = variables.map((g) => ({
-        name: g.name,
-        displayName: g.displayName,
-        meta: g.type === 'intrinsic' ? g.displayName : g.valueExample,
-        source: g.type, // 'local' | 'global' | 'intrinsic'
-      }))
+      const fromVariables: Array<AutocompleteCandidate> = variables.map(
+        (g) => ({
+          name: g.name,
+          displayName: g.displayName,
+          meta: g.type === 'intrinsic' ? g.displayName : g.valueExample,
+          source: g.type, // 'local' | 'global' | 'intrinsic'
+        }),
+      )
       const fromGlobals: Array<AutocompleteCandidate> = helperFunctions
         .filter((f) => f.kind === 'global')
         .map((f) => ({

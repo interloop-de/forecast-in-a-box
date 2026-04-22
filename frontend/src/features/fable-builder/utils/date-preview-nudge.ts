@@ -31,7 +31,11 @@ export function previewHasTimeComponent(preview: string): boolean {
     preview,
   )
   if (!match) return false
-  const [, hh, mm, ss] = match
+  const hh = match[1]
+  const mm = match[2]
+  // `match[3]` is typed as string but is actually optional (the `(\d{2})?`
+  // group in the regex). Cast so the undefined-check isn't flagged as dead.
+  const ss = match[3] as string | undefined
   if (hh === '00' && mm === '00' && (ss === undefined || ss === '00')) {
     return false
   }
@@ -47,7 +51,6 @@ export function canApplyFloorDay(value: string): boolean {
   const spans = findGlyphSpans(value)
   if (spans.length !== 1) return false
   const [span] = spans
-  if (span === undefined) return false
   if (span.start !== 0 || span.end !== value.length) return false
   if (alreadyHasFloorDay(value)) return false
   return true

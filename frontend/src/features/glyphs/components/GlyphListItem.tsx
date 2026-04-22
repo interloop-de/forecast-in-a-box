@@ -55,7 +55,7 @@ export function GlyphListItem({ glyph, onEdit }: GlyphListItemProps) {
             <code className="rounded bg-muted px-2 py-0.5 font-mono text-sm font-medium">
               {'${' + glyph.name + '}'}
             </code>
-            <span className="truncate text-xs italic text-muted-foreground">
+            <span className="truncate text-xs text-muted-foreground italic">
               {t('creator.label')} {creatorLabel}
             </span>
           </div>

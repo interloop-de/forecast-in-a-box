@@ -88,7 +88,7 @@ export function parseGlyphContext(text: string, cursor: number): GlyphContext {
   // expected at that paren depth. `value` at depth 0 is the initial state of
   // a fresh `${` expression.
   const stack: Array<{ kind: FrameKind }> = [{ kind: 'value' }]
-  const top = (): { kind: FrameKind } => stack[stack.length - 1]!
+  const top = (): { kind: FrameKind } => stack[stack.length - 1]
 
   let identifier = ''
   let identifierStart = openIdx
@@ -99,7 +99,7 @@ export function parseGlyphContext(text: string, cursor: number): GlyphContext {
 
   let i = openIdx
   while (i < cursor) {
-    const c = text[i]!
+    const c = text[i]
 
     // Mid-identifier: keep accumulating until a non-word char appears.
     if (identifier !== '') {

@@ -111,7 +111,7 @@ export function GlyphAutocomplete({
         setActiveIndex((i) => Math.max(i - 1, 0))
       } else if (e.key === 'Enter' && allItems.length > 0) {
         e.preventDefault()
-        onSelect(allItems[activeIndex]!)
+        onSelect(allItems[activeIndex])
       } else if (e.key === 'Escape') {
         e.preventDefault()
         onClose()

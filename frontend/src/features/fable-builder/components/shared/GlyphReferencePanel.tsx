@@ -34,8 +34,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import type { GlyphFunctionDetail } from '@/api/types/fable.types'
-import { useGlyphFunctions } from '@/api/hooks/useFable'
 import type { GlyphInfo } from '@/features/fable-builder/hooks/useAllGlyphs'
+import { useGlyphFunctions } from '@/api/hooks/useFable'
 import { useAllGlyphs } from '@/features/fable-builder/hooks/useAllGlyphs'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 import { GlyphFormDialog } from '@/features/glyphs/components/GlyphFormDialog'
@@ -272,7 +272,11 @@ function HelperSection({
             </div>
           ) : (
             helpers.map((fn) => (
-              <HelperRow key={`${fn.kind}:${fn.name}`} fn={fn} onCopy={onCopy} />
+              <HelperRow
+                key={`${fn.kind}:${fn.name}`}
+                fn={fn}
+                onCopy={onCopy}
+              />
             ))
           )}
         </div>

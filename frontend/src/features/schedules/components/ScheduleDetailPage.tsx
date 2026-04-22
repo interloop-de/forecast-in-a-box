@@ -285,9 +285,7 @@ export function ScheduleDetailPage() {
           label={t('detail.createdBy')}
           icon={<User className="h-4 w-4" />}
           value={
-            <span className="text-lg font-semibold">
-              {schedule.created_by}
-            </span>
+            <span className="text-lg font-semibold">{schedule.created_by}</span>
           }
         />
       </div>

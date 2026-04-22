@@ -163,7 +163,9 @@ export const GlyphFunctionsResponseSchema = z.object({
   functions: z.array(GlyphFunctionDetailSchema),
 })
 
-export type GlyphFunctionsResponse = z.infer<typeof GlyphFunctionsResponseSchema>
+export type GlyphFunctionsResponse = z.infer<
+  typeof GlyphFunctionsResponseSchema
+>
 
 export const FableValidationExpansionSchema = z.object({
   global_errors: z.array(z.string()),

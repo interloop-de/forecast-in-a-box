@@ -44,7 +44,7 @@ export function findGlyphSpans(text: string): Array<GlyphSpan> {
       let j = i + 2
       let inString: '"' | "'" | null = null
       while (j < text.length) {
-        const c = text[j]!
+        const c = text[j]
         if (inString) {
           if (c === '\\' && j + 1 < text.length) {
             j += 2
@@ -90,7 +90,10 @@ export function parseGlyphSegments(value: string): Array<GlyphSegment> {
   let lastIndex = 0
   for (const span of findGlyphSpans(value)) {
     if (span.start > lastIndex) {
-      segments.push({ text: value.slice(lastIndex, span.start), isGlyph: false })
+      segments.push({
+        text: value.slice(lastIndex, span.start),
+        isGlyph: false,
+      })
     }
     segments.push({ text: value.slice(span.start, span.end), isGlyph: true })
     lastIndex = span.end
@@ -128,7 +131,7 @@ export function hasUnterminatedGlyph(text: string): boolean {
       let inString: '"' | "'" | null = null
       let closed = false
       while (j < text.length) {
-        const c = text[j]!
+        const c = text[j]
         if (inString) {
           if (c === '\\' && j + 1 < text.length) {
             j += 2
