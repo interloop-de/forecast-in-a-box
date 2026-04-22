@@ -166,6 +166,9 @@ export function GlyphFieldWrapper({
       ? (resolvedConfig?.[configKey] ?? null)
       : null
 
+  const showPreview =
+    resolvedPreview !== null && resolvedPreview !== value
+
   // Nudge when a date-typed field gets a datetime-resolving expression.
   const dateNudgeVisible =
     isDateOnly &&
@@ -238,7 +241,10 @@ export function GlyphFieldWrapper({
         </p>
       )}
 
-      {resolvedPreview && resolvedPreview !== value && (
+      {/* In-flow so visual order reads Input → Preview → Nudge. Validation
+          is debounced 300 ms, so these appear/disappear at pause boundaries,
+          not per keystroke — an honest layout reaction, not flicker. */}
+      {showPreview && (
         <Tooltip>
           <TooltipTrigger
             render={
@@ -258,25 +264,31 @@ export function GlyphFieldWrapper({
       )}
 
       {dateNudgeVisible && (
-        <div className="mt-1 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-          <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-            <span>{t('field.datePreview.hasTime')}</span>
-            <span className="text-muted-foreground">
-              {t('field.datePreview.floorDayHint')}
-            </span>
-            {dateNudgeFixAvailable && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-6 px-2 text-xs"
-                onClick={handleApplyFloorDay}
+        <div className="mt-1 flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-2 py-1.5 text-xs text-amber-700 dark:text-amber-400">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            {t('field.datePreview.hasTime')}
+          </span>
+          {dateNudgeFixAvailable && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-6 border-amber-500/60 px-2 text-xs text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+                    onClick={handleApplyFloorDay}
+                  />
+                }
               >
                 {t('field.datePreview.floorDayAction')}
-              </Button>
-            )}
-          </div>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-64">
+                {t('field.datePreview.floorDayTooltip')}
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
       )}
     </div>

@@ -217,7 +217,12 @@ export function ConfigPanel({ catalogue }: ConfigPanelProps): React.ReactNode {
                     />
                   ))}
                 </div>
-                <GlyphReferencePanel />
+                {/* mt-10 reserves clearance for the last field's absolute
+                    preview/nudge/error stack so they don't overlap the
+                    reference panel. */}
+                <div className="mt-10">
+                  <GlyphReferencePanel />
+                </div>
               </div>
             </FieldErrorsContext.Provider>
           </ResolvedConfigContext.Provider>

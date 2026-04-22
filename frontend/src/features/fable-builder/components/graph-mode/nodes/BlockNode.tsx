@@ -324,19 +324,21 @@ export const BlockNode = memo(function ({
           </div>
         )}
 
-        {hasErrors && (
-          <Alert
-            variant="destructive"
-            className="nodrag mt-3 gap-1 px-2 py-1.5 text-xs"
-          >
-            <AlertCircle className="h-3 w-3" />
-            <AlertDescription className="line-clamp-2 text-xs">
-              {errors[0]}
-              {errors.length > 1 && ` (+${errors.length - 1} more)`}
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
+      {/* Float outside the card so node height stays stable; otherwise
+          toggling errors re-measures the node and relayouts the graph. */}
+      {hasErrors && (
+        <Alert
+          variant="destructive"
+          className="nodrag absolute top-full right-0 left-0 z-10 mt-1 gap-1 px-2 py-1.5 text-xs shadow-md"
+        >
+          <AlertCircle className="h-3 w-3" />
+          <AlertDescription className="line-clamp-2 text-xs">
+            {errors[0]}
+            {errors.length > 1 && ` (+${errors.length - 1} more)`}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {factory.inputs.map((inputName, index) => {
         const percent = ((index + 1) / (factory.inputs.length + 1)) * 100

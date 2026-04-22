@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { AlertCircle, Package } from 'lucide-react'
 import { FableBuilderHeader } from './FableBuilderHeader'
@@ -29,6 +29,8 @@ import {
 } from '@/features/fable-builder/hooks/useDraftPersistence'
 import { getPreset } from '@/features/fable-builder/presets/presets'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
+import { hasUnterminatedGlyph } from '@/features/fable-builder/utils/glyph-display'
+import { useDebounce } from '@/hooks/useDebounce'
 import { useMedia } from '@/hooks/useMedia'
 import { GlyphProvider } from '@/features/fable-builder/context/GlyphContext'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
@@ -122,12 +124,30 @@ export function FableBuilderPage({
   } = useFable(fableId ?? null)
   const { data: fableRetrieveData } = useFableRetrieve(fableId ?? null)
 
+  // Coalesce keystrokes: toValidationState rebuilds nested objects, so a
+  // per-keystroke validation would re-render every canvas node.
+  const debouncedFable = useDebounce(fable, 300)
+
+  // Skip validation while any `${` is unterminated — backend 500s on Jinja
+  // parse errors; keepPreviousData retains the last successful resolution.
+  const fableHasOpenGlyph = useMemo(() => {
+    for (const block of Object.values(debouncedFable.blocks)) {
+      for (const val of Object.values(block.configuration_values)) {
+        if (hasUnterminatedGlyph(val)) return true
+      }
+    }
+    for (const val of Object.values(debouncedFable.local_glyphs ?? {})) {
+      if (hasUnterminatedGlyph(val)) return true
+    }
+    return false
+  }, [debouncedFable])
+
   const {
     data: validationResult,
     isLoading: isValidating,
     isFetching: isRevalidating,
     error: validationError,
-  } = useFableValidation(fable)
+  } = useFableValidation(debouncedFable, !fableHasOpenGlyph)
 
   // Initialize fable state - only runs once per mount.
   // Checks for a stale draft in localStorage before loading from backend.
@@ -256,17 +276,21 @@ export function FableBuilderPage({
       >
         <FableBuilderHeader fableId={fableId} catalogue={catalogue} />
 
-        {validationError && (
-          <Alert variant="destructive" className="mx-4 mt-2">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Validation Error</AlertTitle>
-            <AlertDescription>
-              {getValidationErrorMessage(validationError)}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        {/* Absolute so toggling the banner doesn't shift the canvas — closed
+            but semantically broken expressions still 500. */}
+        <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
+          {validationError && (
+            <Alert
+              variant="destructive"
+              className="absolute top-2 right-4 left-4 z-10 shadow-lg"
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Validation Error</AlertTitle>
+              <AlertDescription>
+                {getValidationErrorMessage(validationError)}
+              </AlertDescription>
+            </Alert>
+          )}
           {step === 'edit' ? (
             <EditStep catalogue={catalogue} isDesktop={isDesktop} mode={mode} />
           ) : (

@@ -118,3 +118,42 @@ export function containsGlyphs(value: string): boolean {
 export function extractGlyphKey(ref: string): string {
   return ref.slice(2, -1)
 }
+
+/** True if the text contains a `${` with no matching `}` (string literals honoured). */
+export function hasUnterminatedGlyph(text: string): boolean {
+  let i = 0
+  while (i < text.length) {
+    if (text[i] === '$' && text[i + 1] === '{') {
+      let j = i + 2
+      let inString: '"' | "'" | null = null
+      let closed = false
+      while (j < text.length) {
+        const c = text[j]!
+        if (inString) {
+          if (c === '\\' && j + 1 < text.length) {
+            j += 2
+            continue
+          }
+          if (c === inString) inString = null
+          j++
+          continue
+        }
+        if (c === '"' || c === "'") {
+          inString = c
+          j++
+          continue
+        }
+        if (c === '}') {
+          closed = true
+          break
+        }
+        j++
+      }
+      if (!closed) return true
+      i = j + 1
+      continue
+    }
+    i++
+  }
+  return false
+}

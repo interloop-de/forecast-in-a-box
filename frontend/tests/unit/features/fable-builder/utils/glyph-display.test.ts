@@ -13,6 +13,7 @@ import {
   containsGlyphs,
   extractGlyphKey,
   findGlyphSpans,
+  hasUnterminatedGlyph,
   parseGlyphSegments,
 } from '@/features/fable-builder/utils/glyph-display'
 
@@ -118,5 +119,35 @@ describe('extractGlyphKey', () => {
 
   it('returns the full inner body for a Jinja expression', () => {
     expect(extractGlyphKey('${var | sub_days(2)}')).toBe('var | sub_days(2)')
+  })
+})
+
+describe('hasUnterminatedGlyph', () => {
+  it('returns false for a balanced expression', () => {
+    expect(hasUnterminatedGlyph('${var}')).toBe(false)
+    expect(hasUnterminatedGlyph('${var | sub_days(2)}')).toBe(false)
+  })
+
+  it('returns true for the bare opener inserted by the glyph toggle', () => {
+    expect(hasUnterminatedGlyph('${')).toBe(true)
+  })
+
+  it('returns true for partial variable names still being typed', () => {
+    expect(hasUnterminatedGlyph('${sub')).toBe(true)
+    expect(hasUnterminatedGlyph('${var | sub_d')).toBe(true)
+  })
+
+  it('returns true when only one of two expressions is closed', () => {
+    expect(hasUnterminatedGlyph('${a} and ${b')).toBe(true)
+  })
+
+  it('does not mistake a `}` inside a string literal for a closer', () => {
+    expect(hasUnterminatedGlyph('${func("a}b"')).toBe(true)
+    expect(hasUnterminatedGlyph('${func("a}b")}')).toBe(false)
+  })
+
+  it('returns false for plain text without any substitution', () => {
+    expect(hasUnterminatedGlyph('2026-04-20')).toBe(false)
+    expect(hasUnterminatedGlyph('')).toBe(false)
   })
 })

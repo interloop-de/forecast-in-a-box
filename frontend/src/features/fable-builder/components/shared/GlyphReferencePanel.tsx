@@ -83,46 +83,65 @@ export function GlyphReferencePanel() {
 
   return (
     <div className="rounded-md border border-dashed border-border bg-muted/30">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 pb-0">
-        <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-          <Braces className="h-3.5 w-3.5" />
+      {/* Header — icon-only actions so the row stays readable in a
+          narrow sidebar. Labels are preserved via tooltips. */}
+      <div className="flex items-center gap-1.5 p-3 pb-0">
+        <Braces className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="truncate text-sm font-medium text-muted-foreground">
           {t('panel.title')}
+        </span>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                className="shrink-0 text-muted-foreground/60 hover:text-muted-foreground"
+              />
+            }
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            className="max-w-80 whitespace-pre-line"
+          >
+            {t('panel.help')}
+          </TooltipContent>
+        </Tooltip>
+        <div className="ml-auto flex items-center gap-0.5">
           <Tooltip>
             <TooltipTrigger
               render={
                 <button
                   type="button"
-                  className="text-muted-foreground/60 hover:text-muted-foreground"
+                  aria-label={t('panel.addGlobal')}
+                  onClick={() => setCreateGlobalOpen(true)}
+                  className="shrink-0 rounded p-1 text-primary hover:bg-primary/10"
                 />
               }
             >
-              <HelpCircle className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" />
             </TooltipTrigger>
-            <TooltipContent
-              side="bottom"
-              className="max-w-80 whitespace-pre-line"
-            >
-              {t('panel.help')}
+            <TooltipContent side="bottom">
+              {t('panel.addGlobal')}
             </TooltipContent>
           </Tooltip>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setCreateGlobalOpen(true)}
-            className="flex items-center gap-1 text-sm text-primary hover:underline"
-          >
-            <Plus className="h-3 w-3" />
-            {t('panel.addGlobal')}
-          </button>
-          <Link
-            to="/admin/variables"
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            {t('panel.manageAll')}
-            <ExternalLink className="h-3 w-3" />
-          </Link>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Link
+                  to="/admin/variables"
+                  aria-label={t('panel.manageAll')}
+                  className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                />
+              }
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {t('panel.manageAll')}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
