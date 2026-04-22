@@ -88,6 +88,11 @@
     "switchToGlyph": "Use a variable expression",
     "switchToConcrete": "Use the value picker",
     "cannotSwitchBack": "Clear the variable expression to switch back",
-    "glyphPlaceholder": "e.g. $\\{variableName}"
+    "glyphPlaceholder": "e.g. $\\{variableName}",
+    "datePreview": {
+      "hasTime": "This is a date field — the value still carries a time component.",
+      "floorDayHint": "Consider appending `| floor_day` to truncate to midnight.",
+      "floorDayAction": "Truncate to date"
+    }
   }
 }

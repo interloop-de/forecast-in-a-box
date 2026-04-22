@@ -24,9 +24,10 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Braces } from 'lucide-react'
+import { AlertCircle, Braces } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GlyphTextInput } from './GlyphTextInput'
+import { Button } from '@/components/ui/button'
 import {
   InputGroup,
   InputGroupAddon,
@@ -41,6 +42,11 @@ import { useGlyphContext } from '@/features/fable-builder/context/GlyphContext'
 import { useResolvedConfig } from '@/features/fable-builder/context/ResolvedConfigContext'
 import { useFieldErrors } from '@/features/fable-builder/context/FieldErrorsContext'
 import { containsGlyphs } from '@/features/fable-builder/utils/glyph-display'
+import {
+  applyFloorDay,
+  canApplyFloorDay,
+  previewHasTimeComponent,
+} from '@/features/fable-builder/utils/date-preview-nudge'
 import { cn } from '@/lib/utils'
 
 export interface GlyphFieldWrapperProps {
@@ -59,6 +65,13 @@ export interface GlyphFieldWrapperProps {
    * whose values are constrained to a backend-declared set).
    */
   allowGlyphMode?: boolean
+  /**
+   * When true, the backend expects a calendar-date-only value
+   * (`YYYY-MM-DD`). If a glyph expression resolves to a datetime with a
+   * time component, the wrapper surfaces a nudge below the preview and
+   * offers a one-click `| floor_day` fix where applicable.
+   */
+  isDateOnly?: boolean
   /** The specialized widget (must use InputGroupInput or data-slot="input-group-control") */
   children: React.ReactNode
 }
@@ -74,6 +87,7 @@ export function GlyphFieldWrapper({
   disabled,
   className,
   allowGlyphMode = true,
+  isDateOnly = false,
   children,
 }: GlyphFieldWrapperProps) {
   const { t } = useTranslation('glyphs')
@@ -152,6 +166,18 @@ export function GlyphFieldWrapper({
       ? (resolvedConfig?.[configKey] ?? null)
       : null
 
+  // Nudge when a date-typed field gets a datetime-resolving expression.
+  const dateNudgeVisible =
+    isDateOnly &&
+    resolvedPreview !== null &&
+    previewHasTimeComponent(resolvedPreview)
+  const dateNudgeFixAvailable = dateNudgeVisible && canApplyFloorDay(value)
+
+  function handleApplyFloorDay() {
+    const next = applyFloorDay(value)
+    if (next !== value) onChange(next)
+  }
+
   return (
     <div className="relative">
       <InputGroup
@@ -229,6 +255,29 @@ export function GlyphFieldWrapper({
             {resolvedPreview}
           </TooltipContent>
         </Tooltip>
+      )}
+
+      {dateNudgeVisible && (
+        <div className="mt-1 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+          <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+            <span>{t('field.datePreview.hasTime')}</span>
+            <span className="text-muted-foreground">
+              {t('field.datePreview.floorDayHint')}
+            </span>
+            {dateNudgeFixAvailable && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-6 px-2 text-xs"
+                onClick={handleApplyFloorDay}
+              >
+                {t('field.datePreview.floorDayAction')}
+              </Button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
