@@ -117,7 +117,7 @@ export function GlyphReferencePanel() {
             {t('panel.addGlobal')}
           </button>
           <Link
-            to="/admin/glyphs"
+            to="/admin/variables"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             {t('panel.manageAll')}
