@@ -50,7 +50,7 @@ import { cn } from '@/lib/utils'
 
 const EMPTY_GLYPHS: Record<string, string> = {}
 
-export function GlyphReferencePanel() {
+export function GlyphReferencePanel({ className }: { className?: string }) {
   const { t } = useTranslation('glyphs')
   const localGlyphs =
     useFableBuilderStore((state) => state.fable.local_glyphs) ?? EMPTY_GLYPHS
@@ -82,7 +82,12 @@ export function GlyphReferencePanel() {
   }
 
   return (
-    <div className="rounded-md border border-dashed border-border bg-muted/30">
+    <div
+      className={cn(
+        'rounded-md border border-dashed border-border bg-muted/30',
+        className,
+      )}
+    >
       {/* Header — icon-only actions so the row stays readable in a
           narrow sidebar. Labels are preserved via tooltips. */}
       <div className="flex items-center gap-1.5 p-3 pb-0">

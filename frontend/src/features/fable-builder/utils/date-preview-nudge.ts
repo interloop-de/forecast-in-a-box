@@ -18,18 +18,18 @@
 
 import { findGlyphSpans } from '@/features/fable-builder/utils/glyph-display'
 
+/** Match `YYYY-MM-DD HH:MM` or `YYYY-MM-DDTHH:MM`; seconds optional. */
+const DATETIME_RE = /\b\d{4}-\d{2}-\d{2}[ T](\d{2}):(\d{2})(?::(\d{2}))?/
+
 /**
  * Return true if `preview` looks like a datetime with a NON-ZERO time
- * component. Accepts `YYYY-MM-DD HH:MM` and `YYYY-MM-DDTHH:MM`, optional
- * seconds. Plain `YYYY-MM-DD` and any form where the time is exactly
+ * component. Plain `YYYY-MM-DD` and any form where the time is exactly
  * midnight (`00:00`, `00:00:00`) return false — those are considered
  * date-equivalent so the nudge doesn't linger after the user applies the
  * `| floor_day` fix.
  */
 export function previewHasTimeComponent(preview: string): boolean {
-  const match = /\b\d{4}-\d{2}-\d{2}[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(
-    preview,
-  )
+  const match = DATETIME_RE.exec(preview)
   if (!match) return false
   const hh = match[1]
   const mm = match[2]

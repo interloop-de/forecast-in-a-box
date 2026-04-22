@@ -64,7 +64,6 @@ export function GlyphTextInput({
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [context, setContext] = useState<GlyphContext | null>(null)
-  const [cursorPos, setCursorPos] = useState(0)
 
   const hasAnyCandidates = variables.length > 0 || helperFunctions.length > 0
 
@@ -74,7 +73,6 @@ export function GlyphTextInput({
     if (autoTrigger && hasAnyCandidates && !value && !didAutoTrigger.current) {
       didAutoTrigger.current = true
       onChange('${')
-      setCursorPos(2)
       setContext(parseGlyphContext('${', 2))
       requestAnimationFrame(() => {
         const input = inputRef.current
@@ -102,7 +100,6 @@ export function GlyphTextInput({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value
       const pos = e.target.selectionStart ?? newValue.length
-      setCursorPos(pos)
       onChange(newValue)
       recomputeContext(newValue, pos)
     },
@@ -112,7 +109,6 @@ export function GlyphTextInput({
   const handleKeyUp = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       const pos = e.currentTarget.selectionStart ?? value.length
-      setCursorPos(pos)
       recomputeContext(value, pos)
     },
     [value, recomputeContext],
@@ -177,7 +173,6 @@ export function GlyphTextInput({
           input.focus()
           const newCursor = replaceStart + insertion.cursorOffset
           input.setSelectionRange(newCursor, newCursor)
-          setCursorPos(newCursor)
         }
       })
     },
@@ -225,9 +220,6 @@ export function GlyphTextInput({
       />
     </div>
   )
-
-  // Suppress unused-import warning if the consumer doesn't need cursorPos.
-  void cursorPos
 
   // When grouped (inside InputGroup), only render the input inline.
   // The autocomplete and resolved preview are rendered outside via the wrapper.

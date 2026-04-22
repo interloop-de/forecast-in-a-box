@@ -118,22 +118,18 @@ export function GlyphFieldWrapper({
       : fieldErrors[0]
     : null
 
-  // If no glyphs available or glyph mode is disallowed for this field type,
-  // render children directly with no InputGroup / toggle chrome. Field-level
-  // error styling still applies: wrap in a ring container when errored.
-  // Error text is absolutely positioned so it doesn't push sibling fields.
+  // No glyphs / glyph mode disabled → render children directly, only adding
+  // an error ring + absolute-positioned error text when the field is invalid.
   if (!hasGlyphs || !allowGlyphMode) {
-    if (hasFieldError) {
-      return (
-        <div className="relative">
-          <div className="rounded-md ring-1 ring-destructive">{children}</div>
-          <p className="pointer-events-none absolute top-full left-0 mt-0.5 truncate text-xs text-destructive">
-            {errorMessage}
-          </p>
-        </div>
-      )
-    }
-    return <>{children}</>
+    if (!hasFieldError) return <>{children}</>
+    return (
+      <div className="relative">
+        <div className="rounded-md ring-1 ring-destructive">{children}</div>
+        <p className="pointer-events-none absolute top-full left-0 mt-0.5 truncate text-xs text-destructive">
+          {errorMessage}
+        </p>
+      </div>
+    )
   }
 
   const valueHasGlyphs = containsGlyphs(value)
