@@ -72,6 +72,8 @@
     "noLocal": "No local glyphs.",
     "addLocalHint": "Add one to override a global value for this blueprint only.",
     "createOne": "Create one",
+    "addGlobal": "Add global glyph",
+    "manageAll": "Manage all",
     "addLocal": "Add",
     "localKeyPlaceholder": "key",
     "localValuePlaceholder": "value",

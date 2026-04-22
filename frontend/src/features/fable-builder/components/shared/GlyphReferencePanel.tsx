@@ -38,6 +38,7 @@ import { useGlyphFunctions } from '@/api/hooks/useFable'
 import type { GlyphInfo } from '@/features/fable-builder/hooks/useAllGlyphs'
 import { useAllGlyphs } from '@/features/fable-builder/hooks/useAllGlyphs'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
+import { GlyphFormDialog } from '@/features/glyphs/components/GlyphFormDialog'
 import { showToast } from '@/lib/toast'
 import { P } from '@/components/base/typography'
 import {
@@ -60,6 +61,7 @@ export function GlyphReferencePanel() {
   const [globalOpen, setGlobalOpen] = useState(true)
   const [localOpen, setLocalOpen] = useState(true)
   const [helpersOpen, setHelpersOpen] = useState(false)
+  const [createGlobalOpen, setCreateGlobalOpen] = useState(false)
 
   if (isLoading) return null
 
@@ -105,13 +107,23 @@ export function GlyphReferencePanel() {
             </TooltipContent>
           </Tooltip>
         </div>
-        <Link
-          to="/admin/glyphs"
-          className="flex items-center gap-1 text-sm text-primary hover:underline"
-        >
-          {t('panel.manage')}
-          <ExternalLink className="h-3 w-3" />
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setCreateGlobalOpen(true)}
+            className="flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            <Plus className="h-3 w-3" />
+            {t('panel.addGlobal')}
+          </button>
+          <Link
+            to="/admin/glyphs"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t('panel.manageAll')}
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
       </div>
 
       {/* Local section */}
@@ -143,9 +155,13 @@ export function GlyphReferencePanel() {
         ) : (
           <div className="px-3 pb-2 text-sm text-muted-foreground">
             {t('panel.noGlobal')}{' '}
-            <Link to="/admin/glyphs" className="text-primary hover:underline">
+            <button
+              type="button"
+              onClick={() => setCreateGlobalOpen(true)}
+              className="text-primary hover:underline"
+            >
               {t('panel.createOne')}
-            </Link>
+            </button>
           </div>
         )}
       </GlyphSection>
@@ -172,6 +188,13 @@ export function GlyphReferencePanel() {
         onToggle={() => setHelpersOpen(!helpersOpen)}
         helpers={helperFunctions}
         onCopy={handleCopyHelper}
+      />
+
+      {/* Inline create-variable dialog: stays on the canvas; mutation invalidates
+          fableKeys.globalGlyphsBase so the panel refetches automatically. */}
+      <GlyphFormDialog
+        open={createGlobalOpen}
+        onOpenChange={setCreateGlobalOpen}
       />
     </div>
   )
