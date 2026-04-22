@@ -19,6 +19,8 @@ import { AlertCircle, HelpCircle, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { GlyphDetail } from '@/api/types/fable.types'
 import { useCreateGlobalGlyph } from '@/api/hooks/useFable'
+import { useAuth } from '@/features/auth/AuthContext'
+import { useUser } from '@/hooks/useUser'
 import { showToast } from '@/lib/toast'
 import {
   Dialog,
@@ -53,6 +55,10 @@ export function GlyphFormDialog({
   editGlyph,
 }: GlyphFormDialogProps) {
   const { t } = useTranslation('glyphs')
+  const { authType } = useAuth()
+  const { data: user } = useUser()
+  // Passthrough mode treats every caller as admin (matches backend AuthContext).
+  const isAdmin = authType === 'anonymous' || (user?.is_superuser ?? false)
   const isEditing = !!editGlyph
 
   const [key, setKey] = useState(editGlyph?.name ?? '')
@@ -151,21 +157,23 @@ export function GlyphFormDialog({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="glyph-public">{t('form.public')}</Label>
-              <P className="text-sm text-muted-foreground">
-                {t('form.publicHelp')}
-              </P>
+          {isAdmin && (
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="glyph-public">{t('form.public')}</Label>
+                <P className="text-sm text-muted-foreground">
+                  {t('form.publicHelp')}
+                </P>
+              </div>
+              <Switch
+                id="glyph-public"
+                checked={isPublic}
+                onCheckedChange={handlePublicChange}
+              />
             </div>
-            <Switch
-              id="glyph-public"
-              checked={isPublic}
-              onCheckedChange={handlePublicChange}
-            />
-          </div>
+          )}
 
-          {isPublic && (
+          {isAdmin && isPublic && (
             <div className="flex items-center justify-between rounded-md border border-dashed border-border/60 bg-muted/30 p-3">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5">

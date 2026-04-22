@@ -17,6 +17,12 @@
     "key": "Key",
     "value": "Value"
   },
+  "creator": {
+    "intrinsic": "intrinsic",
+    "you": "you",
+    "passthrough": "local",
+    "label": "by"
+  },
   "actions": {
     "create": "Create Glyph",
     "edit": "Edit",
