@@ -119,11 +119,18 @@ export const GlyphListResponseSchema = z.object({
 
 export type GlyphListResponse = z.infer<typeof GlyphListResponseSchema>
 
-/** POST /blueprint/glyphs/global/post — outbound request */
+/**
+ * POST /blueprint/glyphs/global/post — outbound request.
+ *
+ * `overriddable` must be omitted (or null) when `public=false` and set to a
+ * concrete boolean when `public=true`. Non-admins may not submit `public=true`;
+ * the server returns 403 in that case.
+ */
 export interface GlobalGlyphPostRequest {
   key: string
   value: string
   public?: boolean
+  overriddable?: boolean | null
 }
 
 /** Response from global glyph endpoints */
@@ -132,6 +139,7 @@ export const GlobalGlyphResponseSchema = z.object({
   key: z.string(),
   value: z.string(),
   public: z.boolean(),
+  overriddable: z.boolean().nullable(),
   created_by: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
