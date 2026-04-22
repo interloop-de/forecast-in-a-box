@@ -116,7 +116,11 @@ export function FableBuilderPage({
 
   const isDesktop = useMedia('(min-width: 768px)')
 
-  const { data: catalogue, isLoading: catalogueLoading } = useBlockCatalogue()
+  const {
+    data: catalogue,
+    isLoading: catalogueLoading,
+    refetch: refetchCatalogue,
+  } = useBlockCatalogue()
   const {
     data: existingFable,
     isLoading: fableLoading,
@@ -264,6 +268,9 @@ export function FableBuilderPage({
     return (
       <div className="flex min-h-100 flex-col items-center justify-center gap-4">
         <P className="text-destructive">Failed to load block catalogue</P>
+        <Button variant="outline" onClick={() => refetchCatalogue()}>
+          Retry
+        </Button>
       </div>
     )
   }

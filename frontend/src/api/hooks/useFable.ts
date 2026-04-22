@@ -70,6 +70,10 @@ export function useBlockCatalogue(language?: string) {
     queryFn: () => getCatalogue(language),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    // Always refetch on mount so a previously-cached error state
+    // (e.g. the backend was still loading plugins on first visit) doesn't
+    // silently persist until the user hits F5.
+    refetchOnMount: 'always',
     retry: (failureCount, error) => {
       // Retry more on 503 (plugins temporarily unavailable after install/update)
       if (error instanceof ApiClientError && error.status === 503) {

@@ -19,6 +19,7 @@ import { Binary, Download, FileDown, Globe, Map, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { LucideIcon } from 'lucide-react'
 import { getJobResult } from '@/api/endpoints/job'
+import { useJobContentType } from '@/api/hooks/useJobs'
 import { Button } from '@/components/ui/button'
 import { P } from '@/components/base/typography'
 import { createLogger } from '@/lib/logger'
@@ -30,7 +31,6 @@ interface OutputCardProps {
   jobId: string
   taskId: string
   productName: string
-  contentType: string | null
 }
 
 const MIME_ICONS: Record<string, LucideIcon> = {
@@ -67,13 +67,11 @@ function getFileExtension(contentType: string | null): string {
   return extensions[contentType] ?? 'bin'
 }
 
-export function OutputCard({
-  jobId,
-  taskId,
-  productName,
-  contentType,
-}: OutputCardProps) {
+export function OutputCard({ jobId, taskId, productName }: OutputCardProps) {
   const { t } = useTranslation('executions')
+  // Probe the MIME type with a HEAD request so we can render the correct
+  // icon / inline preview without forcing a full download of every output.
+  const { data: contentType = null } = useJobContentType(jobId, taskId)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
