@@ -54,6 +54,15 @@
   "panel": {
     "title": "Available Glyphs",
     "manage": "Manage",
+    "helpers": {
+      "title": "Helpers",
+      "tooltip": "Custom filters and globals you can use inside ${...} expressions.",
+      "empty": "No helpers available.",
+      "filterBadge": "filter",
+      "globalBadge": "global",
+      "copyHintFilter": "Copies | {{name}} — append after a value",
+      "copyHintGlobal": "Copies {{name}}() — call directly"
+    },
     "help": "Use ${name} syntax in block configuration values to reference dynamic glyphs.\n\nIntrinsic — system-provided, always available (e.g., runId, submitDatetime). startDatetime and attemptCount update on each retry.\n\nGlobal — user-defined key-value pairs shared across fables. Manage them via the admin page.\n\nLocal — scoped to this blueprint only. Override global glyphs of the same name.\n\nContext — injected automatically per-execution (e.g., by the scheduler). Not shown here.\n\nPrecedence: Intrinsic → Global → Local → Context.\nPinned glyphs (startDatetime, attemptCount) always use the intrinsic value.",
     "intrinsic": "Intrinsic",
     "global": "Global",
