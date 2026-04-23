@@ -52,6 +52,10 @@ export const STORAGE_KEYS = {
   fable: {
     /** Favourite flags for blueprints (keyed by blueprint_id) */
     favourites: 'fiab.fable.favourites',
+    /** Auto-saved fable builder draft (debounced writes) */
+    draft: 'fiab.fable.draft',
+    /** Pipeline (form-mode) sidebar open/closed flag */
+    pipelineSidebarOpen: 'fiab.fable.pipeline-sidebar-open',
   },
 
   /**
@@ -72,6 +76,8 @@ export const STORAGE_KEYS = {
     config: 'fiab.store.config',
     /** Fable builder UI preferences */
     fableBuilder: 'fiab.store.fable-builder',
+    /** Fable builder sidebar widths (persisted separately from the main store) */
+    fableBuilderUi: 'fiab.store.fable-builder-ui',
     /** Notification center history (completed/failed task records) */
     activity: 'fiab.store.activity',
   },
