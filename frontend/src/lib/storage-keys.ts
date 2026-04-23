@@ -72,6 +72,8 @@ export const STORAGE_KEYS = {
     config: 'fiab.store.config',
     /** Fable builder UI preferences */
     fableBuilder: 'fiab.store.fable-builder',
+    /** Notification center history (completed/failed task records) */
+    activity: 'fiab.store.activity',
   },
 } as const
 
@@ -95,6 +97,7 @@ export const STORE_VERSIONS = {
   ui: 5, // v5: Default artifacts view to table
   config: 1,
   fableBuilder: 2, // v2: Removed configDisplayMode, added isMiniMapOpen
+  activity: 1,
 } as const
 
 /**
