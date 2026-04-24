@@ -39,6 +39,7 @@ export const BlockConfigurationOptionSchema = z.object({
   title: z.string(),
   description: z.string(),
   value_type: z.string(),
+  default_value: z.string().nullable().optional(),
 })
 
 export type BlockConfigurationOption = z.infer<
