@@ -205,16 +205,25 @@ describe('getDefaultValueForType', () => {
     expect(getDefaultValueForType({ type: 'float' })).toBe('0.0')
   })
 
-  it('returns ISO datetime string for datetime type', () => {
+  it('returns today at local midnight for datetime type', () => {
     const result = getDefaultValueForType({ type: 'datetime' })
-    // Should be a datetime-local compatible string (YYYY-MM-DDTHH:mm)
-    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
+    // datetime-local compatible: YYYY-MM-DDTHH:mm, time pinned to 00:00
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T00:00$/)
+    const today = new Date()
+    const y = today.getFullYear()
+    const m = String(today.getMonth() + 1).padStart(2, '0')
+    const d = String(today.getDate()).padStart(2, '0')
+    expect(result).toBe(`${y}-${m}-${d}T00:00`)
   })
 
-  it('returns ISO date string for date type', () => {
+  it('returns local today for date type', () => {
     const result = getDefaultValueForType({ type: 'date' })
-    // Should be a date string (YYYY-MM-DD)
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    const today = new Date()
+    const y = today.getFullYear()
+    const m = String(today.getMonth() + 1).padStart(2, '0')
+    const d = String(today.getDate()).padStart(2, '0')
+    expect(result).toBe(`${y}-${m}-${d}`)
   })
 
   it('returns empty string for list type', () => {

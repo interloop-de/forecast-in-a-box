@@ -35,6 +35,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { NumericInput } from '@/components/ui/numeric-input'
 import { Label } from '@/components/ui/label'
 import { useActivityStore } from '@/stores/activityStore'
 import { cn } from '@/lib/utils'
@@ -343,10 +344,8 @@ function SubmitJobForm({
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="submit-max-delay">{t('submit.maxDelay')}</Label>
-              <Input
+              <NumericInput
                 id="submit-max-delay"
-                type="number"
-                min={0}
                 value={maxDelayHours}
                 onChange={(e) => setMaxDelayHours(Number(e.target.value))}
                 className="w-32"

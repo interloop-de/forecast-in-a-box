@@ -133,11 +133,14 @@ export function getDefaultValueForType(parsedType: ParsedValueType): string {
     case 'float':
       return '0.0'
     case 'datetime':
-      // Return current datetime in ISO format for datetime-local input
-      return new Date().toISOString().slice(0, 16)
+      // Default to today at local midnight so forecast base-times land on a
+      // round hour instead of whatever wall-clock second the form opened at.
+      // datetime-local expects local time without TZ — compose from local
+      // components rather than Date.toISOString() (which is UTC).
+      return `${todayLocalDate()}T00:00`
     case 'date':
-      // Return current date in YYYY-MM-DD format
-      return new Date().toISOString().slice(0, 10)
+      // Local date (YYYY-MM-DD), not UTC — see note above.
+      return todayLocalDate()
     case 'list':
       return ''
     case 'enum':
@@ -145,4 +148,12 @@ export function getDefaultValueForType(parsedType: ParsedValueType): string {
     case 'unknown':
       return ''
   }
+}
+
+function todayLocalDate(): string {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
