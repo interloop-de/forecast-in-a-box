@@ -212,6 +212,48 @@ describe('useFableBuilderStore', () => {
       )
       expect(useFableBuilderStore.getState().isDirty).toBe(true)
     })
+
+    it('seeds configuration_values from default_value when provided', () => {
+      const factoryWithDefaults: BlockFactory = {
+        ...mockFactory,
+        configuration_options: {
+          withDefault: {
+            title: 'With Default',
+            description: 'Has a default',
+            value_type: 'int',
+            default_value: '42',
+          },
+          noDefault: {
+            title: 'No Default',
+            description: 'No default provided',
+            value_type: 'str',
+          },
+          nullDefault: {
+            title: 'Null Default',
+            description: 'Explicit null default',
+            value_type: 'str',
+            default_value: null,
+          },
+        },
+      }
+
+      let blockId = ''
+      act(() => {
+        blockId = useFableBuilderStore
+          .getState()
+          .addBlock(
+            { plugin: { store: 'ecmwf', local: 'test' }, factory: 'source' },
+            factoryWithDefaults,
+          )
+      })
+
+      const instance = useFableBuilderStore.getState().fable.blocks[blockId]
+      expect(instance.configuration_values).toEqual({
+        withDefault: '42',
+        noDefault: '',
+        nullDefault: '',
+      })
+    })
   })
 
   describe('removeBlock', () => {
