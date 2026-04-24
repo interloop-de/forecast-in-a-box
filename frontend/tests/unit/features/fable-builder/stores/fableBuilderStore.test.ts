@@ -759,6 +759,25 @@ describe('useFableBuilderStore', () => {
       act(() => useFableBuilderStore.getState().markDirty())
       expect(useFableBuilderStore.getState().isDirty).toBe(true)
     })
+
+    it('markSubmitted clears isDirty and bumps lastSavedAt without touching fableId/version', () => {
+      act(() =>
+        useFableBuilderStore.getState().setFable(mockFable, 'loaded-id-7'),
+      )
+      act(() =>
+        useFableBuilderStore.setState({ fableVersion: 3, isDirty: true }),
+      )
+
+      const before = useFableBuilderStore.getState().lastSavedAt
+      act(() => useFableBuilderStore.getState().markSubmitted())
+      const after = useFableBuilderStore.getState()
+
+      expect(after.isDirty).toBe(false)
+      expect(after.lastSavedAt).not.toBe(before)
+      expect(after.fableId).toBe('loaded-id-7')
+      expect(after.fableVersion).toBe(3)
+      expect(after.fable).toEqual(mockFable)
+    })
   })
 
   describe('reset', () => {
