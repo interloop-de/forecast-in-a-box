@@ -136,6 +136,60 @@ describe('parseValueType', () => {
       expect(parseValueType('')).toEqual({ type: 'string' })
     })
   })
+
+  describe('optional types', () => {
+    it('parses optional[int] as int with optional flag', () => {
+      expect(parseValueType('optional[int]')).toEqual({
+        type: 'int',
+        optional: true,
+      })
+    })
+
+    it('parses optional[str] as string with optional flag', () => {
+      expect(parseValueType('optional[str]')).toEqual({
+        type: 'string',
+        optional: true,
+      })
+    })
+
+    it('parses optional[float] as float with optional flag', () => {
+      expect(parseValueType('optional[float]')).toEqual({
+        type: 'float',
+        optional: true,
+      })
+    })
+
+    it('is case-insensitive', () => {
+      expect(parseValueType('Optional[Int]')).toEqual({
+        type: 'int',
+        optional: true,
+      })
+    })
+
+    it('preserves inner details (list itemType) when wrapped', () => {
+      expect(parseValueType('optional[list[int]]')).toEqual({
+        type: 'list',
+        itemType: 'int',
+        optional: true,
+      })
+    })
+
+    it('preserves enum options when wrapped', () => {
+      expect(parseValueType("optional[enum['a','b']]")).toEqual({
+        type: 'enum',
+        options: ['a', 'b'],
+        optional: true,
+      })
+    })
+
+    it('marks unknown inner as optional unknown', () => {
+      expect(parseValueType('optional[weirdo]')).toEqual({
+        type: 'unknown',
+        raw: 'weirdo',
+        optional: true,
+      })
+    })
+  })
 })
 
 describe('getDefaultValueForType', () => {

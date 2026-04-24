@@ -22,18 +22,19 @@
  * - list[str] → tag input (badges with add/remove)
  * - list[int] → tag input (badges with add/remove)
  * - enum['a','b','c'] → select dropdown
+ * - optional[T] → same widget as T, with optional=true flag
  */
 
 export type ParsedValueType =
-  | { type: 'string' }
-  | { type: 'int' }
-  | { type: 'float' }
-  | { type: 'datetime' }
-  | { type: 'date' }
-  | { type: 'list'; itemType: 'string' }
-  | { type: 'list'; itemType: 'int' }
-  | { type: 'enum'; options: Array<string> }
-  | { type: 'unknown'; raw: string }
+  | { type: 'string'; optional?: boolean }
+  | { type: 'int'; optional?: boolean }
+  | { type: 'float'; optional?: boolean }
+  | { type: 'datetime'; optional?: boolean }
+  | { type: 'date'; optional?: boolean }
+  | { type: 'list'; itemType: 'string'; optional?: boolean }
+  | { type: 'list'; itemType: 'int'; optional?: boolean }
+  | { type: 'enum'; options: Array<string>; optional?: boolean }
+  | { type: 'unknown'; raw: string; optional?: boolean }
 
 /**
  * Parse a value_type string from the backend catalogue into a structured type
@@ -43,7 +44,17 @@ export function parseValueType(valueType: string | undefined): ParsedValueType {
     return { type: 'string' }
   }
 
-  const normalized = valueType.trim().toLowerCase()
+  const trimmed = valueType.trim()
+
+  // Optional wrapper: unwrap "optional[<inner>]" and mark the result optional.
+  // Recurses so optional[int], optional[list[int]], optional[enum[...]] all work.
+  const optionalMatch = trimmed.match(/^optional\[(.+)\]$/i)
+  if (optionalMatch) {
+    const inner = parseValueType(optionalMatch[1])
+    return { ...inner, optional: true }
+  }
+
+  const normalized = trimmed.toLowerCase()
 
   // Simple types
   if (normalized === 'str' || normalized === 'string') {
