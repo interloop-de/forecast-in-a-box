@@ -83,6 +83,8 @@ function ExecutionCanvasInner({
     })
   }, [showConfig, fitView])
 
+  const isRunning = status === 'running'
+
   const { layoutedNodes, edges } = useMemo(() => {
     const nodes = fableToNodes(fable, catalogue)
     const edgeList = fableToEdges(fable, catalogue)
@@ -90,9 +92,13 @@ function ExecutionCanvasInner({
     const remapped = edgeList.map((e) => ({
       ...e,
       type: 'smoothstep' as const,
+      animated: isRunning,
+      style: isRunning
+        ? { stroke: 'rgb(245 158 11 / 0.85)', strokeWidth: 1.5 }
+        : undefined,
     }))
     return { layoutedNodes: laid, edges: remapped }
-  }, [fable, catalogue])
+  }, [fable, catalogue, isRunning])
 
   return (
     <ShowConfigContext value={showConfig}>
