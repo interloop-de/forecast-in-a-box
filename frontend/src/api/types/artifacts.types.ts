@@ -65,6 +65,34 @@ export const MlModelOverviewSchema = z.object({
 export type MlModelOverview = z.infer<typeof MlModelOverviewSchema>
 
 /**
+ * Qube node — recursive enumeration tree describing a model's output structure.
+ * `optional` because the backend may not yet expose it (graceful degradation).
+ */
+export type QubeNode = {
+  key: string
+  values: {
+    type: string
+    dtype: string
+    values: Array<string | number>
+  }
+  metadata: Record<string, unknown>
+  children: Array<QubeNode>
+}
+
+export const QubeNodeSchema: z.ZodType<QubeNode> = z.lazy(() =>
+  z.object({
+    key: z.string(),
+    values: z.object({
+      type: z.string(),
+      dtype: z.string(),
+      values: z.array(z.union([z.string(), z.number()])),
+    }),
+    metadata: z.record(z.string(), z.unknown()),
+    children: z.array(QubeNodeSchema),
+  }),
+)
+
+/**
  * ML model detail from detail endpoint (extends overview)
  */
 export const MlModelDetailSchema = MlModelOverviewSchema.extend({
@@ -73,6 +101,8 @@ export const MlModelDetailSchema = MlModelOverviewSchema.extend({
   pip_package_constraints: z.array(z.string()),
   output_characteristics: z.array(z.string()),
   input_characteristics: z.array(z.string()),
+  output_qube: QubeNodeSchema.optional(),
+  timestep: z.string().optional(),
 })
 
 export type MlModelDetail = z.infer<typeof MlModelDetailSchema>
