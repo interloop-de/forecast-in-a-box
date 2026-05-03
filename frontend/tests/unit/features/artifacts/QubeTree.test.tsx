@@ -77,6 +77,72 @@ const emptyQube: QubeNode = {
   children: [],
 }
 
+/**
+ * Mirrors the canonical example from the qubed docs — a non-AIFS qube with
+ * `class → expver → param` shape. Exercises the generic compressed-tree
+ * dispatch path.
+ */
+const genericQube: QubeNode = {
+  key: 'root',
+  values: { type: 'enum', dtype: 'str', values: ['root'] },
+  metadata: {},
+  children: [
+    {
+      key: 'class',
+      values: { type: 'enum', dtype: 'str', values: ['od'] },
+      metadata: {},
+      children: [
+        {
+          key: 'expver',
+          values: { type: 'enum', dtype: 'str', values: ['0001', '0002'] },
+          metadata: {},
+          children: [
+            {
+              key: 'foo',
+              values: { type: 'enum', dtype: 'int64', values: [1, 2] },
+              metadata: {},
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      key: 'class',
+      values: { type: 'enum', dtype: 'str', values: ['rd'] },
+      metadata: {},
+      children: [
+        {
+          key: 'expver',
+          values: { type: 'enum', dtype: 'str', values: ['0001'] },
+          metadata: {},
+          children: [
+            {
+              key: 'foo',
+              values: { type: 'enum', dtype: 'int64', values: [1, 2, 3] },
+              metadata: {},
+              children: [],
+            },
+          ],
+        },
+        {
+          key: 'expver',
+          values: { type: 'enum', dtype: 'str', values: ['0002'] },
+          metadata: {},
+          children: [
+            {
+              key: 'foo',
+              values: { type: 'enum', dtype: 'int64', values: [1, 2] },
+              metadata: {},
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
 describe('QubeTree (Dimensional Matrix)', () => {
   it('renders the matrix title and section headings', async () => {
     const screen = await renderWithProviders(<QubeTree node={sampleQube} />)
@@ -138,6 +204,37 @@ describe('QubeTree (Dimensional Matrix)', () => {
 
     await expect
       .element(screen.getByText('No output structure available'))
+      .toBeVisible()
+  })
+})
+
+describe('QubeTree (generic compressed-tree fallback)', () => {
+  it('switches to the generic tree title when no `param` dim is present', async () => {
+    const screen = await renderWithProviders(<QubeTree node={genericQube} />)
+
+    await expect.element(screen.getByText('Data Qube Tree')).toBeVisible()
+    // Matrix-only chrome should NOT be in the document.
+    expect(screen.getByText('Data Qube Matrix').elements()).toHaveLength(0)
+  })
+
+  it('compresses single-child chains onto one line', async () => {
+    const screen = await renderWithProviders(<QubeTree node={genericQube} />)
+
+    // class=od chain compresses into a single row (the docs example).
+    await expect
+      .element(screen.getByText(/class=od, expver=0001\/0002, foo=1\/2/))
+      .toBeVisible()
+  })
+
+  it('branches where the qube actually branches', async () => {
+    const screen = await renderWithProviders(<QubeTree node={genericQube} />)
+
+    // class=rd has two distinct expver branches.
+    await expect
+      .element(screen.getByText(/expver=0001, foo=1\/2\/3/))
+      .toBeVisible()
+    await expect
+      .element(screen.getByText(/expver=0002, foo=1\/2/))
       .toBeVisible()
   })
 })

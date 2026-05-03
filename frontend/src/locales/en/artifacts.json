@@ -53,6 +53,7 @@
     "noCharacteristics": "No characteristics available",
     "noOutputStructure": "No output structure available",
     "qubeMatrixTitle": "Data Qube Matrix",
+    "qubeTreeTitle": "Data Qube Tree",
     "qubePivotLabel": "Levels as rows",
     "qubeAxisParam": "param",
     "qubeAxisLevel": "level",

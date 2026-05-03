@@ -9,17 +9,19 @@
  */
 
 /**
- * QubeTree (Dimensional Matrix view)
+ * QubeTree
  *
- * Renders the model's `output_qube` as a 2-D selection matrix:
- * one section per top-level branch (e.g. Pressure Levels, Surface),
- * with parameters on the Y-axis and levels on the X-axis. A pivot
- * toggle swaps the axes so pressure levels can be read from top
- * (high altitude / low pressure) to bottom (surface / high pressure),
- * matching a vertical sounding diagram.
+ * Renders a Qube — a compressed tree of `key=value` pairs (per the qubed
+ * datacube spec) — to the user. Auto-dispatches based on shape:
  *
- * Surface branches have no level dimension and are rendered as a
- * compact parameter chip list.
+ *   - **AIFS-shaped** (top-level branches are `levtype` with `param`
+ *     children and optional `level` grandchildren): the dimensional matrix
+ *     view, with a pivot toggle.
+ *   - **Anything else**: a generic compressed-tree view mirroring the
+ *     canonical text output of `qubed.compress()` — chains of
+ *     single-child nodes are flattened onto one line as
+ *     `key=v1/v2/v3, key=v1/v2`, branching only where the qube actually
+ *     branches.
  */
 
 import { ChevronDown } from 'lucide-react'
@@ -65,9 +67,7 @@ export function QubeTree({ node, className }: QubeTreeProps) {
   const [pivoted, setPivoted] = useState(false)
   const switchId = useId()
 
-  const sections = useMemo(() => processQube(node), [node])
-
-  if (sections.length === 0) {
+  if (node.children.length === 0) {
     return (
       <P className="text-sm text-muted-foreground">
         {t('detail.noOutputStructure')}
@@ -75,6 +75,39 @@ export function QubeTree({ node, className }: QubeTreeProps) {
     )
   }
 
+  // Matrix view only makes sense when the qube has the AIFS-style param
+  // (and optional level) dimensions. Anything else falls through to the
+  // generic compressed-tree view.
+  if (isAifsShaped(node)) {
+    return (
+      <AifsMatrixView
+        node={node}
+        pivoted={pivoted}
+        switchId={switchId}
+        onPivotChange={setPivoted}
+        className={className}
+      />
+    )
+  }
+
+  return <GenericTreeView node={node} className={className} />
+}
+
+function AifsMatrixView({
+  node,
+  pivoted,
+  switchId,
+  onPivotChange,
+  className,
+}: {
+  node: QubeNode
+  pivoted: boolean
+  switchId: string
+  onPivotChange: (next: boolean) => void
+  className?: string
+}) {
+  const { t } = useTranslation('artifacts')
+  const sections = useMemo(() => processQube(node), [node])
   const hasMatrixSection = sections.some((s) => s.levels !== null)
 
   return (
@@ -93,7 +126,7 @@ export function QubeTree({ node, className }: QubeTreeProps) {
               id={switchId}
               size="sm"
               checked={pivoted}
-              onCheckedChange={setPivoted}
+              onCheckedChange={onPivotChange}
             />
           </label>
         ) : null}
@@ -105,6 +138,114 @@ export function QubeTree({ node, className }: QubeTreeProps) {
         ))}
       </div>
     </Card>
+  )
+}
+
+/**
+ * Compressed-tree renderer for any qube. Mirrors `qubed.compress()` text
+ * output: walks single-child chains and concatenates them as
+ * `key=v1/v2, key=v1/v2/v3`, branching only where the qube actually
+ * branches. Uses ASCII box-drawing for connectors.
+ */
+function GenericTreeView({
+  node,
+  className,
+}: {
+  node: QubeNode
+  className?: string
+}) {
+  const { t } = useTranslation('artifacts')
+  return (
+    <Card shadow="none" className={cn('space-y-2 p-5', className)}>
+      <P className="font-mono text-xs font-semibold tracking-wider text-foreground uppercase">
+        {t('detail.qubeTreeTitle')}
+      </P>
+      <pre className="overflow-x-auto pt-1 font-mono text-xs leading-6 text-foreground">
+        <code>
+          <span className="text-muted-foreground">root</span>
+          {'\n'}
+          {node.children.map((child, idx) => (
+            <TreeRow
+              key={`${child.key}-${idx}`}
+              node={child}
+              prefix=""
+              isLast={idx === node.children.length - 1}
+            />
+          ))}
+        </code>
+      </pre>
+    </Card>
+  )
+}
+
+function TreeRow({
+  node,
+  prefix,
+  isLast,
+}: {
+  node: QubeNode
+  prefix: string
+  isLast: boolean
+}) {
+  const { chainLabel, terminalChildren } = flattenChain(node)
+  const connector = isLast ? '└── ' : '├── '
+  const childPrefix = prefix + (isLast ? '    ' : '│   ')
+
+  return (
+    <>
+      <span className="text-muted-foreground">
+        {prefix}
+        {connector}
+      </span>
+      <span>{chainLabel}</span>
+      {'\n'}
+      {terminalChildren.map((child, idx) => (
+        <TreeRow
+          key={`${child.key}-${idx}`}
+          node={child}
+          prefix={childPrefix}
+          isLast={idx === terminalChildren.length - 1}
+        />
+      ))}
+    </>
+  )
+}
+
+/**
+ * Walk down the single-child chain starting at `node`, accumulating
+ * `key=v1/v2` segments. Stops at the first node with multiple children
+ * (or zero children); those are returned as `terminalChildren` for
+ * recursive rendering.
+ */
+function flattenChain(node: QubeNode): {
+  chainLabel: string
+  terminalChildren: ReadonlyArray<QubeNode>
+} {
+  const parts = [formatNode(node)]
+  let current = node
+  while (current.children.length === 1) {
+    current = current.children[0]
+    parts.push(formatNode(current))
+  }
+  return { chainLabel: parts.join(', '), terminalChildren: current.children }
+}
+
+function formatNode(node: QubeNode): string {
+  const values = node.values.values.map(String).join('/')
+  return `${node.key}=${values}`
+}
+
+/**
+ * AIFS shape marker: every top-level branch is keyed on `levtype`. The
+ * matrix view's projection (params on one axis, optional levels on the
+ * other) is meaningful only when the qube splits at levtype first; any
+ * other shape (e.g. `class → expver → param=N`) gets misrendered by the
+ * matrix and falls through to the generic compressed-tree view.
+ */
+function isAifsShaped(root: QubeNode): boolean {
+  return (
+    root.children.length > 0 &&
+    root.children.every((branch) => branch.key === 'levtype')
   )
 }
 
