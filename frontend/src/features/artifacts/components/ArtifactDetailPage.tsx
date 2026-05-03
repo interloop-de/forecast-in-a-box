@@ -32,7 +32,7 @@ import type {
   CompositeArtifactId,
   MlModelDetail,
 } from '@/api/types/artifacts.types'
-import { formatBytes } from '@/api/types/artifacts.types'
+import { formatBytes, isStructuredQube } from '@/api/types/artifacts.types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -199,13 +199,16 @@ export function ArtifactDetailPage({
         )}
       </div>
 
-      {/* Output Structure (qube) */}
+      {/* Output Structure (qube or legacy list) — backend may return either
+          shape under output_characteristics during the consolidation rollout. */}
       <div>
         <H2 className="mb-3 text-lg font-semibold">
           {t('detail.outputStructure')}
         </H2>
-        {detail.output_qube ? (
-          <QubeTree node={detail.output_qube} />
+        {isStructuredQube(detail.output_characteristics) ? (
+          <QubeTree node={detail.output_characteristics} />
+        ) : detail.output_characteristics.length > 0 ? (
+          <CharacteristicsCard data={detail.output_characteristics} />
         ) : (
           <P className="text-sm text-muted-foreground">
             {t('detail.outputStructurePending')}

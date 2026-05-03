@@ -138,6 +138,74 @@ const EXTENDED_SURFACE_PARAMS = [
   'tp',
 ]
 
+/**
+ * Build a non-AIFS qube fixture mirroring the canonical compressed-tree
+ * example from the qubed docs (class → expver → param). Routes the renderer
+ * to the generic compressed-tree view rather than the matrix.
+ */
+function buildGenericQube(): QubeNode {
+  return {
+    key: 'root',
+    values: { type: 'enum', dtype: 'str', values: ['root'] },
+    metadata: {},
+    children: [
+      {
+        key: 'class',
+        values: { type: 'enum', dtype: 'str', values: ['od'] },
+        metadata: {},
+        children: [
+          {
+            key: 'expver',
+            values: { type: 'enum', dtype: 'str', values: ['0001', '0002'] },
+            metadata: {},
+            children: [
+              {
+                key: 'param',
+                values: { type: 'enum', dtype: 'int64', values: [1, 2] },
+                metadata: {},
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        key: 'class',
+        values: { type: 'enum', dtype: 'str', values: ['rd'] },
+        metadata: {},
+        children: [
+          {
+            key: 'expver',
+            values: { type: 'enum', dtype: 'str', values: ['0001'] },
+            metadata: {},
+            children: [
+              {
+                key: 'param',
+                values: { type: 'enum', dtype: 'int64', values: [1, 2, 3] },
+                metadata: {},
+                children: [],
+              },
+            ],
+          },
+          {
+            key: 'expver',
+            values: { type: 'enum', dtype: 'str', values: ['0002'] },
+            metadata: {},
+            children: [
+              {
+                key: 'param',
+                values: { type: 'enum', dtype: 'int64', values: [1, 2] },
+                metadata: {},
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }
+}
+
 const mockModels: Array<MlModelDetail> = [
   {
     composite_id: {
@@ -153,18 +221,17 @@ const mockModels: Array<MlModelDetail> = [
       'ECMWF Artificial Intelligence Forecasting System (AIFS) single model for medium-range weather prediction.',
     url: 'https://www.ecmwf.int/en/forecasts/documentation-and-support',
     pip_package_constraints: ['torch>=2.0.0', 'numpy>=1.24.0'],
-    output_characteristics: [],
+    output_characteristics: buildAifsQube({
+      pressureParams: STANDARD_PRESSURE_PARAMS,
+      pressureLevels: STANDARD_PRESSURE_LEVELS,
+      surfaceParams: STANDARD_SURFACE_PARAMS,
+    }),
     input_characteristics: [
       'input_source',
       'lead_time',
       'base_time',
       'anemoi_kwargs',
     ],
-    output_qube: buildAifsQube({
-      pressureParams: STANDARD_PRESSURE_PARAMS,
-      pressureLevels: STANDARD_PRESSURE_LEVELS,
-      surfaceParams: STANDARD_SURFACE_PARAMS,
-    }),
     timestep: '6h',
   },
   {
@@ -185,18 +252,17 @@ const mockModels: Array<MlModelDetail> = [
       'torch>=2.6.0',
       'torch_geometric==2.4.0',
     ],
-    output_characteristics: [],
+    output_characteristics: buildAifsQube({
+      pressureParams: STANDARD_PRESSURE_PARAMS,
+      pressureLevels: STANDARD_PRESSURE_LEVELS,
+      surfaceParams: EXTENDED_SURFACE_PARAMS,
+    }),
     input_characteristics: [
       'input_source',
       'lead_time',
       'base_time',
       'anemoi_kwargs',
     ],
-    output_qube: buildAifsQube({
-      pressureParams: STANDARD_PRESSURE_PARAMS,
-      pressureLevels: STANDARD_PRESSURE_LEVELS,
-      surfaceParams: EXTENDED_SURFACE_PARAMS,
-    }),
     timestep: '6h',
   },
   {
@@ -217,7 +283,16 @@ const mockModels: Array<MlModelDetail> = [
       'torch>=2.6.0',
       'torch_geometric==2.4.0',
     ],
-    output_characteristics: [],
+    // Legacy list[str] shape — exercises the back-compat render path until
+    // the backend update propagates everywhere.
+    output_characteristics: [
+      '2t',
+      '10u',
+      '10v',
+      'msl',
+      'tp',
+      't @ 1000/850/700/500/250 hPa',
+    ],
     input_characteristics: [
       'input_source',
       'lead_time',
@@ -225,13 +300,6 @@ const mockModels: Array<MlModelDetail> = [
       'ensemble_number',
       'anemoi_kwargs',
     ],
-    output_qube: buildAifsQube({
-      pressureParams: STANDARD_PRESSURE_PARAMS,
-      pressureLevels: STANDARD_PRESSURE_LEVELS,
-      surfaceParams: EXTENDED_SURFACE_PARAMS.filter(
-        (p) => p !== 'swvl1' && p !== 'swvl2',
-      ),
-    }),
     timestep: '6h',
   },
   {
@@ -248,7 +316,8 @@ const mockModels: Array<MlModelDetail> = [
       'ECMWF AIFS large ensemble model for operational probabilistic weather forecasting at scale.',
     url: 'https://www.ecmwf.int/en/forecasts/documentation-and-support',
     pip_package_constraints: ['torch>=2.0.0', 'numpy>=1.24.0'],
-    output_characteristics: [],
+    // Non-AIFS-shaped qube — exercises the generic compressed-tree dispatch.
+    output_characteristics: buildGenericQube(),
     input_characteristics: [
       'input_source',
       'lead_time',
@@ -256,7 +325,6 @@ const mockModels: Array<MlModelDetail> = [
       'ensemble_number',
       'anemoi_kwargs',
     ],
-    // Intentionally no output_qube/timestep — exercises the fallback empty-state.
   },
 ]
 
@@ -319,7 +387,6 @@ export const artifactsHandlers = [
         pip_package_constraints,
         output_characteristics,
         input_characteristics,
-        output_qube,
         timestep,
         ...overview
       }) => overview,

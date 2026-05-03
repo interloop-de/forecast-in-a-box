@@ -66,7 +66,9 @@ export type MlModelOverview = z.infer<typeof MlModelOverviewSchema>
 
 /**
  * Qube node — recursive enumeration tree describing a model's output structure.
- * `optional` because the backend may not yet expose it (graceful degradation).
+ * Backend currently emits this under `output_characteristics` (replacing the legacy
+ * list[str] shape) once the matching backend update lands; until then the field
+ * still arrives as list[str] and we render the legacy bullet list.
  */
 export type QubeNode = {
   key: string
@@ -93,19 +95,37 @@ export const QubeNodeSchema: z.ZodType<QubeNode> = z.lazy(() =>
 )
 
 /**
+ * `output_characteristics` accepts either:
+ *  - the structured QubeNode (post-backend-update shape), or
+ *  - the legacy list[str] (current production backend shape).
+ * Order matters in the union — structured first so it matches preferentially.
+ */
+export const OutputCharacteristicsSchema = z.union([
+  QubeNodeSchema,
+  z.array(z.string()),
+])
+export type OutputCharacteristics = z.infer<typeof OutputCharacteristicsSchema>
+
+/**
  * ML model detail from detail endpoint (extends overview)
  */
 export const MlModelDetailSchema = MlModelOverviewSchema.extend({
   display_description: z.string(),
   url: z.string(),
   pip_package_constraints: z.array(z.string()),
-  output_characteristics: z.array(z.string()),
+  output_characteristics: OutputCharacteristicsSchema,
   input_characteristics: z.array(z.string()),
-  output_qube: QubeNodeSchema.optional(),
   timestep: z.string().optional(),
 })
 
 export type MlModelDetail = z.infer<typeof MlModelDetailSchema>
+
+/** Discriminator: did the backend return the structured qube shape? */
+export function isStructuredQube(
+  characteristics: OutputCharacteristics,
+): characteristics is QubeNode {
+  return !Array.isArray(characteristics)
+}
 
 /**
  * List models response
