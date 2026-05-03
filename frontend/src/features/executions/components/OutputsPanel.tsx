@@ -25,13 +25,11 @@ interface OutputsPanelProps {
 export function OutputsPanel({ jobId, status, outputs }: OutputsPanelProps) {
   const { t } = useTranslation('executions')
 
-  const availableIds = outputs
-    ? Object.entries(outputs.outputs)
-        .filter(([, meta]) => meta.is_available)
-        .map(([taskId]) => taskId)
+  const availableEntries = outputs
+    ? Object.entries(outputs).filter(([, meta]) => meta.is_available)
     : []
 
-  const hasResults = availableIds.length > 0
+  const hasResults = availableEntries.length > 0
   const isRunning = !isTerminalStatus(status)
 
   if (!hasResults) {
@@ -56,15 +54,16 @@ export function OutputsPanel({ jobId, status, outputs }: OutputsPanelProps) {
     <Card className="overflow-hidden">
       <div className="space-y-3 p-6">
         <P className="text-muted-foreground">
-          {t('outputs.generated')}: {availableIds.length}
+          {t('outputs.generated')}: {availableEntries.length}
         </P>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {availableIds.map((taskId) => (
+          {availableEntries.map(([taskId, meta]) => (
             <OutputCard
               key={taskId}
               jobId={jobId}
               taskId={taskId}
-              productName={taskId}
+              productName={meta.original_block}
+              mimeType={meta.mime_type}
             />
           ))}
         </div>

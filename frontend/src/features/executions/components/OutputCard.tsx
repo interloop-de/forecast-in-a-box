@@ -31,6 +31,9 @@ interface OutputCardProps {
   jobId: string
   taskId: string
   productName: string
+  /** Authoritative MIME from the run/get outputs metadata. When provided,
+   * the HEAD probe is skipped. */
+  mimeType?: string
 }
 
 interface MimeMeta {
@@ -68,17 +71,30 @@ function getMimeMeta(contentType: string | null): MimeMeta {
   return { ...UNKNOWN_META, label: contentType }
 }
 
-export function OutputCard({ jobId, taskId, productName }: OutputCardProps) {
+export function OutputCard({
+  jobId,
+  taskId,
+  productName,
+  mimeType,
+}: OutputCardProps) {
   const { t } = useTranslation('executions')
-  // Probe the MIME type with a HEAD request so we can render the correct
-  // icon / inline preview without forcing a full download of every output.
-  const { data: contentType = null } = useJobContentType(jobId, taskId)
+  // Probe the MIME type with a HEAD request only when the caller didn't already
+  // hand us an authoritative mime from the run/get outputs metadata.
+  const { data: probedContentType = null } = useJobContentType(
+    jobId,
+    mimeType ? undefined : taskId,
+  )
+  const contentType = mimeType ?? probedContentType
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   // Promoted MIME when a PNG magic sniff succeeds on an application/pickle
-  // blob. See the effect below — remove alongside that block once the
-  // backend emits correct Content-Type for image sinks.
+  // blob. Defends against two kinds of backend mislabel:
+  //   1. RunOutputMetadata.mime_type itself reporting `application/pickle`
+  //      for image bytes (raw-bytes blocks without a proper RawOutput sink).
+  //   2. The HEAD-probe path: cascade's wire encoder labels any raw bytes
+  //      as `application/pickle` regardless of content.
+  // Drop this block once both paths reliably tag image sinks correctly.
   const [sniffedContentType, setSniffedContentType] = useState<string | null>(
     null,
   )

@@ -29,7 +29,11 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router'
-import { resetJobsState } from '@tests/../mocks/data/job.data'
+import {
+  injectMockExecution,
+  mixedAvailabilityExecution,
+  resetJobsState,
+} from '@tests/../mocks/data/job.data'
 import type { AuthContextValue } from '@/features/auth/AuthContext'
 import { AuthContext } from '@/features/auth/AuthContext'
 import { ExecutionDetailPage } from '@/features/executions/components/ExecutionDetailPage'
@@ -200,6 +204,15 @@ describe('ExecutionDetailPage Integration', () => {
       await expect
         .element(screen.getByText('No outputs available yet'))
         .toBeVisible()
+    })
+
+    it('renders only is_available outputs in a mixed payload', async () => {
+      injectMockExecution(mixedAvailabilityExecution)
+      const screen = await renderDetailPage('job-mixed-005')
+      // job-mixed-005 has 1 available + 1 unavailable; the count and the
+      // available block label should reflect only the available one.
+      await expect.element(screen.getByText(/Generated: 1/)).toBeVisible()
+      await expect.element(screen.getByText('sink_available')).toBeVisible()
     })
   })
 })
