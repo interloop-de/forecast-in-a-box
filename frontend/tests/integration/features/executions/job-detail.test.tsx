@@ -209,10 +209,13 @@ describe('ExecutionDetailPage Integration', () => {
     it('renders only is_available outputs in a mixed payload', async () => {
       injectMockExecution(mixedAvailabilityExecution)
       const screen = await renderDetailPage('job-mixed-005')
-      // job-mixed-005 has 1 available + 1 unavailable; the count and the
-      // available block label should reflect only the available one.
+      // job-mixed-005 has 1 available + 1 unavailable.
       await expect.element(screen.getByText(/Generated: 1/)).toBeVisible()
-      await expect.element(screen.getByText('sink_available')).toBeVisible()
+      // sink_available appears as both the group header and the card title;
+      // .first() asserts presence without strict-mode tripping over both.
+      await expect
+        .element(screen.getByText('sink_available').first())
+        .toBeVisible()
     })
   })
 })
