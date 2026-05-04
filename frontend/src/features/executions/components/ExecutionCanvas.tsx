@@ -118,9 +118,9 @@ function ExecutionCanvasInner({
   return (
     <ShowConfigContext value={showConfig}>
       <div
-        style={{ height: `${canvasHeight}px` }}
+        style={{ minHeight: `${canvasHeight}px` }}
         className={cn(
-          'relative overflow-hidden rounded-lg',
+          'relative h-full min-h-0 flex-1 overflow-hidden rounded-lg',
           // No border — the dotted background already provides framing.
           // Status feedback comes from a soft glow halo only.
           status === 'running' && 'shadow-[0_0_12px_rgba(251,191,36,0.3)]',
