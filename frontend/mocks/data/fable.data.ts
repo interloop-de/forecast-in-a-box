@@ -138,6 +138,74 @@ export const mockCatalogue: BlockFactoryCatalogue = {
         },
         inputs: ['dataset'],
       },
+      anemoiSource: {
+        kind: 'source',
+        title: 'Anemoi model source',
+        description: 'Run an anemoi model to produce forecast data',
+        configuration_options: {
+          checkpoint: {
+            title: 'Checkpoint',
+            description: 'Model checkpoint id',
+            value_type: 'str',
+          },
+          input_source: {
+            title: 'Input source',
+            description: 'Where the model reads its initial conditions from',
+            value_type: "enumClosed['opendata', 'mars']",
+            default_value: 'opendata',
+          },
+          lead_time: {
+            title: 'Lead time',
+            description: 'Forecast length in hours',
+            value_type: 'str',
+          },
+          base_time: {
+            title: 'Base time',
+            description: 'Base time of the forecast',
+            value_type: 'datetime',
+          },
+          number: {
+            title: 'Ensemble members',
+            description: 'Number of ensemble members to run',
+            value_type: 'str',
+          },
+        },
+        inputs: [],
+      },
+      mapPlotSink: {
+        kind: 'sink',
+        title: 'Map Plot',
+        description: 'Draw parameters of the dataset as map images',
+        configuration_options: {
+          param: {
+            title: 'Parameters',
+            description: "Comma-separated parameter names like '2t,msl'",
+            value_type: 'str',
+          },
+          domain: {
+            title: 'Domain',
+            description: 'Geographic domain of the plot',
+            value_type: 'str',
+          },
+          format: {
+            title: 'Format',
+            description: 'Image format of the plot',
+            value_type: "enumClosed['png', 'pdf', 'svg']",
+            default_value: 'png',
+          },
+          groupby: {
+            title: 'Group by',
+            description: 'Dimension to group plots by',
+            value_type: 'str',
+          },
+          splitby: {
+            title: 'Split by',
+            description: 'Dimension to split plots by',
+            value_type: 'str',
+          },
+        },
+        inputs: ['dataset'],
+      },
     },
   },
 }

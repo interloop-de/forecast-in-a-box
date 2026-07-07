@@ -157,12 +157,12 @@ describe('Plugin Detail Page', () => {
         )
         .toBeInTheDocument()
 
-      // The source block button should be enabled
-      const sourceButton = screen.getByRole('button', {
+      // Source block buttons should be enabled (2 source factories)
+      const sourceButtons = screen.getByRole('button', {
         name: /Use Source in Configuration/i,
       })
-      await expect.element(sourceButton).toBeInTheDocument()
-      await expect.element(sourceButton).not.toBeDisabled()
+      await expect.element(sourceButtons.first()).not.toBeDisabled()
+      await expect.element(sourceButtons.nth(1)).not.toBeDisabled()
     })
 
     it('has disabled buttons for non-source blocks', async () => {
