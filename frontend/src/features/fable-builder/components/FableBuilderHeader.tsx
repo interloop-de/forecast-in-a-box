@@ -356,6 +356,7 @@ export function FableBuilderHeader({
                           onClick={handleRunOnce}
                           disabled={!canReview}
                           className="gap-2"
+                          data-onboarding="run-once"
                         >
                           <Play className="h-4 w-4" />
                           {t('header.runOnce')}

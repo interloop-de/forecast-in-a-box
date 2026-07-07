@@ -33,6 +33,7 @@ import {
 } from '@/features/executions/stores/executionHoverStore'
 import { P } from '@/components/base/typography'
 import { Card } from '@/components/ui/card'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { groupByKey } from '@/lib/group-by'
 import { cn } from '@/lib/utils'
 import {
@@ -359,7 +360,18 @@ export function OutputsView({
             items={visibleItems}
             runningBlockSet={runningBlockSet}
             effectiveMime={effectiveMime}
-            onOpenViewer={(item, adapter) => setActiveViewer({ item, adapter })}
+            onOpenViewer={(item, adapter) => {
+              setActiveViewer({ item, adapter })
+              // Onboarding milestone: first output of the guide's run viewed.
+              const onboarding = useOnboardingStore.getState()
+              if (
+                onboarding.status === 'active' &&
+                onboarding.firstRunJobId === jobId &&
+                !onboarding.milestones.resultViewed
+              ) {
+                onboarding.markMilestone('resultViewed')
+              }
+            }}
           />
         )}
       </div>

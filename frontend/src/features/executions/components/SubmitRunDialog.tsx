@@ -46,6 +46,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useActivityStore } from '@/stores/activityStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { stripSystemTags } from '@/lib/system-tags'
 import { cn } from '@/lib/utils'
 
@@ -172,6 +173,16 @@ function SubmitRunForm({
       })
 
       showToast.success(t('submit.title'), trimmedName || undefined)
+
+      // Onboarding milestone: remember the guide's first run to link its results.
+      const onboarding = useOnboardingStore.getState()
+      if (
+        onboarding.status === 'active' &&
+        !onboarding.milestones.runSubmitted
+      ) {
+        onboarding.setFirstRunJobId(response.run_id)
+        onboarding.markMilestone('runSubmitted')
+      }
 
       // The fable has been committed — wipe the localStorage draft so the
       // builder doesn't resurrect it next time the user lands on /configure.

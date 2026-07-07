@@ -11,7 +11,7 @@
 /** Header for authenticated pages: system status, help, and settings menu. */
 
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import {
   Blocks,
@@ -65,6 +65,7 @@ import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
 import { useStatus } from '@/api/hooks/useStatus'
 import { useUiStore } from '@/stores/uiStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { timeZoneOffsetLabel, useAppTimeZone } from '@/lib/datetime'
 
 export function AuthenticatedHeader() {
@@ -81,6 +82,7 @@ export function AuthenticatedHeader() {
   const timeZone = useAppTimeZone()
   const [tzDialogOpen, setTzDialogOpen] = useState(false)
   const { t } = useTranslation('common')
+  const navigate = useNavigate()
 
   const isAuthenticated = authType === 'authenticated'
   const isSuperuser = user?.is_superuser ?? false
@@ -89,6 +91,12 @@ export function AuthenticatedHeader() {
 
   const handleSignOut = async () => {
     await signOut()
+  }
+
+  // Reopen the setup guide (progress preserved) and go where it lives.
+  const handleOpenSetupGuide = () => {
+    useOnboardingStore.getState().reopen()
+    navigate({ to: '/dashboard' })
   }
 
   return (
@@ -134,12 +142,13 @@ export function AuthenticatedHeader() {
           {/* Activity Monitor */}
           <ActivityMonitor />
 
-          {/* Help Button */}
+          {/* Help Button — reopens the first-run setup guide */}
           <Button
             variant="ghost"
             size="icon"
             className="text-muted-foreground"
             aria-label={t('userMenu.help')}
+            onClick={handleOpenSetupGuide}
           >
             <HelpCircle className="h-5 w-5" />
           </Button>
@@ -272,7 +281,7 @@ export function AuthenticatedHeader() {
 
               {/* Help & Documentation */}
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleOpenSetupGuide}>
                   <HelpCircle className="mr-2 h-4 w-4" />
                   {t('userMenu.helpSupport')}
                 </DropdownMenuItem>

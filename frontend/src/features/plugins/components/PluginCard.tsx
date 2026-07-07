@@ -254,6 +254,8 @@ export function PluginCard({
               className="flex-1 border-primary text-primary hover:bg-primary/5"
               onClick={() => onInstall(plugin.id)}
               disabled={isInstalling}
+              data-onboarding="plugin-install"
+              data-onboarding-key={`${plugin.id.store}/${plugin.id.local}`}
             >
               {isInstalling ? (
                 <Spinner className="mr-1 h-4 w-4" />
