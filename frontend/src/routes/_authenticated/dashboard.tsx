@@ -25,13 +25,18 @@ import { ConfigPresetsSection } from '@/features/dashboard/components/ConfigPres
 import { ForecastJournal } from '@/features/dashboard/components/ForecastJournal'
 import { GettingStartedSection } from '@/features/dashboard/components/GettingStartedSection'
 import { WelcomeCard } from '@/features/dashboard/components/WelcomeCard'
+import { OnboardingChecklistCard } from '@/features/onboarding/components/OnboardingChecklistCard'
 import { cn } from '@/lib/utils'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { useUiStore } from '@/stores/uiStore'
 
 function DashboardPage() {
   const layoutMode = useUiStore((state) => state.layoutMode)
   const dashboardVariant = useUiStore((state) => state.dashboardVariant)
   const panelShadow = useUiStore((state) => state.panelShadow)
+  const onboardingActive = useOnboardingStore(
+    (state) => state.status === 'active',
+  )
 
   return (
     <div
@@ -40,14 +45,25 @@ function DashboardPage() {
         layoutMode === 'boxed' ? 'max-w-7xl' : 'max-w-none',
       )}
     >
+      {/* Row 0: First-run setup guide (only while active) */}
+      <OnboardingChecklistCard
+        variant={dashboardVariant}
+        shadow={panelShadow}
+      />
+
       {/* Row 1: Welcome + Community News */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <WelcomeCard variant={dashboardVariant} shadow={panelShadow} />
         <CommunityNewsCard variant={dashboardVariant} shadow={panelShadow} />
       </div>
 
-      {/* Row 2: Getting Started */}
-      <GettingStartedSection variant={dashboardVariant} shadow={panelShadow} />
+      {/* Row 2: Getting Started — superseded by the setup guide while active */}
+      {!onboardingActive && (
+        <GettingStartedSection
+          variant={dashboardVariant}
+          shadow={panelShadow}
+        />
+      )}
 
       {/* Row 3: My Configuration Presets */}
       <ConfigPresetsSection variant={dashboardVariant} shadow={panelShadow} />

@@ -18,6 +18,7 @@ import { useState } from 'react'
 import { AppShell } from './AppShell'
 import type { ReactNode } from 'react'
 import { NotificationBanner } from '@/components/common/NotificationBanner'
+import { NoPluginsBanner } from '@/features/onboarding/components/NoPluginsBanner'
 import { cn } from '@/lib/utils'
 import { useUiStore } from '@/stores/uiStore'
 
@@ -65,6 +66,8 @@ export function DashboardLayout({
           dashboardVariant === 'modern' && 'bg-muted/50',
         )}
       >
+        {/* App-wide "no plugins" warning — the app cannot forecast without one */}
+        <NoPluginsBanner />
         {children}
       </div>
     </AppShell>

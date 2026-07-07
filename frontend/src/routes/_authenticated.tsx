@@ -20,6 +20,7 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { OnboardingController } from '@/features/onboarding/OnboardingController'
 import { useConfigStore } from '@/stores/configStore'
 import { checkSession } from '@/api/endpoints/auth'
 import { readAnonymousId } from '@/lib/anonymous-id'
@@ -58,6 +59,8 @@ function AuthenticatedLayout() {
       notificationLinkHref="#"
     >
       <Outlet />
+      {/* First-run setup guide (welcome dialog, checklist pill, milestones) */}
+      <OnboardingController />
     </DashboardLayout>
   )
 }
