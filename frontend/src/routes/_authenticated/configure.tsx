@@ -22,6 +22,7 @@ const searchSchema = z.object({
       'ecmwf-open-data',
       'aifs-forecast',
       'aifs-dataset',
+      'first-forecast',
     ])
     .optional(),
   state: z.string().optional(),

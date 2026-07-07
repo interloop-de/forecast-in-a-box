@@ -264,7 +264,9 @@
     "aifsForecastName": "AIFS 72h Forecast",
     "aifsForecastDescription": "72-hour AIFS Open Data forecast with global PDF and European PNG map plots",
     "aifsDatasetName": "AIFS Ensemble Dataset",
-    "aifsDatasetDescription": "10-member AIFS Open Data ensemble exported as a GRIB file"
+    "aifsDatasetDescription": "10-member AIFS Open Data ensemble exported as a GRIB file",
+    "firstForecastName": "My First Forecast",
+    "firstForecastDescription": "24-hour AIFS Open Data forecast with 2 m temperature and pressure PNG maps"
   },
   "draftRestored": {
     "justNow": "just now",

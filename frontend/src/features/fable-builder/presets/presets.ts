@@ -21,6 +21,7 @@ export type PresetId =
   | 'ecmwf-open-data'
   | 'aifs-forecast'
   | 'aifs-dataset'
+  | 'first-forecast'
 
 export interface FablePreset {
   id: PresetId
@@ -328,6 +329,55 @@ function aifsDatasetPreset(): FablePreset {
 }
 
 /**
+ * The onboarding "first forecast" recipe: the smallest complete Anemoi
+ * pipeline — AIFS on open data for 24 h, 2 m temperature and MSL pressure
+ * drawn as PNG maps per step. Kept deliberately short so a new user's first
+ * run finishes quickly.
+ */
+function firstForecastPreset(): FablePreset {
+  return {
+    id: 'first-forecast',
+    name: i18n.t('configure:presets.firstForecastName'),
+    description: i18n.t('configure:presets.firstForecastDescription'),
+    fable: {
+      blocks: {
+        source_1: {
+          factory_id: {
+            plugin: ecmwfBasePlugin(),
+            factory: 'anemoiSource',
+          },
+          configuration_values: {
+            checkpoint: 'ecmwf:aifs-global-o48',
+            input_source: 'opendata',
+            lead_time: '24',
+            base_time: yesterdayBaseTime(),
+            number: '1',
+          },
+          input_ids: {},
+        },
+        transform_1: selectBlock('source_1', 'step', '6,12,18,24'),
+        sink_1: {
+          factory_id: {
+            plugin: ecmwfBasePlugin(),
+            factory: 'mapPlotSink',
+          },
+          configuration_values: {
+            param: '2t,msl',
+            domain: 'global',
+            format: 'png',
+            groupby: 'none',
+            splitby: 'step',
+          },
+          input_ids: {
+            dataset: 'transform_1',
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
  * Preset builders — each is invoked per call so date defaults reflect the
  * current day in the application timezone rather than module-load time.
  */
@@ -339,6 +389,7 @@ const PRESET_BUILDERS: Record<PresetId, () => FablePreset> = {
   'ecmwf-open-data': ecmwfOpenDataPreset,
   'aifs-forecast': aifsForecastPreset,
   'aifs-dataset': aifsDatasetPreset,
+  'first-forecast': firstForecastPreset,
 }
 
 export function getPreset(id: PresetId): FablePreset {
