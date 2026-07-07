@@ -1,0 +1,69 @@
+{
+  "welcome": {
+    "title": "Your first AI forecast is about ten minutes away",
+    "description": "Forecast in a Box lets you configure, run and visualise AI weather forecasts on your own hardware — powered by ECMWF's Anemoi models and EarthKit tooling, using free open data.",
+    "stepsIntro": "Here's the path we'll take:",
+    "learnMore": "Learn more about <anemoi>ECMWF Anemoi</anemoi> and <earthkit>ECMWF EarthKit</earthkit>.",
+    "start": "Let's go",
+    "later": "Maybe later",
+    "dontShowAgain": "Don't show this again"
+  },
+  "items": {
+    "installPlugin": {
+      "title": "Install the ECMWF plugin",
+      "description": "One plugin unlocks everything — models, data sources and map outputs.",
+      "locked": "An administrator needs to install a plugin before Forecast in a Box can forecast. The next steps unlock automatically once that's done.",
+      "action": "Go to plugins"
+    },
+    "openRecipe": {
+      "title": "Open your first forecast recipe",
+      "description": "A ready-made pipeline: AIFS reads yesterday's open data and draws temperature and pressure maps.",
+      "action": "Open the recipe"
+    },
+    "runForecast": {
+      "title": "Run it",
+      "description": "The first run also downloads the model — a few minutes, perfect for a coffee.",
+      "failed": "That run didn't finish — open the recipe and try again."
+    },
+    "viewResults": {
+      "title": "See your maps",
+      "description": "Maps appear on the run page as each step completes.",
+      "action": "Open the run"
+    }
+  },
+  "card": {
+    "title": "Getting set up",
+    "progressLabel": "{{done}} of {{total}}",
+    "menuLabel": "Setup guide options",
+    "dismiss": "Dismiss setup guide",
+    "startOver": "Start over"
+  },
+  "pill": {
+    "label": "Getting set up",
+    "expand": "Show setup guide",
+    "collapse": "Hide setup guide"
+  },
+  "popovers": {
+    "installPlugin": {
+      "title": "First, the forecasting engine",
+      "body": "Plugins provide the building blocks. The ECMWF plugin has everything you need today — click Install; it takes about a minute."
+    },
+    "runOnce": {
+      "title": "Everything's configured",
+      "body": "Press Run Once to start your forecast. The first run downloads the model, so it can take a few minutes."
+    },
+    "dismiss": "Got it"
+  },
+  "completion": {
+    "title": "That's a real AI weather forecast — and you just ran it.",
+    "description": "2-metre temperature and mean-sea-level pressure, computed from open data on your own machine.",
+    "next": "Where to next: try longer lead times or other variables in the recipe, build a pipeline from a blank canvas, or browse the presets.",
+    "reopenHint": "You can reopen this guide any time from the Help button.",
+    "done": "Done"
+  },
+  "banner": {
+    "noPluginsAdmin": "Forecast in a Box needs a plugin before it can forecast.",
+    "noPluginsAdminAction": "Install the ECMWF plugin",
+    "noPluginsUser": "Forecast in a Box needs a plugin before it can forecast — ask your administrator to install one."
+  }
+}

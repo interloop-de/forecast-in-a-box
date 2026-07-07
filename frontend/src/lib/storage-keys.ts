@@ -88,6 +88,8 @@ export const STORAGE_KEYS = {
     fableBuilderUi: 'fiab.store.fable-builder-ui',
     /** Notification center history (completed/failed task records) */
     activity: 'fiab.store.activity',
+    /** First-run onboarding progress (status, milestones, first run id) */
+    onboarding: 'fiab.store.onboarding',
   },
 } as const
 
@@ -112,6 +114,7 @@ export const STORE_VERSIONS = {
   config: 1,
   fableBuilder: 2, // v2: Removed configDisplayMode, added isMiniMapOpen
   activity: 1,
+  onboarding: 1,
 } as const
 
 /**

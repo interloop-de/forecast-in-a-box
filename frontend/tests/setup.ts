@@ -29,6 +29,7 @@ import { resetPluginsHandlerState } from '../mocks/handlers/plugins.handlers'
 import { useActivityStore } from '@/stores/activityStore'
 import { useCommandStore } from '@/stores/commandStore'
 import { useConfigStore } from '@/stores/configStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { useUiStore } from '@/stores/uiStore'
 import { useFableBuilderStore } from '@/features/fable-builder/stores/fableBuilderStore'
 import { useStatusStore } from '@/features/status/stores/statusStore'
@@ -60,6 +61,7 @@ function resetSharedState(): void {
   useStatusStore.getState().reset()
   useConfigStore.getState().resetConfig()
   useActivityStore.getState().clearAll()
+  useOnboardingStore.getState().reset()
 
   // localStorage carries both the persisted UI-preferences slice and any
   // fable-builder draft written by `useDraftPersistence`. Test files that
